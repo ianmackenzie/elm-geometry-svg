@@ -8,14 +8,14 @@
     "../src",
     "../../elm-opensolid-core/src",
     "../../elm-opensolid-linesegment/src",
-    "../../elm-opensolid-triangle/src"
+    "../../elm-opensolid-triangle/src",
+    "../../elm-opensolid-bounds/src"
   ],
   "exposed-modules": [],
   "dependencies": {
     "elm-lang/core": "4.0.0 <= v < 5.0.0",
     "elm-lang/html": "1.0.0 <= v < 2.0.0",
-    "elm-community/elm-test": "1.0.0 <= v < 2.0.0",
-    "elm-community/elm-check": "1.0.0 <= v < 2.0.0"
+    "elm-lang/svg": "1.0.0 <= v < 2.0.0"
   },
   "elm-version": "0.17.0 <= v < 0.18.0"
 }
