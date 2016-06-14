@@ -1,9 +1,14 @@
 {
   "version": "1.0.0",
-  "summary": "Template for OpenSolid projects",
-  "repository": "https://github.com/ianmackenzie/elm-opensolid-template.git",
+  "summary": "Render 2D OpenSolid types as SV",
+  "repository": "https://github.com/ianmackenzie/elm-opensolid-svg.git",
   "license": "MPL-2.0",
-  "source-directories": ["src"],
+  "source-directories": [
+    "src",
+    "../elm-opensolid-core/src",
+    "../elm-opensolid-linesegment/src",
+    "../elm-opensolid-triangle/src"
+  ],
   "exposed-modules": [],
   "dependencies": {
     "elm-lang/core": "4.0.0 <= v < 5.0.0"
