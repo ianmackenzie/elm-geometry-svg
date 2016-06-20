@@ -19,8 +19,11 @@ main =
             List.map (\index -> degrees (6 * index)) [0..15]
 
         --Raw geometry
+        polarPoint angle =
+            Point2d.fromCoordinates (fromPolar ( 300, angle ))
+
         points =
-            List.map (Point2d.polar 300) angles
+            List.map polarPoint angles
 
         lineSegments =
             List.map (LineSegment2d Point2d.origin) points
