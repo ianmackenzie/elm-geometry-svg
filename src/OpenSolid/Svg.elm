@@ -11,19 +11,29 @@ import Html exposing (Html)
 import Svg as Svg exposing (Svg, Attribute)
 import Svg.Attributes as Attributes
 import OpenSolid.Core.Types exposing (..)
+import OpenSolid.Core.Point2d as Point2d
 import OpenSolid.LineSegment.Types exposing (..)
+import OpenSolid.LineSegment2d as LineSegment2d
 import OpenSolid.Triangle.Types exposing (..)
+import OpenSolid.Triangle2d as Triangle2d
 import OpenSolid.Bounds.Types exposing (..)
+import OpenSolid.Interval as Interval
 
 
 scene2d : Interval -> Interval -> List (Svg msg) -> Html msg
-scene2d (Interval xMin xMax) (Interval yMin yMax) elements =
+scene2d xInterval yInterval elements =
     let
+        ( xMin, xMax ) =
+            Interval.endpoints xInterval
+
+        ( yMin, yMax ) =
+            Interval.endpoints yInterval
+
         width =
-            toString (xMax - xMin)
+            toString (Interval.width xInterval)
 
         height =
-            toString (yMax - yMin)
+            toString (Interval.width yInterval)
 
         viewBox =
             String.join " " [ toString xMin, toString -yMax, width, height ]
@@ -40,8 +50,11 @@ scene2d (Interval xMin xMax) (Interval yMin yMax) elements =
 
 
 point2d : List (Attribute msg) -> Point2d -> Svg msg
-point2d attributes (Point2d x y) =
+point2d attributes point =
     let
+        ( x, y ) =
+            Point2d.coordinates point
+
         cx =
             Attributes.cx (toString x)
 
@@ -52,13 +65,16 @@ point2d attributes (Point2d x y) =
 
 
 lineSegment2d : List (Attribute msg) -> LineSegment2d -> Svg msg
-lineSegment2d attributes (LineSegment2d p1 p2) =
+lineSegment2d attributes lineSegment =
     let
-        (Point2d x1 y1) =
-            p1
+        ( p1, p2 ) =
+            LineSegment2d.endpoints lineSegment
 
-        (Point2d x2 y2) =
-            p2
+        ( x1, y1 ) =
+            Point2d.coordinates p1
+
+        ( x2, y2 ) =
+            Point2d.coordinates p2
 
         commands =
             [ "M", toString x1, toString y1, "L", toString x2, toString y2 ]
@@ -70,16 +86,19 @@ lineSegment2d attributes (LineSegment2d p1 p2) =
 
 
 triangle2d : List (Attribute msg) -> Triangle2d -> Svg msg
-triangle2d attributes (Triangle2d p1 p2 p3) =
+triangle2d attributes triangle =
     let
-        (Point2d x1 y1) =
-            p1
+        ( p1, p2, p3 ) =
+            Triangle2d.vertices triangle
 
-        (Point2d x2 y2) =
-            p2
+        ( x1, y1 ) =
+            Point2d.coordinates p1
 
-        (Point2d x3 y3) =
-            p3
+        ( x2, y2 ) =
+            Point2d.coordinates p2
+
+        ( x3, y3 ) =
+            Point2d.coordinates p3
 
         commands =
             [ "M"
