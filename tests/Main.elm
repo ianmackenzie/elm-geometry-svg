@@ -20,7 +20,7 @@ main =
 
         --Raw geometry
         polarPoint angle =
-            Point2d.fromCoordinates (fromPolar ( 300, angle ))
+            Point2d (fromPolar ( 300, angle ))
 
         points =
             List.map polarPoint angles
@@ -29,7 +29,7 @@ main =
             List.map (LineSegment2d Point2d.origin) points
 
         firstTriangle =
-            Triangle2d (Point2d 300 -10) (Point2d 320 0) (Point2d 300 10)
+            Triangle2d (Point2d ( 300, -10 )) (Point2d ( 320, 0 )) (Point2d ( 300, 10 ))
 
         rotatedTriangle angle =
             Triangle2d.rotateAround Point2d.origin angle firstTriangle
