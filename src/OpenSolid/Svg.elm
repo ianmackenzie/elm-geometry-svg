@@ -17,7 +17,7 @@ import OpenSolid.LineSegment2d as LineSegment2d
 import OpenSolid.Triangle.Types exposing (..)
 import OpenSolid.Triangle2d as Triangle2d
 import OpenSolid.Bounds.Types exposing (..)
-import OpenSolid.Interval as Interval
+import OpenSolid.Bounds.Interval as Interval
 
 
 scene2d : Interval -> Interval -> List (Svg msg) -> Html msg
