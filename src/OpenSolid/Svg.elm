@@ -4,6 +4,11 @@ module OpenSolid.Svg
         , point2d
         , lineSegment2d
         , triangle2d
+        , scaleAbout
+        , rotateAround
+        , translateBy
+        , mirrorAcross
+        , placeIn
         )
 
 import String
@@ -12,6 +17,8 @@ import Svg as Svg exposing (Svg, Attribute)
 import Svg.Attributes as Attributes
 import OpenSolid.Core.Types exposing (..)
 import OpenSolid.Core.Point2d as Point2d
+import OpenSolid.Core.Direction2d as Direction2d
+import OpenSolid.Core.Frame2d as Frame2d
 import OpenSolid.LineSegment.Types exposing (..)
 import OpenSolid.LineSegment2d as LineSegment2d
 import OpenSolid.Triangle.Types exposing (..)
@@ -117,3 +124,44 @@ triangle2d attributes triangle =
             Attributes.d (String.join " " commands)
     in
         Svg.path (d :: attributes) []
+
+
+scaleAbout : Point2d -> Float -> Svg msg -> Svg msg
+scaleAbout point scale =
+    placeIn (Frame2d.scaleAbout point scale Frame2d.xy)
+
+
+rotateAround : Point2d -> Float -> Svg msg -> Svg msg
+rotateAround point angle =
+    placeIn (Frame2d.rotateAround point angle Frame2d.xy)
+
+
+translateBy : Vector2d -> Svg msg -> Svg msg
+translateBy vector =
+    placeIn (Frame2d.translateBy vector Frame2d.xy)
+
+
+mirrorAcross : Axis2d -> Svg msg -> Svg msg
+mirrorAcross axis =
+    placeIn (Frame2d.mirrorAcross axis Frame2d.xy)
+
+
+placeIn : Frame2d -> Svg msg -> Svg msg
+placeIn frame element =
+    let
+        ( px, py ) =
+            Point2d.coordinates frame.originPoint
+
+        ( x1, y1 ) =
+            Direction2d.components frame.xDirection
+
+        ( x2, y2 ) =
+            Direction2d.components frame.yDirection
+
+        components =
+            String.join " " (List.map toString [ x1, y1, x2, y2, px, py ])
+
+        transform =
+            "matrix(" ++ components ++ ")"
+    in
+        Svg.g [ Attributes.transform transform ] [ element ]

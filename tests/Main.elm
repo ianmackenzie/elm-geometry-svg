@@ -5,6 +5,8 @@ import Svg as Svg exposing (Svg, Attribute)
 import Svg.Attributes as Attributes
 import OpenSolid.Bounds.Types exposing (..)
 import OpenSolid.Core.Point2d as Point2d
+import OpenSolid.Core.Axis2d as Axis2d
+import OpenSolid.Core.Frame2d as Frame2d
 import OpenSolid.Core.Types exposing (..)
 import OpenSolid.LineSegment.Types exposing (..)
 import OpenSolid.Svg as Svg
@@ -57,6 +59,19 @@ main =
         triangleElements =
             List.map triangle2d triangles
 
+        allElements =
+            List.concat
+                [ lineElements
+                , triangleElements
+                , pointElements
+                ]
+
+        transformedGroup =
+            Svg.g [] allElements
+                |> Svg.translateBy (Vector2d ( 0, 50 ))
+                |> Svg.mirrorAcross Axis2d.x
+                |> Svg.rotateAround Point2d.origin (degrees 45)
+
         originElement =
             Svg.point2d
                 [ Attributes.r "5"
@@ -65,14 +80,6 @@ main =
                 ]
                 Point2d.origin
 
-        allElements =
-            List.concat
-                [ lineElements
-                , triangleElements
-                , pointElements
-                , [ originElement ]
-                ]
-
         -- Top level group
         defaultAttributes =
             [ Attributes.stroke "black"
@@ -80,6 +87,9 @@ main =
             ]
 
         topLevelGroup =
-            Svg.g defaultAttributes allElements
+            Svg.g defaultAttributes
+                [ transformedGroup
+                , originElement
+                ]
     in
-        Svg.scene2d (Interval -50 350) (Interval -50 350) [ topLevelGroup ]
+        Svg.scene2d (Interval -400 400) (Interval -400 400) [ topLevelGroup ]
