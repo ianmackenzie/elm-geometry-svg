@@ -98,5 +98,8 @@ main =
                 [ transformedGroup
                 , originElement
                 ]
+
+        boundingBox =
+            BoundingBox2d ( Interval ( -400, 400 ), Interval ( -400, 400 ) )
     in
-        Svg.scene2d (Interval -400 400) (Interval -400 400) [ topLevelGroup ]
+        Svg.scene2d boundingBox [ topLevelGroup ]

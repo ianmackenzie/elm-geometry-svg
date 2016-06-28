@@ -21,15 +21,19 @@ import OpenSolid.Core.Direction2d as Direction2d
 import OpenSolid.Core.Frame2d as Frame2d
 import OpenSolid.Bounds.Types exposing (..)
 import OpenSolid.Bounds.Interval as Interval
+import OpenSolid.Bounds.BoundingBox2d as BoundingBox2d
 import OpenSolid.LineSegment.Types exposing (..)
 import OpenSolid.LineSegment.LineSegment2d as LineSegment2d
 import OpenSolid.Triangle.Types exposing (..)
 import OpenSolid.Triangle.Triangle2d as Triangle2d
 
 
-scene2d : Interval -> Interval -> List (Svg msg) -> Html msg
-scene2d xInterval yInterval elements =
+scene2d : BoundingBox2d -> List (Svg msg) -> Html msg
+scene2d boundingBox elements =
     let
+        ( xInterval, yInterval ) =
+            BoundingBox2d.components boundingBox
+
         ( xMin, xMax ) =
             Interval.endpoints xInterval
 
