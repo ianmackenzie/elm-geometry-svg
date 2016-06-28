@@ -19,12 +19,12 @@ import OpenSolid.Core.Types exposing (..)
 import OpenSolid.Core.Point2d as Point2d
 import OpenSolid.Core.Direction2d as Direction2d
 import OpenSolid.Core.Frame2d as Frame2d
-import OpenSolid.LineSegment.Types exposing (..)
-import OpenSolid.LineSegment2d as LineSegment2d
-import OpenSolid.Triangle.Types exposing (..)
-import OpenSolid.Triangle2d as Triangle2d
 import OpenSolid.Bounds.Types exposing (..)
 import OpenSolid.Bounds.Interval as Interval
+import OpenSolid.LineSegment.Types exposing (..)
+import OpenSolid.LineSegment.LineSegment2d as LineSegment2d
+import OpenSolid.Triangle.Types exposing (..)
+import OpenSolid.Triangle.Triangle2d as Triangle2d
 
 
 scene2d : Interval -> Interval -> List (Svg msg) -> Html msg

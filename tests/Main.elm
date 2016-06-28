@@ -11,7 +11,7 @@ import OpenSolid.Core.Types exposing (..)
 import OpenSolid.LineSegment.Types exposing (..)
 import OpenSolid.Svg as Svg
 import OpenSolid.Triangle.Types exposing (..)
-import OpenSolid.Triangle2d as Triangle2d
+import OpenSolid.Triangle.Triangle2d as Triangle2d
 
 
 main : Html msg
@@ -27,11 +27,18 @@ main =
         points =
             List.map polarPoint angles
 
+        segmentFromOrigin point =
+            LineSegment2d ( Point2d.origin, point )
+
         lineSegments =
-            List.map (LineSegment2d Point2d.origin) points
+            List.map segmentFromOrigin points
 
         firstTriangle =
-            Triangle2d (Point2d ( 300, -10 )) (Point2d ( 320, 0 )) (Point2d ( 300, 10 ))
+            Triangle2d
+                ( Point2d ( 300, -10 )
+                , Point2d ( 320, 0 )
+                , Point2d ( 300, 10 )
+                )
 
         rotatedTriangle angle =
             Triangle2d.rotateAround Point2d.origin angle firstTriangle
