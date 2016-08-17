@@ -6,10 +6,11 @@
   "source-directories": [
     ".",
     "../src",
-    "../../elm-opensolid-core/src",
-    "../../elm-opensolid-linesegment/src",
-    "../../elm-opensolid-triangle/src",
-    "../../elm-opensolid-bounds/src"
+    "../../core/src",
+    "../../interval/src",
+    "../../bounding-box/src",
+    "../../line-segment/src",
+    "../../triangle/src"
   ],
   "exposed-modules": [],
   "dependencies": {
