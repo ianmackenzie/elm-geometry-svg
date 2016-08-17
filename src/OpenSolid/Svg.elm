@@ -133,8 +133,19 @@ triangle2d attributes triangle =
 
 
 scaleAbout : Point2d -> Float -> Svg msg -> Svg msg
-scaleAbout point scale =
-    placeIn (Frame2d.scaleAbout point scale Frame2d.xy)
+scaleAbout point scale element =
+    let
+        ( px, py ) =
+            Point2d.coordinates (Point2d.scaleAbout point scale Point2d.origin)
+
+        components =
+            String.join " "
+                (List.map toString [ scale, 0, 0, scale, px, py ])
+
+        transform =
+            "matrix(" ++ components ++ ")"
+    in
+        Svg.g [ Attributes.transform transform ] [ element ]
 
 
 rotateAround : Point2d -> Float -> Svg msg -> Svg msg
