@@ -156,13 +156,13 @@ placeIn : Frame2d -> Svg msg -> Svg msg
 placeIn frame element =
     let
         ( px, py ) =
-            Point2d.coordinates frame.originPoint
+            Point2d.coordinates (Frame2d.originPoint frame)
 
         ( x1, y1 ) =
-            Direction2d.components frame.xDirection
+            Direction2d.components (Frame2d.xDirection frame)
 
         ( x2, y2 ) =
-            Direction2d.components frame.yDirection
+            Direction2d.components (Frame2d.yDirection frame)
 
         components =
             String.join " " (List.map toString [ x1, y1, x2, y2, px, py ])
