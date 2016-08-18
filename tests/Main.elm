@@ -3,7 +3,6 @@ module Main exposing (..)
 import Html exposing (Html)
 import Svg as Svg exposing (Svg)
 import Svg.Attributes as Attributes
-import OpenSolid.Bounds.Types exposing (..)
 import OpenSolid.Core.Point2d as Point2d
 import OpenSolid.Core.Axis2d as Axis2d
 import OpenSolid.Core.Frame2d as Frame2d
@@ -99,7 +98,8 @@ main =
                 , originElement
                 ]
 
-        boundingBox =
-            BoundingBox2d ( Interval ( -400, 400 ), Interval ( -400, 400 ) )
+        topLeftFrame =
+            Frame2d.at (Point2d ( -400, 400 )) |> Frame2d.flipY
     in
-        Svg.scene2d boundingBox [ topLevelGroup ]
+        Svg.svg [ Attributes.width "800", Attributes.height "800" ]
+            [ Svg.relativeTo topLeftFrame topLevelGroup ]

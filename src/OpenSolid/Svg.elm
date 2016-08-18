@@ -1,13 +1,13 @@
 module OpenSolid.Svg
     exposing
-        ( scene2d
-        , point2d
+        ( point2d
         , lineSegment2d
         , triangle2d
         , scaleAbout
         , rotateAround
         , translateBy
         , mirrorAcross
+        , relativeTo
         , placeIn
         )
 
@@ -19,47 +19,10 @@ import OpenSolid.Core.Types exposing (..)
 import OpenSolid.Core.Point2d as Point2d
 import OpenSolid.Core.Direction2d as Direction2d
 import OpenSolid.Core.Frame2d as Frame2d
-import OpenSolid.BoundingBox.Types exposing (..)
-import OpenSolid.BoundingBox.BoundingBox2d as BoundingBox2d
 import OpenSolid.LineSegment.Types exposing (..)
 import OpenSolid.LineSegment.LineSegment2d as LineSegment2d
 import OpenSolid.Triangle.Types exposing (..)
 import OpenSolid.Triangle.Triangle2d as Triangle2d
-
-
-scene2d : BoundingBox2d -> List (Svg msg) -> Html msg
-scene2d boundingBox elements =
-    let
-        minX =
-            BoundingBox2d.minX boundingBox
-
-        maxX =
-            BoundingBox2d.maxX boundingBox
-
-        minY =
-            BoundingBox2d.minY boundingBox
-
-        maxY =
-            BoundingBox2d.maxY boundingBox
-
-        width =
-            toString (maxX - minX)
-
-        height =
-            toString (maxY - minY)
-
-        viewBox =
-            String.join " " [ toString minX, toString -maxY, width, height ]
-
-        transform =
-            "scale(1 -1)"
-    in
-        Svg.svg
-            [ Attributes.width width
-            , Attributes.height height
-            , Attributes.viewBox viewBox
-            ]
-            [ Svg.g [ Attributes.transform transform ] elements ]
 
 
 point2d : List (Attribute msg) -> Point2d -> Svg msg
@@ -161,6 +124,11 @@ translateBy vector =
 mirrorAcross : Axis2d -> Svg msg -> Svg msg
 mirrorAcross axis =
     placeIn (Frame2d.mirrorAcross axis Frame2d.xy)
+
+
+relativeTo : Frame2d -> Svg msg -> Svg msg
+relativeTo frame =
+    placeIn (Frame2d.relativeTo frame Frame2d.xy)
 
 
 placeIn : Frame2d -> Svg msg -> Svg msg
