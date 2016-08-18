@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (Html)
-import Svg as Svg exposing (Svg, Attribute)
+import Svg as Svg exposing (Svg)
 import Svg.Attributes as Attributes
 import OpenSolid.Bounds.Types exposing (..)
 import OpenSolid.Core.Point2d as Point2d
