@@ -7,11 +7,11 @@ import Html.Events as Events
 import Html.App as Html
 import Svg exposing (Svg)
 import Svg.Attributes
-import OpenSolid.Core.Types exposing (..)
-import OpenSolid.Core.Point2d as Point2d
-import OpenSolid.Core.Point3d as Point3d
-import OpenSolid.Core.Direction2d as Direction2d
-import OpenSolid.Core.Frame3d as Frame3d
+import OpenSolid.Geometry.Types exposing (..)
+import OpenSolid.Geometry.Point2d as Point2d
+import OpenSolid.Geometry.Point3d as Point3d
+import OpenSolid.Geometry.Direction2d as Direction2d
+import OpenSolid.Geometry.Frame3d as Frame3d
 import OpenSolid.Svg as Svg
 
 

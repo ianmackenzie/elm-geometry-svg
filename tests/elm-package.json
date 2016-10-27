@@ -6,11 +6,7 @@
   "source-directories": [
     ".",
     "../src",
-    "../../core/src",
-    "../../interval/src",
-    "../../bounding-box/src",
-    "../../line-segment/src",
-    "../../triangle/src"
+    "../../geometry/src"
   ],
   "exposed-modules": [],
   "dependencies": {

@@ -3,14 +3,12 @@ module Main exposing (..)
 import Html exposing (Html)
 import Svg as Svg exposing (Svg)
 import Svg.Attributes as Attributes
-import OpenSolid.Core.Point2d as Point2d
-import OpenSolid.Core.Axis2d as Axis2d
-import OpenSolid.Core.Frame2d as Frame2d
-import OpenSolid.Core.Types exposing (..)
-import OpenSolid.LineSegment.Types exposing (..)
+import OpenSolid.Geometry.Types exposing (..)
+import OpenSolid.Point2d as Point2d
+import OpenSolid.Axis2d as Axis2d
+import OpenSolid.Frame2d as Frame2d
+import OpenSolid.Triangle2d as Triangle2d
 import OpenSolid.Svg as Svg
-import OpenSolid.Triangle.Types exposing (..)
-import OpenSolid.Triangle.Triangle2d as Triangle2d
 
 
 main : Html msg

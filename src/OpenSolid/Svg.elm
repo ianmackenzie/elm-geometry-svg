@@ -15,7 +15,6 @@ import String
 import Html exposing (Html)
 import Svg as Svg exposing (Svg, Attribute)
 import Svg.Attributes as Attributes
-import OpenSolid.Core.Types exposing (..)
 import OpenSolid.Geometry.Types exposing (..)
 import OpenSolid.Point2d as Point2d
 import OpenSolid.Direction2d as Direction2d
