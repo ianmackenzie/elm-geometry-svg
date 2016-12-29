@@ -7,10 +7,11 @@ import Html.Events as Events
 import Svg exposing (Svg)
 import Svg.Attributes
 import OpenSolid.Geometry.Types exposing (..)
-import OpenSolid.Geometry.Point2d as Point2d
-import OpenSolid.Geometry.Point3d as Point3d
-import OpenSolid.Geometry.Direction2d as Direction2d
-import OpenSolid.Geometry.Frame3d as Frame3d
+import OpenSolid.Point2d as Point2d
+import OpenSolid.Point3d as Point3d
+import OpenSolid.Direction2d as Direction2d
+import OpenSolid.Frame3d as Frame3d
+import OpenSolid.Axis3d as Axis3d
 import OpenSolid.Svg as Svg
 
 
@@ -152,8 +153,8 @@ logo model =
 
         viewFrame =
             Frame3d.at (Point3d ( 0.5, 0.5, model.height / 2 ))
-                |> Frame3d.rotateAroundOwn Frame3d.zAxis model.azimuth
-                |> Frame3d.rotateAroundOwn Frame3d.yAxis (-model.elevation)
+                |> Frame3d.rotateAroundOwn Axis3d.z model.azimuth
+                |> Frame3d.rotateAroundOwn Axis3d.y (-model.elevation)
 
         to2d =
             Point3d.projectInto (Frame3d.yzSketchPlane viewFrame)
