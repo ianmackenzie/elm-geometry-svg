@@ -4,7 +4,6 @@ import String
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events as Events
-import Html.App as Html
 import Svg exposing (Svg)
 import Svg.Attributes
 import OpenSolid.Geometry.Types exposing (..)
@@ -113,7 +112,7 @@ inputField label defaultValue msg =
     Html.div []
         [ Html.label [] [ Html.text label ]
         , Html.input
-            [ Html.Attributes.type' "text"
+            [ Html.Attributes.type_ "text"
             , Html.Attributes.defaultValue (toString defaultValue)
             , Events.onInput msg
             ]
@@ -266,6 +265,6 @@ polygon attributes points =
         Svg.polygon (pointsAttribute :: attributes) []
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     Html.beginnerProgram { model = init, update = update, view = view }
