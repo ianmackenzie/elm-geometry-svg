@@ -224,13 +224,7 @@ logo model =
             face darkBlue "triangleOutline" triangleVertices
 
         elements =
-            Svg.g []
-                [ defs
-                , leftFace
-                , rightFace
-                , topFace
-                , triangleFace
-                ]
+            Svg.g [] [ defs, leftFace, rightFace, topFace, triangleFace ]
 
         topLeftFrame =
             Frame2d
