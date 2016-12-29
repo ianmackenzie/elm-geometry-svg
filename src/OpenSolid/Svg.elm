@@ -100,11 +100,10 @@ scaleAbout point scale element =
             Point2d.coordinates (Point2d.scaleAbout point scale Point2d.origin)
 
         components =
-            String.join " "
-                (List.map toString [ scale, 0, 0, scale, px, py ])
+            List.map toString [ scale, 0, 0, scale, px, py ]
 
         transform =
-            "matrix(" ++ components ++ ")"
+            "matrix(" ++ String.join " " components ++ ")"
     in
         Svg.g [ Attributes.transform transform ] [ element ]
 
@@ -142,9 +141,9 @@ placeIn frame element =
             Direction2d.components (Frame2d.yDirection frame)
 
         components =
-            String.join " " (List.map toString [ x1, y1, x2, y2, px, py ])
+            List.map toString [ x1, y1, x2, y2, px, py ]
 
         transform =
-            "matrix(" ++ components ++ ")"
+            "matrix(" ++ String.join " " components ++ ")"
     in
         Svg.g [ Attributes.transform transform ] [ element ]
