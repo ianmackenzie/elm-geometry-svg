@@ -3,6 +3,8 @@ module OpenSolid.Svg
         ( point2d
         , lineSegment2d
         , triangle2d
+        , polyline2d
+        , polygon2d
         , scaleAbout
         , rotateAround
         , translateBy
@@ -21,6 +23,8 @@ import OpenSolid.Direction2d as Direction2d
 import OpenSolid.Frame2d as Frame2d
 import OpenSolid.LineSegment2d as LineSegment2d
 import OpenSolid.Triangle2d as Triangle2d
+import OpenSolid.Polyline2d as Polyline2d
+import OpenSolid.Polygon2d as Polygon2d
 
 
 point2d : List (Attribute msg) -> Point2d -> Svg msg
@@ -38,25 +42,27 @@ point2d attributes point =
         Svg.circle (cx :: cy :: attributes) []
 
 
+coordinatesString : Point2d -> String
+coordinatesString point =
+    let
+        ( x, y ) =
+            Point2d.coordinates point
+    in
+        toString x ++ "," ++ toString y
+
+
+pointsAttribute : List Point2d -> Attribute msg
+pointsAttribute points =
+    Attributes.points (String.join " " (List.map coordinatesString points))
+
+
 lineSegment2d : List (Attribute msg) -> LineSegment2d -> Svg msg
 lineSegment2d attributes lineSegment =
     let
         ( p1, p2 ) =
             LineSegment2d.endpoints lineSegment
-
-        ( x1, y1 ) =
-            Point2d.coordinates p1
-
-        ( x2, y2 ) =
-            Point2d.coordinates p2
-
-        commands =
-            [ "M", toString x1, toString y1, "L", toString x2, toString y2 ]
-
-        d =
-            Attributes.d (String.join " " commands)
     in
-        Svg.path (d :: attributes) []
+        Svg.polyline (pointsAttribute [ p1, p2 ] :: attributes) []
 
 
 triangle2d : List (Attribute msg) -> Triangle2d -> Svg msg
@@ -64,33 +70,26 @@ triangle2d attributes triangle =
     let
         ( p1, p2, p3 ) =
             Triangle2d.vertices triangle
-
-        ( x1, y1 ) =
-            Point2d.coordinates p1
-
-        ( x2, y2 ) =
-            Point2d.coordinates p2
-
-        ( x3, y3 ) =
-            Point2d.coordinates p3
-
-        commands =
-            [ "M"
-            , toString x1
-            , toString y1
-            , "L"
-            , toString x2
-            , toString y2
-            , "L"
-            , toString x3
-            , toString y3
-            , "Z"
-            ]
-
-        d =
-            Attributes.d (String.join " " commands)
     in
-        Svg.path (d :: attributes) []
+        Svg.polygon (pointsAttribute [ p1, p2, p3 ] :: attributes) []
+
+
+polyline2d : List (Attribute msg) -> Polyline2d -> Svg msg
+polyline2d attributes polyline =
+    let
+        vertices =
+            Polyline2d.vertices polyline
+    in
+        Svg.polyline (pointsAttribute vertices :: attributes) []
+
+
+polygon2d : List (Attribute msg) -> Polygon2d -> Svg msg
+polygon2d attributes polygon =
+    let
+        vertices =
+            Polygon2d.vertices polygon
+    in
+        Svg.polygon (pointsAttribute vertices :: attributes) []
 
 
 scaleAbout : Point2d -> Float -> Svg msg -> Svg msg

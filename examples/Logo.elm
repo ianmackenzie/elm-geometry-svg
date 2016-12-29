@@ -12,6 +12,7 @@ import OpenSolid.Point3d as Point3d
 import OpenSolid.Direction2d as Direction2d
 import OpenSolid.Frame3d as Frame3d
 import OpenSolid.Axis3d as Axis3d
+import OpenSolid.Polygon2d as Polygon2d
 import OpenSolid.Svg as Svg
 
 
@@ -159,17 +160,17 @@ logo model =
         to2d =
             Point3d.projectInto (Frame3d.yzSketchPlane viewFrame)
 
-        leftVertices =
-            List.map to2d [ p1, p2, p8, p7, p6 ]
+        leftPolygon =
+            Polygon2d (List.map to2d [ p1, p2, p8, p7, p6 ])
 
-        rightVertices =
-            List.map to2d [ p2, p3, p4, p9, p8 ]
+        rightPolygon =
+            Polygon2d (List.map to2d [ p2, p3, p4, p9, p8 ])
 
-        topVertices =
-            List.map to2d [ p6, p7, p9, p4, p5 ]
+        topPolygon =
+            Polygon2d (List.map to2d [ p6, p7, p9, p4, p5 ])
 
-        triangleVertices =
-            List.map to2d [ p7, p8, p9 ]
+        trianglePolygon =
+            Polygon2d (List.map to2d [ p7, p8, p9 ])
 
         orange =
             "rgb(240, 173, 0)"
@@ -183,7 +184,7 @@ logo model =
         darkBlue =
             "rgb(90, 99, 120)"
 
-        mask id points =
+        mask id polygon =
             let
                 attributes =
                     [ Svg.Attributes.fill "white"
@@ -192,36 +193,36 @@ logo model =
                     ]
             in
                 Svg.mask [ Svg.Attributes.id id ]
-                    [ polygon attributes points ]
+                    [ Svg.polygon2d attributes polygon ]
 
-        face color clipPathId points =
+        face color clipPathId polygon =
             let
                 attributes =
                     [ Svg.Attributes.fill color
                     , Svg.Attributes.mask ("url(#" ++ clipPathId ++ ")")
                     ]
             in
-                polygon attributes points
+                Svg.polygon2d attributes polygon
 
         defs =
             Svg.defs []
-                [ mask "leftOutline" leftVertices
-                , mask "rightOutline" rightVertices
-                , mask "topOutline" topVertices
-                , mask "triangleOutline" triangleVertices
+                [ mask "leftOutline" leftPolygon
+                , mask "rightOutline" rightPolygon
+                , mask "topOutline" topPolygon
+                , mask "triangleOutline" trianglePolygon
                 ]
 
         leftFace =
-            face orange "leftOutline" leftVertices
+            face orange "leftOutline" leftPolygon
 
         rightFace =
-            face lightBlue "rightOutline" rightVertices
+            face lightBlue "rightOutline" rightPolygon
 
         topFace =
-            face green "topOutline" topVertices
+            face green "topOutline" topPolygon
 
         triangleFace =
-            face darkBlue "triangleOutline" triangleVertices
+            face darkBlue "triangleOutline" trianglePolygon
 
         elements =
             Svg.g [] [ defs, leftFace, rightFace, topFace, triangleFace ]
@@ -239,25 +240,6 @@ logo model =
     in
         Svg.svg [ Svg.Attributes.width "500", Svg.Attributes.height "500" ]
             [ scene ]
-
-
-polygon : List (Svg.Attribute msg) -> List Point2d -> Svg msg
-polygon attributes points =
-    let
-        coordinatesString point =
-            let
-                ( x, y ) =
-                    Point2d.coordinates point
-            in
-                toString x ++ "," ++ toString y
-
-        pointsString =
-            String.join " " (List.map coordinatesString points)
-
-        pointsAttribute =
-            Svg.Attributes.points pointsString
-    in
-        Svg.polygon (pointsAttribute :: attributes) []
 
 
 main : Program Never Model Msg
