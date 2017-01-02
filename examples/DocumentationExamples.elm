@@ -236,13 +236,12 @@ frame2d frame =
         Svg.g []
             [ direction2d originPoint xDirection
             , direction2d originPoint yDirection
-            , Svg.point2d
-                [ Attributes.r "3"
-                , Attributes.stroke "black"
+            , Svg.circle2d
+                [ Attributes.stroke "black"
                 , Attributes.strokeWidth "0.5"
                 , Attributes.fill "white"
                 ]
-                originPoint
+                (Circle2d { centerPoint = originPoint, radius = 3 })
             ]
 
 
