@@ -118,7 +118,7 @@ scaledSvg : Svg Never
 scaledSvg =
     let
         scales =
-            [ 1.0, 1.5, 2.5 ]
+            [ 1.0, 1.5, 2.25 ]
 
         referencePoint =
             Point2d ( 100, 100 )
