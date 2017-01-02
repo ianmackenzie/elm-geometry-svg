@@ -57,7 +57,7 @@ polylineSvg =
         , Attributes.fill "none"
         , Attributes.strokeWidth "5"
         , Attributes.strokeLinecap "round"
-        , Attributes.strokeLinejoin "bevel"
+        , Attributes.strokeLinejoin "round"
         ]
         (Polyline2d
             [ Point2d ( 100, 100 )
