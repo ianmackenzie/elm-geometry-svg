@@ -10,15 +10,14 @@ import OpenSolid.Frame2d as Frame2d
 import Html exposing (Html)
 
 
-pointSvg : Svg Never
-pointSvg =
-    Svg.point2d
-        [ Attributes.r "10"
-        , Attributes.fill "orange"
+circleSvg : Svg Never
+circleSvg =
+    Svg.circle2d
+        [ Attributes.fill "orange"
         , Attributes.stroke "blue"
         , Attributes.strokeWidth "2"
         ]
-        (Point2d ( 150, 150 ))
+        (Circle2d { centerPoint = Point2d ( 150, 150 ), radius = 10 })
 
 
 lineSegmentSvg : Svg Never
@@ -86,31 +85,19 @@ polygonSvg =
         )
 
 
-crosshair : Point2d -> Svg Never
-crosshair point =
+centerPoint2d : Point2d -> Svg Never
+centerPoint2d point =
     let
         ( x, y ) =
             Point2d.coordinates point
-
-        offset =
-            6
-
-        vertical =
-            LineSegment2d
-                ( Point2d ( x, y - offset )
-                , Point2d ( x, y + offset )
-                )
-
-        horizontal =
-            LineSegment2d
-                ( Point2d ( x - offset, y )
-                , Point2d ( x + offset, y )
-                )
     in
-        Svg.g []
-            [ Svg.point2d [ Attributes.r "2", Attributes.fill "black" ] point
-            , Svg.g [ Attributes.strokeWidth "1", Attributes.stroke "black" ]
-                (List.map (Svg.lineSegment2d []) [ vertical, horizontal ])
+        Svg.g [ Attributes.stroke "black", Attributes.strokeWidth "1" ]
+            [ Svg.circle2d [ Attributes.fill "black" ]
+                (Circle2d { centerPoint = point, radius = 2 })
+            , Svg.lineSegment2d []
+                (LineSegment2d ( Point2d ( x - 6, y ), Point2d ( x + 6, y ) ))
+            , Svg.lineSegment2d []
+                (LineSegment2d ( Point2d ( x, y - 6 ), Point2d ( x, y + 6 ) ))
             ]
 
 
@@ -125,10 +112,10 @@ scaledSvg =
 
         scaledPoint : Float -> Svg Never
         scaledPoint scale =
-            Svg.scaleAbout referencePoint scale pointSvg
+            Svg.scaleAbout referencePoint scale circleSvg
     in
         Svg.g []
-            (crosshair referencePoint :: List.map scaledPoint scales)
+            (centerPoint2d referencePoint :: List.map scaledPoint scales)
 
 
 rotatedSvg : Svg Never
@@ -143,10 +130,10 @@ rotatedSvg =
 
         rotatedPoint : Float -> Svg Never
         rotatedPoint angle =
-            Svg.rotateAround referencePoint angle pointSvg
+            Svg.rotateAround referencePoint angle circleSvg
     in
         Svg.g []
-            (crosshair referencePoint :: List.map rotatedPoint angles)
+            (centerPoint2d referencePoint :: List.map rotatedPoint angles)
 
 
 translatedSvg : Svg Never
@@ -297,7 +284,7 @@ placedSvg =
 
 
 examples =
-    [ pointSvg
+    [ circleSvg
     , lineSegmentSvg
     , triangleSvg
     , polylineSvg
