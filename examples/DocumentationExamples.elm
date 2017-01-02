@@ -135,7 +135,8 @@ rotatedSvg : Svg Never
 rotatedSvg =
     let
         angles =
-            List.map degrees [ 0, 30, 60, 90, 120, 150 ]
+            List.range 0 9
+                |> List.map (\n -> degrees 30 * toFloat n)
 
         referencePoint =
             Point2d ( 200, 150 )
