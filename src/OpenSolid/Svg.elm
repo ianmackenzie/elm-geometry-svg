@@ -1,10 +1,10 @@
 module OpenSolid.Svg
     exposing
-        ( point2d
-        , lineSegment2d
+        ( lineSegment2d
         , triangle2d
         , polyline2d
         , polygon2d
+        , circle2d
         , scaleAbout
         , rotateAround
         , translateBy
@@ -45,7 +45,7 @@ coordinate system; they were all rendered with a final
 
 # Geometry
 
-@docs point2d, lineSegment2d, triangle2d, polyline2d, polygon2d
+@docs lineSegment2d, triangle2d, polyline2d, polygon2d, circle2d
 
 # Transformations
 
@@ -90,37 +90,7 @@ import OpenSolid.LineSegment2d as LineSegment2d
 import OpenSolid.Triangle2d as Triangle2d
 import OpenSolid.Polyline2d as Polyline2d
 import OpenSolid.Polygon2d as Polygon2d
-
-
-{-| Draw a single point with the given attributes. This is actually drawn as a
-`<circle>` element; the `cx` and `cy` attributes will be set from the given
-point, but you will want to set at least the `r` attribute.
-
-    pointSvg : Svg Never
-    pointSvg =
-        Svg.point2d
-            [ Attributes.r "10"
-            , Attributes.fill "orange"
-            , Attributes.stroke "blue"
-            , Attributes.strokeWidth "2"
-            ]
-            (Point2d ( 150, 150 ))
-
-![point2d](https://opensolid.github.io/images/svg/1.0/pointSvg.png)
--}
-point2d : List (Attribute msg) -> Point2d -> Svg msg
-point2d attributes point =
-    let
-        ( x, y ) =
-            Point2d.coordinates point
-
-        cx =
-            Attributes.cx (toString x)
-
-        cy =
-            Attributes.cy (toString y)
-    in
-        Svg.circle (cx :: cy :: attributes) []
+import OpenSolid.Circle2d as Circle2d
 
 
 coordinatesString : Point2d -> String
@@ -248,6 +218,41 @@ polygon2d attributes polygon =
             Polygon2d.vertices polygon
     in
         Svg.polygon (pointsAttribute vertices :: attributes) []
+
+
+{-| Draw a `Circle2d` as an SVG `<circle>` with the given attributes.
+
+    circleSvg : Svg Never
+    circleSvg =
+        Svg.circle2d
+            [ Attributes.fill "orange"
+            , Attributes.stroke "blue"
+            , Attributes.strokeWidth "2"
+            ]
+            (Circle2d
+                { centerPoint = Point2d ( 150, 150 )
+                , radius = 10
+                }
+            )
+
+![circle2d](https://opensolid.github.io/images/svg/1.0/circleSvg.png)
+-}
+circle2d : List (Attribute msg) -> Circle2d -> Svg msg
+circle2d attributes circle =
+    let
+        ( x, y ) =
+            Point2d.coordinates (Circle2d.centerPoint circle)
+
+        cx =
+            Attributes.cx (toString x)
+
+        cy =
+            Attributes.cy (toString y)
+
+        r =
+            Attributes.r (toString (Circle2d.radius circle))
+    in
+        Svg.circle (cx :: cy :: r :: attributes) []
 
 
 {-| Scale arbitrary SVG around a given point by a given scale.
