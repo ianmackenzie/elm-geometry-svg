@@ -16,9 +16,7 @@ module OpenSolid.Svg
 {-| Draw SVG using OpenSolid data types. In general, these functions handle
 transforming OpenSolid geometry into SVG elements with the necessary geometric
 attributes, but in most cases you will have to add some non-geometric attributes
-yourself. For example, the `polygon2d` function creates a `<polygon>` element
-with a `points` attribute, but you need to set your own `stroke` and `fill`
-attributes.
+yourself such as `fill`, `stroke`, or `strokeWidth`.
 
 # Reading this documentation
 
