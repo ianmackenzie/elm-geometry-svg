@@ -275,12 +275,7 @@ placedSvg =
                 |> Frame2d.rotateBy (degrees -30)
             ]
     in
-        Svg.g []
-            [ Svg.g []
-                (List.map frame2d frames)
-            , Svg.g []
-                (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
-            ]
+        Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
 
 
 examples =
