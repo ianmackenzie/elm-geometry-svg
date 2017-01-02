@@ -82,7 +82,6 @@ conversion transformations to be applied to arbitrary SVG elements.
 -}
 
 import String
-import Html exposing (Html)
 import Svg as Svg exposing (Svg, Attribute)
 import Svg.Attributes as Attributes
 import OpenSolid.Geometry.Types exposing (..)
