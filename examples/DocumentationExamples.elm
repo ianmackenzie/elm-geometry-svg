@@ -17,7 +17,11 @@ circleSvg =
         , Attributes.stroke "blue"
         , Attributes.strokeWidth "2"
         ]
-        (Circle2d { centerPoint = Point2d ( 150, 150 ), radius = 10 })
+        (Circle2d
+            { centerPoint = Point2d ( 150, 150 )
+            , radius = 10
+            }
+        )
 
 
 lineSegmentSvg : Svg Never
@@ -115,7 +119,9 @@ scaledSvg =
             Svg.scaleAbout referencePoint scale circleSvg
     in
         Svg.g []
-            (centerPoint2d referencePoint :: List.map scaledPoint scales)
+            (centerPoint2d referencePoint
+                :: List.map scaledPoint scales
+            )
 
 
 rotatedSvg : Svg Never
@@ -133,7 +139,9 @@ rotatedSvg =
             Svg.rotateAround referencePoint angle circleSvg
     in
         Svg.g []
-            (centerPoint2d referencePoint :: List.map rotatedPoint angles)
+            (centerPoint2d referencePoint
+                :: List.map rotatedPoint angles
+            )
 
 
 translatedSvg : Svg Never
