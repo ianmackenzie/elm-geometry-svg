@@ -18,7 +18,7 @@ transforming OpenSolid geometry into SVG elements with the necessary geometric
 attributes, but in most cases you will have to add some non-geometric attributes
 yourself such as `fill`, `stroke`, or `strokeWidth`.
 
-# Reading this documentation
+## Reading this documentation
 
 For the examples, assume that the following imports are present:
 
