@@ -169,7 +169,7 @@ triangle2d attributes triangle =
             , Attributes.fill "none"
             , Attributes.strokeWidth "5"
             , Attributes.strokeLinecap "round"
-            , Attributes.strokeLinejoin "bevel"
+            , Attributes.strokeLinejoin "round"
             ]
             (Polyline2d
                 [ Point2d ( 100, 100 )
@@ -261,17 +261,19 @@ circle2d attributes circle =
     scaledSvg =
         let
             scales =
-                [ 1.0, 1.5, 2.5 ]
+                [ 1.0, 1.5, 2.25 ]
 
             referencePoint =
                 Point2d ( 100, 100 )
 
             scaledPoint : Float -> Svg Never
             scaledPoint scale =
-                Svg.scaleAbout referencePoint scale pointSvg
+                Svg.scaleAbout referencePoint scale circleSvg
         in
             Svg.g []
-                (crosshair referencePoint :: List.map scaledPoint scales)
+                (centerPoint2d referencePoint
+                    :: List.map scaledPoint scales
+                )
 
 ![scaleAbout](https://opensolid.github.io/images/svg/1.0/scaledSvg.png)
 -}
@@ -296,17 +298,20 @@ scaleAbout point scale element =
     rotatedSvg =
         let
             angles =
-                List.map degrees [ 0, 30, 60, 90, 120, 150 ]
+                List.range 0 9
+                    |> List.map (\n -> degrees 30 * toFloat n)
 
             referencePoint =
                 Point2d ( 200, 150 )
 
             rotatedPoint : Float -> Svg Never
             rotatedPoint angle =
-                Svg.rotateAround referencePoint angle pointSvg
+                Svg.rotateAround referencePoint angle circleSvg
         in
             Svg.g []
-                (crosshair referencePoint :: List.map rotatedPoint angles)
+                (centerPoint2d referencePoint
+                    :: List.map rotatedPoint angles
+                )
 
 ![rotateAround](https://opensolid.github.io/images/svg/1.0/rotatedSvg.png)
 -}
@@ -433,12 +438,7 @@ positions with different orientations:
                     |> Frame2d.rotateBy (degrees -30)
                 ]
         in
-            Svg.g []
-                [ Svg.g []
-                    (List.map frame2d frames)
-                , Svg.g []
-                    (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
-                ]
+            Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
 
 ![placeIn](https://opensolid.github.io/images/svg/1.0/placedSvg.png)
 -}
