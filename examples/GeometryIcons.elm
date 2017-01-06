@@ -190,10 +190,7 @@ axis2d axis =
             Axis2d.originPoint axis
 
         segment =
-            LineSegment2d
-                ( Point2d.along axis -20
-                , Point2d.along axis 45
-                )
+            LineSegment2d ( Point2d.along axis -20, Point2d.along axis 45 )
     in
         Svg.g []
             [ Svg.lineSegment2d [ Attributes.strokeDasharray "3 3" ] segment
@@ -209,10 +206,7 @@ axis3d axis =
             Axis3d.originPoint axis
 
         segment =
-            LineSegment3d
-                ( Point3d.along axis -20
-                , Point3d.along axis 45
-                )
+            LineSegment3d ( Point3d.along axis -20, Point3d.along axis 45 )
                 |> LineSegment3d.projectInto viewPlane
     in
         Svg.g []
