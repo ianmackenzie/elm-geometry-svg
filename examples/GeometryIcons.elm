@@ -193,7 +193,11 @@ axis2d axis =
             LineSegment2d ( Point2d.along axis -20, Point2d.along axis 45 )
     in
         Svg.g []
-            [ Svg.lineSegment2d [ Attributes.strokeDasharray "3 3" ] segment
+            [ Svg.lineSegment2d
+                [ Attributes.strokeDasharray "3 3"
+                , Attributes.strokeWidth "0.75"
+                ]
+                segment
             , originPoint2d originPoint
             , direction2d originPoint (Axis2d.direction axis)
             ]
@@ -210,7 +214,11 @@ axis3d axis =
                 |> LineSegment3d.projectInto viewPlane
     in
         Svg.g []
-            [ Svg.lineSegment2d [ Attributes.strokeDasharray "3 3" ] segment
+            [ Svg.lineSegment2d
+                [ Attributes.strokeDasharray "3 3"
+                , Attributes.strokeWidth "0.75"
+                ]
+                segment
             , originPoint3d originPoint
             , direction3d originPoint (Axis3d.direction axis)
             ]
