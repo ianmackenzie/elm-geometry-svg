@@ -608,6 +608,22 @@ boundingBox3dIcon =
         icon3d (boundingBox3d boundingBox)
 
 
+circle2dIcon : Svg Never
+circle2dIcon =
+    let
+        centerPoint =
+            Point2d ( 30, 30 )
+
+        circle =
+            Circle2d { centerPoint = centerPoint, radius = 15 }
+    in
+        Svg.g []
+            [ Svg.circle2d [ Attributes.fill "none" ] circle
+            , point2d centerPoint
+            ]
+            |> icon2d
+
+
 icons =
     [ point2dIcon
     , point3dIcon
@@ -627,7 +643,7 @@ icons =
     , triangle3dIcon
     , boundingBox2dIcon
     , boundingBox3dIcon
-      --, circle2dIcon
+    , circle2dIcon
       --, polyline2dIcon
       --, polyline3dIcon
       --, polygon2dIcon
