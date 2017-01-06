@@ -207,8 +207,8 @@ axis2d axis =
                 , Attributes.strokeWidth "0.75"
                 ]
                 segment
-            , originPoint2d originPoint
             , direction2d originPoint (Axis2d.direction axis)
+            , originPoint2d originPoint
             ]
 
 
@@ -228,8 +228,8 @@ axis3d axis =
                 , Attributes.strokeWidth "0.75"
                 ]
                 segment
-            , originPoint3d originPoint
             , direction3d originPoint (Axis3d.direction axis)
+            , originPoint3d originPoint
             ]
 
 
