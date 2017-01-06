@@ -23,6 +23,8 @@ import OpenSolid.Polyline3d as Polyline3d
 import OpenSolid.Polygon2d as Polygon2d
 import OpenSolid.Triangle2d as Triangle2d
 import OpenSolid.Triangle3d as Triangle3d
+import OpenSolid.BoundingBox2d as BoundingBox2d
+import OpenSolid.BoundingBox3d as BoundingBox3d
 import Html exposing (Html)
 import Html.Attributes
 
@@ -499,6 +501,113 @@ triangle3dIcon =
         icon3d (triangle3d triangle)
 
 
+boundingBox2d : BoundingBox2d -> Svg Never
+boundingBox2d boundingBox =
+    let
+        { minX, maxX, minY, maxY } =
+            BoundingBox2d.extrema boundingBox
+
+        vertices =
+            [ Point2d ( minX, minY )
+            , Point2d ( maxX, minY )
+            , Point2d ( maxX, maxY )
+            , Point2d ( minX, maxY )
+            ]
+    in
+        Svg.g []
+            [ Svg.polygon2d [ Attributes.fill "none" ] (Polygon2d vertices)
+            , Svg.g [] (List.map vertex2d vertices)
+            ]
+
+
+boundingBox3d : BoundingBox3d -> Svg Never
+boundingBox3d boundingBox =
+    let
+        { minX, maxX, minY, maxY, minZ, maxZ } =
+            BoundingBox3d.extrema boundingBox
+
+        projected x y z =
+            Point3d ( x, y, z ) |> Point3d.projectInto viewPlane
+
+        p0 =
+            projected minX minY minZ
+
+        p1 =
+            projected maxX minY minZ
+
+        p2 =
+            projected maxX maxY minZ
+
+        p3 =
+            projected minX maxY minZ
+
+        p4 =
+            projected minX minY maxZ
+
+        p5 =
+            projected maxX minY maxZ
+
+        p6 =
+            projected maxX maxY maxZ
+
+        p7 =
+            projected minX maxY maxZ
+
+        vertices =
+            [ p0, p1, p2, p3, p4, p5, p6, p7 ]
+
+        edges =
+            List.map LineSegment2d
+                [ ( p0, p1 )
+                , ( p1, p2 )
+                , ( p2, p3 )
+                , ( p3, p0 )
+                , ( p4, p5 )
+                , ( p5, p6 )
+                , ( p6, p7 )
+                , ( p7, p4 )
+                , ( p0, p4 )
+                , ( p1, p5 )
+                , ( p2, p6 )
+                , ( p3, p7 )
+                ]
+    in
+        Svg.g []
+            [ Svg.g [] (List.map (Svg.lineSegment2d []) edges)
+            , Svg.g [] (List.map vertex2d vertices)
+            ]
+
+
+boundingBox2dIcon : Svg Never
+boundingBox2dIcon =
+    let
+        boundingBox =
+            BoundingBox2d
+                { minX = 15
+                , maxX = 45
+                , minY = 10
+                , maxY = 30
+                }
+    in
+        icon2d (boundingBox2d boundingBox)
+
+
+boundingBox3dIcon : Svg Never
+boundingBox3dIcon =
+    let
+        boundingBox =
+            BoundingBox3d
+                { minX = -20
+                , maxX = 15
+                , minY = 20
+                , maxY = 45
+                , minZ = 25
+                , maxZ = 40
+                }
+    in
+        icon3d (boundingBox3d boundingBox)
+
+
 icons =
     [ point2dIcon
     , point3dIcon
@@ -516,8 +625,8 @@ icons =
     , lineSegment3dIcon
     , triangle2dIcon
     , triangle3dIcon
-      --, boundingBox2dIcon
-      --, boundingBox3dIcon
+    , boundingBox2dIcon
+    , boundingBox3dIcon
       --, circle2dIcon
       --, polyline2dIcon
       --, polyline3dIcon
