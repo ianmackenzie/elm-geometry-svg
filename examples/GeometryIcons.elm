@@ -713,7 +713,7 @@ container svg =
             [ Svg.relativeTo topLeftFrame svg
             , Svg.polygon2d
                 [ Attributes.strokeWidth "1"
-                , Attributes.stroke "lightgrey"
+                , Attributes.stroke "none"
                 , Attributes.fill "none"
                 ]
                 (Polygon2d
