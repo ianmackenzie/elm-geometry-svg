@@ -14,9 +14,15 @@ import OpenSolid.Axis3d as Axis3d
 import OpenSolid.Vector2d as Vector2d
 import OpenSolid.Vector3d as Vector3d
 import OpenSolid.Axis2d as Axis2d
+import OpenSolid.LineSegment2d as LineSegment2d
 import OpenSolid.LineSegment3d as LineSegment3d
 import OpenSolid.SketchPlane3d as SketchPlane3d
 import OpenSolid.Plane3d as Plane3d
+import OpenSolid.Polyline2d as Polyline2d
+import OpenSolid.Polyline3d as Polyline3d
+import OpenSolid.Polygon2d as Polygon2d
+import OpenSolid.Triangle2d as Triangle2d
+import OpenSolid.Triangle3d as Triangle3d
 import Html exposing (Html)
 import Html.Attributes
 
@@ -390,6 +396,109 @@ frame3dIcon =
     frame3d (Frame3d.at (Point3d ( 0, 20, 20 )))
 
 
+vertex2d : Point2d -> Svg Never
+vertex2d point =
+    Svg.circle2d [] (Circle2d { centerPoint = point, radius = 1 })
+
+
+vertex3d : Point3d -> Svg Never
+vertex3d =
+    Point3d.projectInto viewPlane >> vertex2d
+
+
+polyline2d : Polyline2d -> Svg Never
+polyline2d polyline =
+    Svg.g []
+        [ Svg.polyline2d [ Attributes.fill "none" ] polyline
+        , Svg.g [] (List.map vertex2d (Polyline2d.vertices polyline))
+        ]
+
+
+polyline3d : Polyline3d -> Svg Never
+polyline3d =
+    Polyline3d.projectInto viewPlane >> polyline2d
+
+
+polygon2d : Polygon2d -> Svg Never
+polygon2d polygon =
+    Svg.g []
+        [ Svg.polygon2d [ Attributes.fill "lightgrey" ] polygon
+        , Svg.g [] (List.map vertex2d (Polygon2d.vertices polygon))
+        ]
+
+
+lineSegment2d : LineSegment2d -> Svg Never
+lineSegment2d lineSegment =
+    let
+        ( p1, p2 ) =
+            LineSegment2d.endpoints lineSegment
+    in
+        polyline2d (Polyline2d [ p1, p2 ])
+
+
+lineSegment3d : LineSegment3d -> Svg Never
+lineSegment3d =
+    LineSegment3d.projectInto viewPlane >> lineSegment2d
+
+
+triangle2d : Triangle2d -> Svg Never
+triangle2d triangle =
+    let
+        ( p1, p2, p3 ) =
+            Triangle2d.vertices triangle
+    in
+        polygon2d (Polygon2d [ p1, p2, p3 ])
+
+
+triangle3d : Triangle3d -> Svg Never
+triangle3d =
+    Triangle3d.projectInto viewPlane >> triangle2d
+
+
+lineSegment2dIcon : Svg Never
+lineSegment2dIcon =
+    let
+        lineSegment =
+            LineSegment2d ( Point2d ( 15, 20 ), Point2d ( 40, 30 ) )
+    in
+        icon2d (lineSegment2d lineSegment)
+
+
+lineSegment3dIcon : Svg Never
+lineSegment3dIcon =
+    let
+        lineSegment =
+            LineSegment3d ( Point3d ( 0, 15, 20 ), Point3d ( 0, 50, 40 ) )
+    in
+        icon3d (lineSegment3d lineSegment)
+
+
+triangle2dIcon : Svg Never
+triangle2dIcon =
+    let
+        triangle =
+            Triangle2d
+                ( Point2d ( 10, 10 )
+                , Point2d ( 35, 15 )
+                , Point2d ( 20, 30 )
+                )
+    in
+        icon2d (triangle2d triangle)
+
+
+triangle3dIcon : Svg Never
+triangle3dIcon =
+    let
+        triangle =
+            Triangle3d
+                ( Point3d ( 0, 15, 20 )
+                , Point3d ( 0, 40, 20 )
+                , Point3d ( -20, 25, 35 )
+                )
+    in
+        icon3d (triangle3d triangle)
+
+
 icons =
     [ point2dIcon
     , point3dIcon
@@ -403,10 +512,10 @@ icons =
     , sketchPlane3dIcon
     , frame2dIcon
     , frame3dIcon
-      --, lineSegment2dIcon
-      --, lineSegment3dIcon
-      --, triangle2dIcon
-      --, triangle3dIcon
+    , lineSegment2dIcon
+    , lineSegment3dIcon
+    , triangle2dIcon
+    , triangle3dIcon
       --, boundingBox2dIcon
       --, boundingBox3dIcon
       --, circle2dIcon
