@@ -16,6 +16,7 @@ import OpenSolid.Vector3d as Vector3d
 import OpenSolid.Axis2d as Axis2d
 import OpenSolid.LineSegment3d as LineSegment3d
 import OpenSolid.SketchPlane3d as SketchPlane3d
+import OpenSolid.Plane3d as Plane3d
 import Html exposing (Html)
 import Html.Attributes
 
@@ -224,6 +225,72 @@ axis3d axis =
             ]
 
 
+plane3d : SketchPlane3d -> Svg Never
+plane3d sketchPlane =
+    let
+        point x y =
+            Point2d ( x, y )
+                |> Point2d.placeOnto sketchPlane
+                |> Point3d.projectInto viewPlane
+
+        outline =
+            Polygon2d
+                [ point -16 -16
+                , point 16 -16
+                , point 16 16
+                , point -16 16
+                ]
+
+        originPoint =
+            SketchPlane3d.originPoint sketchPlane
+
+        normalDirection =
+            SketchPlane3d.plane sketchPlane |> Plane3d.normalDirection
+    in
+        Svg.g []
+            [ Svg.polygon2d
+                [ Attributes.fill "none"
+                , Attributes.strokeDasharray "3 3"
+                , Attributes.strokeWidth "0.75"
+                ]
+                outline
+            , direction3d originPoint normalDirection
+            , originPoint3d originPoint
+            ]
+
+
+sketchPlane3d : SketchPlane3d -> Svg Never
+sketchPlane3d sketchPlane =
+    let
+        point x y =
+            Point2d ( x, y )
+                |> Point2d.placeOnto sketchPlane
+                |> Point3d.projectInto viewPlane
+
+        outline =
+            Polygon2d
+                [ point -6 -6
+                , point 30 -6
+                , point 30 30
+                , point -6 30
+                ]
+
+        originPoint =
+            SketchPlane3d.originPoint sketchPlane
+    in
+        Svg.g []
+            [ Svg.polygon2d
+                [ Attributes.fill "none"
+                , Attributes.strokeDasharray "3 3"
+                , Attributes.strokeWidth "0.75"
+                ]
+                outline
+            , direction3d originPoint (SketchPlane3d.xDirection sketchPlane)
+            , direction3d originPoint (SketchPlane3d.yDirection sketchPlane)
+            , originPoint3d originPoint
+            ]
+
+
 icon2d : Svg Never -> Svg Never
 icon2d svg =
     Svg.g [] [ indicator2d, svg ]
@@ -290,6 +357,39 @@ axis3dIcon =
         icon3d (axis3d axis)
 
 
+plane3dIcon : Svg Never
+plane3dIcon =
+    let
+        sketchPlane =
+            SketchPlane3d.xy
+                |> SketchPlane3d.rotateAround Axis3d.x (degrees -20)
+                |> SketchPlane3d.rotateAround Axis3d.y (degrees -5)
+                |> SketchPlane3d.moveTo (Point3d ( 0, 40, 30 ))
+    in
+        icon3d (plane3d sketchPlane)
+
+
+sketchPlane3dIcon : Svg Never
+sketchPlane3dIcon =
+    let
+        sketchPlane =
+            SketchPlane3d.xy
+                |> SketchPlane3d.rotateAround Axis3d.x (degrees -10)
+                |> SketchPlane3d.moveTo (Point3d ( 0, 32, 38 ))
+    in
+        icon3d (sketchPlane3d sketchPlane)
+
+
+frame2dIcon : Svg Never
+frame2dIcon =
+    frame2d (Frame2d.at (Point2d ( 10, 10 )))
+
+
+frame3dIcon : Svg Never
+frame3dIcon =
+    frame3d (Frame3d.at (Point3d ( 0, 20, 20 )))
+
+
 icons =
     [ point2dIcon
     , point3dIcon
@@ -299,10 +399,10 @@ icons =
     , direction3dIcon
     , axis2dIcon
     , axis3dIcon
-      --, plane3dIcon
-      --, sketchPlane3dIcon
-      --, frame2dIcon
-      --, frame3dIcon
+    , plane3dIcon
+    , sketchPlane3dIcon
+    , frame2dIcon
+    , frame3dIcon
       --, lineSegment2dIcon
       --, lineSegment3dIcon
       --, triangle2dIcon
