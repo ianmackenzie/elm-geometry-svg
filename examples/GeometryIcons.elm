@@ -624,6 +624,49 @@ circle2dIcon =
             |> icon2d
 
 
+polyline2dIcon : Svg Never
+polyline2dIcon =
+    let
+        polyline =
+            Polyline2d
+                [ Point2d ( 10, 10 )
+                , Point2d ( 20, 25 )
+                , Point2d ( 30, 20 )
+                , Point2d ( 40, 35 )
+                , Point2d ( 30, 40 )
+                ]
+    in
+        icon2d (polyline2d polyline)
+
+
+polyline3dIcon : Svg Never
+polyline3dIcon =
+    let
+        polyline =
+            Polyline3d
+                [ Point3d ( -15, 0, 30 )
+                , Point3d ( -20, 15, 30 )
+                , Point3d ( 0, 20, 30 )
+                , Point3d ( 0, 30, 20 )
+                , Point3d ( -20, 40, 35 )
+                ]
+    in
+        icon3d (polyline3d polyline)
+
+
+polygon2dIcon : Svg Never
+polygon2dIcon =
+    let
+        polygon =
+            List.range 0 4
+                |> List.map (\n -> turns (toFloat n / 5))
+                |> List.map (\angle -> Point2d (fromPolar ( 15, angle )))
+                |> List.map (Point2d.translateBy (Vector2d ( 25, 25 )))
+                |> Polygon2d
+    in
+        icon2d (polygon2d polygon)
+
+
 icons =
     [ point2dIcon
     , point3dIcon
@@ -644,9 +687,9 @@ icons =
     , boundingBox2dIcon
     , boundingBox3dIcon
     , circle2dIcon
-      --, polyline2dIcon
-      --, polyline3dIcon
-      --, polygon2dIcon
+    , polyline2dIcon
+    , polyline3dIcon
+    , polygon2dIcon
     ]
 
 
