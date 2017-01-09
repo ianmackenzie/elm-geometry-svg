@@ -34,7 +34,7 @@ following format:
 
 All examples use a Y-up coordinate system unlike SVG's Y-down (window)
 coordinate system; they were all rendered with a final
-`Svg.relativeTo topLeftFrame` call where
+<code>Svg.relativeTo&nbsp;topLeftFrame</code> call where
 
     topLeftFrame =
         Frame2d
