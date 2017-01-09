@@ -32,8 +32,8 @@ import Html.Attributes
 viewPlane : SketchPlane3d
 viewPlane =
     Frame3d.xyz
-        |> Frame3d.rotateAroundOwn Axis3d.z (degrees 30)
-        |> Frame3d.rotateAroundOwn Axis3d.y (degrees -30)
+        |> Frame3d.rotateAroundOwn Frame3d.zAxis (degrees 30)
+        |> Frame3d.rotateAroundOwn Frame3d.yAxis (degrees -30)
         |> Frame3d.yzSketchPlane
 
 

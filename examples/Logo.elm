@@ -154,8 +154,8 @@ logo model =
 
         viewFrame =
             Frame3d.at (Point3d ( 0.5, 0.5, model.height / 2 ))
-                |> Frame3d.rotateAroundOwn Axis3d.z model.azimuth
-                |> Frame3d.rotateAroundOwn Axis3d.y (-model.elevation)
+                |> Frame3d.rotateAroundOwn Frame3d.zAxis model.azimuth
+                |> Frame3d.rotateAroundOwn Frame3d.yAxis (-model.elevation)
 
         to2d =
             Point3d.projectInto (Frame3d.yzSketchPlane viewFrame)
