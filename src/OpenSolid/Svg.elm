@@ -275,6 +275,12 @@ circle2d attributes circle =
                 )
 
 ![scaleAbout](https://opensolid.github.io/images/svg/1.0/scaleAbout.svg)
+
+Note how _everything_ is scaled, including the stroke width of the circles. This
+may or may not be what you want; if you wanted the same stroke width on all
+circles, you could instead scale the `Circle2d` values themselves using
+`Circle2d.scaleAbout` and then draw the scaled circles with a specific stroke
+width using `Svg.circle2d`.
 -}
 scaleAbout : Point2d -> Float -> Svg msg -> Svg msg
 scaleAbout point scale element =
