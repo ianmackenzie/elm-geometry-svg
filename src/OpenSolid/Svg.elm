@@ -34,14 +34,8 @@ following format:
 
 All examples use a Y-up coordinate system instead of SVG's Y-down (window)
 coordinate system; they were all rendered with a final
-<code>Svg.relativeTo&nbsp;topLeftFrame</code> call where
-
-    topLeftFrame =
-        Frame2d
-            { originPoint = Point2d ( 0, 300 )
-            , xDirection = Direction2d.x
-            , yDirection = Direction2d.negate Direction2d.y
-            }
+<code>Svg.relativeTo&nbsp;topLeftFrame</code> call as described in the
+[relativeTo](#relativeTo) documentation.
 
 # Geometry
 
