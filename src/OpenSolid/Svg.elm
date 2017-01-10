@@ -392,7 +392,7 @@ positive Y is usually up.
 For example, you might develop an SVG scene in a coordinate system where X and Y
 each range from 0 to 300 and positive Y is up. To turn this into a 300x300 SVG
 drawing, first define the top-left SVG frame (coordinate system) in terms of
-your model coordinate system:
+the model coordinate system:
 
     topLeftFrame =
         Frame2d
@@ -401,7 +401,7 @@ your model coordinate system:
             , yDirection = Direction2d.negate Direction2d.y
             }
 
-(As expressed in your model frame, the top-left SVG frame is at the point
+(As expressed in the model frame, the top-left SVG frame is at the point
 (0, 300) and its Y direction is equal to the global negative Y direction.) If
 `scene` is an SVG element representing your scene, you can then transform it
 into top-left SVG window coordinates using
