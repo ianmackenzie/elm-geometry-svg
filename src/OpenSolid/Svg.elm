@@ -49,14 +49,29 @@ arbitrary fragments of SVG. For example,
     Svg.mirrorAcross Axis2d.x
         (Svg.lineSegment2d [] lineSegment)
 
-is visually the same as
+draws a line segment as SVG and then mirrors that SVG fragment. This is visually
+the same as
 
     Svg.lineSegment2d []
         (LineSegment2d.mirrorAcross Axis2d.x lineSegment)
 
-but the latter will be represented as a simple `<polyline>` in the resulting SVG
-while the former will be represented as a `<polyline>` inside a `<g>` that has a
-`transform` attribute.
+which instead mirrors the line segment first and then draws the mirrored line
+segment as SVG.
+
+In the above example only a single SVG element was transformed, but all of these
+transformation functions work equally well on arbitrarily complex fragments of
+SVG such as nested groups of elements of different types:
+
+    Svg.rotateAround Point2d.origin (degrees 30)
+        (Svg.g [ Attributes.stroke "blue" ]
+            [ Svg.lineSegment2d [] lineSegment
+            , Svg.circle2d [] someCircle
+            , Svg.g [ Attributes.fill "orange" ]
+                [ Svg.triangle2d [] firstTriangle
+                , Svg.triangle2d [] secondTriangle
+                ]
+            ]
+        )
 
 If the transformation changes frequently (an animated rotation angle, for
 example) while the geometry itself does not, using an SVG transformation can be
