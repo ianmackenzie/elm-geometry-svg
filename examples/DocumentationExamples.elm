@@ -285,35 +285,51 @@ placedSvg =
         Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
 
 
+example : ( Float, Float ) -> ( Float, Float ) -> Svg Never -> Html Never
+example ( minX, minY ) ( maxX, maxY ) svg =
+    let
+        width =
+            maxX - minX
+
+        height =
+            maxY - minY
+
+        topLeftFrame =
+            Frame2d
+                { originPoint = Point2d ( minX, maxY )
+                , xDirection = Direction2d.x
+                , yDirection = Direction2d.negate Direction2d.y
+                }
+
+        outline =
+            Polygon2d
+                [ Point2d.origin
+                , Point2d ( 0, height )
+                , Point2d ( width, height )
+                , Point2d ( width, 0 )
+                ]
+    in
+        Html.div []
+            [ Svg.svg
+                [ Attributes.width (toString width)
+                , Attributes.height (toString height)
+                ]
+                [ Svg.relativeTo topLeftFrame svg ]
+            ]
+
+
 examples =
-    [ circleSvg
-    , lineSegmentSvg
-    , triangleSvg
-    , polylineSvg
-    , polygonSvg
-    , scaledSvg
-    , rotatedSvg
-    , translatedSvg
-    , mirroredSvg
-    , placedSvg
+    [ example ( 130, 130 ) ( 170, 170 ) circleSvg
+    , example ( 90, 90 ) ( 210, 210 ) lineSegmentSvg
+    , example ( 90, 90 ) ( 210, 210 ) triangleSvg
+    , example ( 90, 90 ) ( 210, 210 ) polylineSvg
+    , example ( 90, 140 ) ( 210, 210 ) polygonSvg
+    , example ( 90, 90 ) ( 250, 250 ) scaledSvg
+    , example ( 130, 80 ) ( 270, 220 ) rotatedSvg
+    , example ( 87, 25 ) ( 215, 255 ) translatedSvg
+    , example ( 35, 20 ) ( 265, 300 ) mirroredSvg
+    , example ( 10, 10 ) ( 235, 190 ) placedSvg
     ]
-
-
-topLeftFrame : Frame2d
-topLeftFrame =
-    Frame2d
-        { originPoint = Point2d ( 0, 300 )
-        , xDirection = Direction2d.x
-        , yDirection = Direction2d.negate Direction2d.y
-        }
-
-
-container : Svg Never -> Html Never
-container svg =
-    Html.div []
-        [ Svg.svg [ Attributes.width "300", Attributes.height "300" ]
-            [ Svg.relativeTo topLeftFrame svg ]
-        ]
 
 
 divider : Html Never
@@ -323,4 +339,4 @@ divider =
 
 main : Html Never
 main =
-    Html.div [] (List.map container examples |> List.intersperse divider)
+    Html.div [] (examples |> List.intersperse divider)

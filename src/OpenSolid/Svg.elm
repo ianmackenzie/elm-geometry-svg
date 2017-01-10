@@ -121,7 +121,7 @@ pointsAttribute points =
                 )
             )
 
-![lineSegment2d](https://opensolid.github.io/images/svg/1.0/lineSegmentSvg.png)
+![lineSegment2d](https://opensolid.github.io/images/svg/1.0/lineSegment2d.svg)
 -}
 lineSegment2d : List (Attribute msg) -> LineSegment2d -> Svg msg
 lineSegment2d attributes lineSegment =
@@ -149,7 +149,7 @@ lineSegment2d attributes lineSegment =
                 )
             )
 
-![triangle2d](https://opensolid.github.io/images/svg/1.0/triangleSvg.png)
+![triangle2d](https://opensolid.github.io/images/svg/1.0/triangle2d.svg)
 -}
 triangle2d : List (Attribute msg) -> Triangle2d -> Svg msg
 triangle2d attributes triangle =
@@ -181,7 +181,7 @@ triangle2d attributes triangle =
                 ]
             )
 
-![polyline2d](https://opensolid.github.io/images/svg/1.0/polylineSvg.png)
+![polyline2d](https://opensolid.github.io/images/svg/1.0/polyline2d.svg)
 -}
 polyline2d : List (Attribute msg) -> Polyline2d -> Svg msg
 polyline2d attributes polyline =
@@ -209,7 +209,7 @@ polyline2d attributes polyline =
                 ]
             )
 
-![polygon2d](https://opensolid.github.io/images/svg/1.0/polygonSvg.png)
+![polygon2d](https://opensolid.github.io/images/svg/1.0/polygon2d.svg)
 -}
 polygon2d : List (Attribute msg) -> Polygon2d -> Svg msg
 polygon2d attributes polygon =
@@ -235,7 +235,7 @@ polygon2d attributes polygon =
                 }
             )
 
-![circle2d](https://opensolid.github.io/images/svg/1.0/circleSvg.png)
+![circle2d](https://opensolid.github.io/images/svg/1.0/circle2d.svg)
 -}
 circle2d : List (Attribute msg) -> Circle2d -> Svg msg
 circle2d attributes circle =
@@ -275,7 +275,7 @@ circle2d attributes circle =
                     :: List.map scaledPoint scales
                 )
 
-![scaleAbout](https://opensolid.github.io/images/svg/1.0/scaledSvg.png)
+![scaleAbout](https://opensolid.github.io/images/svg/1.0/scaleAbout.svg)
 -}
 scaleAbout : Point2d -> Float -> Svg msg -> Svg msg
 scaleAbout point scale element =
@@ -313,7 +313,7 @@ scaleAbout point scale element =
                     :: List.map rotatedPoint angles
                 )
 
-![rotateAround](https://opensolid.github.io/images/svg/1.0/rotatedSvg.png)
+![rotateAround](https://opensolid.github.io/images/svg/1.0/rotateAround.svg)
 -}
 rotateAround : Point2d -> Float -> Svg msg -> Svg msg
 rotateAround point angle =
@@ -330,7 +330,7 @@ rotateAround point angle =
             , Svg.translateBy (Vector2d ( 5, -60 )) polylineSvg
             ]
 
-![translateBy](https://opensolid.github.io/images/svg/1.0/translatedSvg.png)
+![translateBy](https://opensolid.github.io/images/svg/1.0/translateBy.svg)
 -}
 translateBy : Vector2d -> Svg msg -> Svg msg
 translateBy vector =
@@ -362,7 +362,7 @@ translateBy vector =
                 , Svg.mirrorAcross angledAxis polygonSvg
                 ]
 
-![mirrorAcross](https://opensolid.github.io/images/svg/1.0/mirroredSvg.png)
+![mirrorAcross](https://opensolid.github.io/images/svg/1.0/mirrorAcross.svg)
 -}
 mirrorAcross : Axis2d -> Svg msg -> Svg msg
 mirrorAcross axis =
@@ -440,7 +440,7 @@ positions with different orientations:
         in
             Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
 
-![placeIn](https://opensolid.github.io/images/svg/1.0/placedSvg.png)
+![placeIn](https://opensolid.github.io/images/svg/1.0/placeIn.svg)
 -}
 placeIn : Frame2d -> Svg msg -> Svg msg
 placeIn frame element =
