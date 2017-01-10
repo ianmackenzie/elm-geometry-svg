@@ -1,6 +1,5 @@
 module Logo exposing (..)
 
-import String
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events as Events

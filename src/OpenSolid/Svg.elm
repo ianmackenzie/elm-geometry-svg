@@ -79,7 +79,6 @@ conversion transformations to be applied to arbitrary SVG elements.
 @docs relativeTo, placeIn
 -}
 
-import String
 import Svg as Svg exposing (Svg, Attribute)
 import Svg.Attributes as Attributes
 import OpenSolid.Geometry.Types exposing (..)
