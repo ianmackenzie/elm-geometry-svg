@@ -403,10 +403,11 @@ the model coordinate system:
 
 (As expressed in the model frame, the top-left SVG frame is at the point
 (0, 300) and its Y direction is equal to the global negative Y direction.) If
-`scene` is an SVG element representing your scene, you can then transform it
-into top-left SVG window coordinates using
+`scene` is an SVG element representing your scene, you could then transform it
+into top-left SVG window coordinates and render the result to HTML with
 
-    Svg.relativeTo topLeftFrame scene
+    Svg.svg [ Attributes.width "300", Attributes.height "300" ]
+        [ Svg.relativeTo topLeftFrame scene ]
 -}
 relativeTo : Frame2d -> Svg msg -> Svg msg
 relativeTo frame =
