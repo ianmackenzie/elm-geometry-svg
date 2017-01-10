@@ -375,33 +375,29 @@ mirrorAcross axis =
 
 
 {-| Convert SVG expressed in global coordinates to SVG expressed in coordinates
-relative to a given reference frame. Using `relativeTo` in convert with
-`scaleAbout` can be useful for transforming between model space and screen space
-(SVG native coordinates start in the top left, so positive Y is down).
+relative to a given reference frame. Using `relativeTo` can be useful for
+transforming between model space and screen space - SVG coordinates start in the
+top left, so positive Y is down, while in mathematical/geometric contexts
+positive Y is usually up.
 
 For example, you might develop an SVG scene in a coordinate system where X and Y
-each range from -2 to 2 and positive Y is up. To turn this into (say) a 400x400
-SVG drawing, first define the SVG frame (coordinate system) in terms of your
-model coordinate system:
+each range from 0 to 300 and positive Y is up. To turn this into a 300x300 SVG
+drawing, first define the top-left SVG frame (coordinate system) in terms of
+your model coordinate system:
 
     topLeftFrame =
         Frame2d
-            { originPoint = Point2d ( -2, -2 )
+            { originPoint = Point2d ( 0, 300 )
             , xDirection = Direction2d.x
             , yDirection = Direction2d.negate Direction2d.y
             }
 
 (As expressed in your model frame, the top-left SVG frame is at the point
-(-2, -2) and has the global negative Y direction as its Y direction.) If
+(0, 300) and its Y direction is equal to the global negative Y direction.) If
 `scene` is an SVG element representing your scene, you can then transform it
 into top-left SVG window coordinates using
 
-    scene
-        |> Svg.relativeTo topLeftFrame
-        |> Svg.scaleAbout Point2d.origin 100
-
-(with the scaling required because otherwise your drawing would be 4 pixels by
-4 pixels, not 400 by 400).
+    Svg.relativeTo topLeftFrame scene
 -}
 relativeTo : Frame2d -> Svg msg -> Svg msg
 relativeTo frame =
