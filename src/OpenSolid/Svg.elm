@@ -13,10 +13,13 @@ module OpenSolid.Svg
         , placeIn
         )
 
-{-| Draw SVG using OpenSolid data types. These functions turn OpenSolid geometry
-into SVG elements with the appropriate geometric attributes such as `points` and
-`transform` set; you will have to add stylistic attributes such as `fill`,
-`stroke`, and `strokeWidth` yourself.
+{-| Various OpenSolid-related SVG functionality:
+
+  - [Draw](#geometry) OpenSolid 2D geometry as SVG elements
+  - [Transform](#transformations) arbitrary SVG elements using standard
+    OpenSolid transformation functions
+  - [Convert](#coordinate-transformations) SVG between different coordinate
+    systems
 
 ## Reading this documentation
 
@@ -38,6 +41,11 @@ coordinate system; they were all rendered with a final
 [relativeTo](#relativeTo) documentation.
 
 # Geometry
+
+These functions turn OpenSolid values into SVG elements with geometric
+attributes such as `points` and `transform` set appropriately. Each function
+also accepts a list of additional SVG attributes such as `fill` or `stroke` that
+should be added to the resulting element.
 
 @docs lineSegment2d, triangle2d, polyline2d, polygon2d, circle2d
 
