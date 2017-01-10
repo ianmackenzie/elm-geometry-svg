@@ -303,13 +303,13 @@ scaleAbout point scale element =
             referencePoint =
                 Point2d ( 200, 150 )
 
-            rotatedPoint : Float -> Svg Never
-            rotatedPoint angle =
+            rotatedCircle : Float -> Svg Never
+            rotatedCircle angle =
                 Svg.rotateAround referencePoint angle circleSvg
         in
             Svg.g []
                 (centerPoint2d referencePoint
-                    :: List.map rotatedPoint angles
+                    :: List.map rotatedCircle angles
                 )
 
 ![rotateAround](https://opensolid.github.io/images/svg/1.0/rotateAround.svg)
