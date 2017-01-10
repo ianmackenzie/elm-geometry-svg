@@ -114,13 +114,13 @@ scaledSvg =
         referencePoint =
             Point2d ( 100, 100 )
 
-        scaledPoint : Float -> Svg Never
-        scaledPoint scale =
+        scaledCircle : Float -> Svg Never
+        scaledCircle scale =
             Svg.scaleAbout referencePoint scale circleSvg
     in
         Svg.g []
             (centerPoint2d referencePoint
-                :: List.map scaledPoint scales
+                :: List.map scaledCircle scales
             )
 
 
