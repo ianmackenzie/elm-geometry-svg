@@ -32,7 +32,7 @@ following format:
 
     import OpenSolid.Point2d as Point2d
 
-All examples use a Y-up coordinate system unlike SVG's Y-down (window)
+All examples use a Y-up coordinate system instead of SVG's Y-down (window)
 coordinate system; they were all rendered with a final
 <code>Svg.relativeTo&nbsp;topLeftFrame</code> call where
 
