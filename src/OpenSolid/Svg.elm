@@ -13,10 +13,10 @@ module OpenSolid.Svg
         , placeIn
         )
 
-{-| Draw SVG using OpenSolid data types. In general, these functions handle
-transforming OpenSolid geometry into SVG elements with the necessary geometric
-attributes, but in most cases you will have to add some non-geometric attributes
-yourself such as `fill`, `stroke`, or `strokeWidth`.
+{-| Draw SVG using OpenSolid data types. These functions turn OpenSolid geometry
+into SVG elements with the appropriate geometric attributes such as `points` and
+`transform` set; you will have to add stylistic attributes such as `fill`,
+`stroke`, and `strokeWidth` yourself.
 
 ## Reading this documentation
 
@@ -50,7 +50,7 @@ coordinate system; they were all rendered with a final
 # Transformations
 
 These functions allow you to use all the normal OpenSolid 2D transformations on
-arbitrary bits of SVG. For example,
+arbitrary fragments of SVG. For example,
 
     Svg.mirrorAcross Axis2d.x
         (Svg.lineSegment2d [] lineSegment)
@@ -66,8 +66,8 @@ while the former will be represented as a `<polyline>` inside a `<g>` that has a
 
 If the transformation changes frequently (an animated rotation angle, for
 example) while the geometry itself does not, using an SVG transformation can be
-more efficient since the geometry does not have to be recreated (the SVG virtual
-DOM only has to update the transformation matrix).
+more efficient since the geometry itself does not have to be recreated (the SVG
+virtual DOM only has to update a transformation matrix).
 
 @docs scaleAbout, rotateAround, translateBy, mirrorAcross
 
