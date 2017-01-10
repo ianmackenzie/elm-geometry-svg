@@ -74,9 +74,9 @@ SVG such as nested groups of elements of different types:
         )
 
 If the transformation changes frequently (an animated rotation angle, for
-example) while the geometry itself does not, using an SVG transformation can be
-more efficient since the geometry itself does not have to be recreated (the SVG
-virtual DOM only has to update a transformation matrix).
+example) while the geometry itself remains constant, using an SVG transformation
+can be more efficient since the geometry itself does not have to be recreated
+(the SVG virtual DOM only has to update a transformation matrix).
 
 @docs scaleAbout, rotateAround, translateBy, mirrorAcross
 
