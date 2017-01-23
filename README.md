@@ -11,7 +11,7 @@ OpenSolid-based 2D transformations to arbitrary SVG elements.
 The `lineSegment2d`, `triangle2d`, `polyline2d`, `polygon2d`, and `circle2d`
 functions all produce standard
 [Svg msg](http://package.elm-lang.org/packages/elm-lang/svg/latest/Svg#Svg)
-values that can be included in any SVG diagram.
+values that can be included in any SVG diagram:
 
 ![lineSegment2d](https://opensolid.github.io/images/svg/1.0/lineSegment2d.svg)
 ![triangle2d](https://opensolid.github.io/images/svg/1.0/triangle2d.svg)
@@ -27,7 +27,7 @@ attributes such as `fill` and `stroke`.
 The `scaleAbout`, `rotateAround`, `translateBy`, `mirrorAcross`, `relativeTo`
 and `placeIn` functions behave just like their standard OpenSolid counterparts.
 You can use them to do things that would be difficult to do using just SVG, such
-as mirror a fragment of SVG across an arbitrary axis.
+as mirror a fragment of SVG across an arbitrary axis:
 
 ![scaleAbout](https://opensolid.github.io/images/svg/1.0/scaleAbout.svg)
 ![rotateAround](https://opensolid.github.io/images/svg/1.0/rotateAround.svg)
@@ -55,4 +55,4 @@ to your project's `elm-package.json`.
 
 ## Documentation
 
-Full API documentation is available here.
+Full API documentation is available.
