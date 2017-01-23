@@ -406,7 +406,7 @@ the model coordinate system:
         Frame2d
             { originPoint = Point2d ( 0, 300 )
             , xDirection = Direction2d.x
-            , yDirection = Direction2d.negate Direction2d.y
+            , yDirection = Direction2d.flip Direction2d.y
             }
 
 (As expressed in the model frame, the top-left SVG frame is at the point
