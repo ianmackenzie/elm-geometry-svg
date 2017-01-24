@@ -3,8 +3,9 @@
 This [Elm](http://elm-lang.org) package builds on top of the
 [opensolid/geometry](http://package.elm-lang.org/packages/opensolid/geometry/latest)
 package to create SVG diagrams in a flexible and expressive way. It contains
-functions for drawing OpenSolid 2D geometric objects as SVG, and for applying
-OpenSolid-based 2D transformations to arbitrary SVG elements.
+functions for drawing OpenSolid 2D geometric objects as SVG, for applying
+OpenSolid-based 2D transformations to arbitrary SVG elements, and for converting
+SVG between different coordinate systems.
 
 ## Drawing functions
 
@@ -33,6 +34,18 @@ as mirror a fragment of SVG across an arbitrary axis:
 ![rotateAround](https://opensolid.github.io/images/svg/1.0/rotateAround.svg)
 ![translateBy](https://opensolid.github.io/images/svg/1.0/translateBy.svg)
 ![mirrorAcross](https://opensolid.github.io/images/svg/1.0/mirrorAcross.svg)
+
+## Coordinate transformation functions
+
+The `relativeTo` and `placeIn` functions allow you to take SVG defined in one
+coordinate system and convert it to another. For example, you can take SVG
+defined in a model coordinate system where (0,0) is the center and positive Y is
+up, and use `relativeTo` to convert it into SVG in window coordinates for
+display, where (0,0) is the top left corner and positive Y is down.
+
+`placeIn` is useful for 'instancing' or 'stamping' a fragment of SVG in many
+different positions with different orientations:
+
 ![placeIn](https://opensolid.github.io/images/svg/1.0/placeIn.svg)
 
 ## Installation
