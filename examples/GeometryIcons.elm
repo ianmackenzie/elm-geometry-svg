@@ -100,7 +100,7 @@ direction2d point direction =
     arrow [ Attributes.fill "white" ]
         { tipLength = 5, tipWidth = 5 }
         point
-        (Direction2d.times 25 direction)
+        (Direction2d.scaleBy 25 direction)
 
 
 direction3d : Point3d -> Direction3d -> Svg Never
@@ -108,7 +108,7 @@ direction3d point direction =
     arrow [ Attributes.fill "white" ]
         { tipLength = 5, tipWidth = 5 }
         (Point3d.projectInto viewPlane point)
-        (Vector3d.projectInto viewPlane (Direction3d.times 25 direction))
+        (Vector3d.projectInto viewPlane (Direction3d.scaleBy 25 direction))
 
 
 originPoint2d : Point2d -> Svg Never
