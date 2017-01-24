@@ -27,10 +27,10 @@ attributes such as `fill` and `stroke`.
 
 ## Transformation
 
-The `scaleAbout`, `rotateAround`, `translateBy`, `mirrorAcross`, `relativeTo`
-and `placeIn` functions behave just like their standard OpenSolid counterparts.
-You can use them to do things that would be difficult to do using just SVG, such
-as mirror a fragment of SVG across an arbitrary axis:
+The `scaleAbout`, `rotateAround`, `translateBy` and `mirrorAcross` functions
+behave just like their standard OpenSolid counterparts. You can use them to do
+things that would be difficult to do using just SVG, such as mirror a fragment
+of SVG across an arbitrary axis:
 
 ![scaleAbout](https://opensolid.github.io/images/svg/1.0/scaleAbout.svg)
 ![rotateAround](https://opensolid.github.io/images/svg/1.0/rotateAround.svg)
