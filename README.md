@@ -19,7 +19,7 @@ values that can be included in any SVG diagram:
 ![polygon2d](https://opensolid.github.io/images/svg/1.0/polygon2d.svg)
 ![circle2d](https://opensolid.github.io/images/svg/1.0/circle2d.svg)
 
-The appearance of the resulting elements can be fully customized by adding SVG
+The appearance of the resulting elements can be customized by adding SVG
 attributes such as `fill` and `stroke`.
 
 ## Transformation functions
