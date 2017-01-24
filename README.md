@@ -5,7 +5,7 @@ This [Elm](http://elm-lang.org) package builds on top of the
 package to create SVG diagrams in a flexible and expressive way. It contains
 functions for:
 
-  - Drawing OpenSolid 2D geometric objects as SVG
+  - Drawing OpenSolid 2D geometry as SVG
   - Applying OpenSolid-based 2D transformations to arbitrary SVG elements
   - Converting SVG between different coordinate systems
 
