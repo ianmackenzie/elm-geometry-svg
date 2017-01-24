@@ -390,12 +390,23 @@ sketchPlane3dIcon =
 
 frame2dIcon : Svg Never
 frame2dIcon =
-    frame2d (Frame2d.at (Point2d ( 10, 10 )))
+    let
+        frame =
+            Frame2d.at (Point2d ( 25, 15 ))
+                |> Frame2d.rotateBy (degrees 20)
+    in
+        icon2d (frame2d frame)
 
 
 frame3dIcon : Svg Never
 frame3dIcon =
-    frame3d (Frame3d.at (Point3d ( 0, 20, 20 )))
+    let
+        frame =
+            Frame3d.at (Point3d ( 0, 30, 30 ))
+                |> Frame3d.rotateAroundOwn Frame3d.zAxis (degrees 20)
+                |> Frame3d.rotateAroundOwn Frame3d.xAxis (degrees 15)
+    in
+        icon3d (frame3d frame)
 
 
 vertex2d : Point2d -> Svg Never
