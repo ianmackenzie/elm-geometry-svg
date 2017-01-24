@@ -9,7 +9,7 @@ functions for:
   - Applying OpenSolid-based 2D transformations to arbitrary SVG elements
   - Converting SVG between different coordinate systems
 
-## Drawing functions
+## Drawing
 
 The `lineSegment2d`, `triangle2d`, `polyline2d`, `polygon2d`, and `circle2d`
 functions all produce standard
@@ -25,7 +25,7 @@ values that can be included in any SVG diagram:
 The appearance of the resulting elements can be customized by adding SVG
 attributes such as `fill` and `stroke`.
 
-## Transformation functions
+## Transformation
 
 The `scaleAbout`, `rotateAround`, `translateBy`, `mirrorAcross`, `relativeTo`
 and `placeIn` functions behave just like their standard OpenSolid counterparts.
@@ -37,7 +37,7 @@ as mirror a fragment of SVG across an arbitrary axis:
 ![translateBy](https://opensolid.github.io/images/svg/1.0/translateBy.svg)
 ![mirrorAcross](https://opensolid.github.io/images/svg/1.0/mirrorAcross.svg)
 
-## Coordinate transformation functions
+## Coordinate conversion
 
 The `relativeTo` and `placeIn` functions allow you to take SVG defined in one
 coordinate system and convert it to another. For example, you can take SVG
