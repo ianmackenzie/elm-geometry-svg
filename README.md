@@ -69,7 +69,7 @@ to the `dependencies` field in your project's `elm-package.json`.
 
 ## Documentation
 
-[Full API documentation](http://package.elm-lang.org/packages/opensolid/svg/1.0.0)
+[Full API documentation](http://package.elm-lang.org/packages/opensolid/svg/1.0.1)
 is available.
 
 ## Questions? Comments?
