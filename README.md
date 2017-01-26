@@ -1,7 +1,6 @@
 ## What is it?
 
-This [Elm](http://elm-lang.org) package builds on top of the
-[opensolid/geometry](http://package.elm-lang.org/packages/opensolid/geometry/latest)
+This [Elm](http://elm-lang.org) package uses the [opensolid/geometry](http://package.elm-lang.org/packages/opensolid/geometry/latest)
 package to create SVG diagrams in a flexible and expressive way. It contains
 functions for:
 
