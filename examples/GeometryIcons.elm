@@ -100,7 +100,7 @@ direction2d point direction =
     arrow [ Attributes.fill "white" ]
         { tipLength = 5, tipWidth = 5 }
         point
-        (Direction2d.times 25 direction)
+        (Direction2d.scaleBy 25 direction)
 
 
 direction3d : Point3d -> Direction3d -> Svg Never
@@ -108,7 +108,7 @@ direction3d point direction =
     arrow [ Attributes.fill "white" ]
         { tipLength = 5, tipWidth = 5 }
         (Point3d.projectInto viewPlane point)
-        (Vector3d.projectInto viewPlane (Direction3d.times 25 direction))
+        (Vector3d.projectInto viewPlane (Direction3d.scaleBy 25 direction))
 
 
 originPoint2d : Point2d -> Svg Never
@@ -390,12 +390,23 @@ sketchPlane3dIcon =
 
 frame2dIcon : Svg Never
 frame2dIcon =
-    frame2d (Frame2d.at (Point2d ( 10, 10 )))
+    let
+        frame =
+            Frame2d.at (Point2d ( 25, 15 ))
+                |> Frame2d.rotateBy (degrees 20)
+    in
+        icon2d (frame2d frame)
 
 
 frame3dIcon : Svg Never
 frame3dIcon =
-    frame3d (Frame3d.at (Point3d ( 0, 20, 20 )))
+    let
+        frame =
+            Frame3d.at (Point3d ( 0, 30, 30 ))
+                |> Frame3d.rotateAroundOwn Frame3d.zAxis (degrees 20)
+                |> Frame3d.rotateAroundOwn Frame3d.xAxis (degrees 15)
+    in
+        icon3d (frame3d frame)
 
 
 vertex2d : Point2d -> Svg Never

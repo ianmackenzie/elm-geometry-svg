@@ -1,13 +1,12 @@
 ## What is it?
 
-This [Elm](http://elm-lang.org) package builds on top of the
-[opensolid/geometry](http://package.elm-lang.org/packages/opensolid/geometry/latest)
-package to create SVG diagrams in a flexible and expressive way. It contains
-functions for:
+This [Elm](http://elm-lang.org) package provides functions to create and
+manipulate SVG elements using the [OpenSolid](http://package.elm-lang.org/packages/opensolid/geometry/latest)
+geometric data types. You can:
 
-  - Drawing OpenSolid 2D geometry as SVG
-  - Applying OpenSolid-based 2D transformations to arbitrary SVG elements
-  - Converting SVG between different coordinate systems
+  - Draw OpenSolid 2D geometric objects as SVG
+  - Apply OpenSolid-based 2D transformations to arbitrary SVG elements
+  - Convert SVG between different coordinate systems
 
 ## Drawing
 
@@ -66,8 +65,24 @@ in a command prompt inside your project directory or by adding
 "opensolid/svg": "1.0.0 <= v < 2.0.0"
 ```
 
-to your project's `elm-package.json`.
+to the `dependencies` field in your project's `elm-package.json`.
 
 ## Documentation
 
-Full API documentation is available.
+[Full API documentation](http://package.elm-lang.org/packages/opensolid/svg/1.0.1)
+is available.
+
+## Questions? Comments?
+
+Please [open a new issue](https://github.com/opensolid/svg/issues) if you
+run into a bug, if any documentation is missing/incorrect/confusing, or if
+there's a new feature that you would find useful. For general questions about
+using this package, try posting on:
+
+  - [Stack Overflow](https://stackoverflow.com/questions/ask?tags=opensolid+svg+elm)
+    (tag your question with 'opensolid', 'svg' and 'elm')
+  - The [r/elm](https://reddit.com/r/elm) subreddit
+  - The [elm-discuss](https://groups.google.com/forum/#!forum/elm-discuss)
+    Google Group
+
+Have fun, and don't be afraid to ask for help!
