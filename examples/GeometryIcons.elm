@@ -54,20 +54,20 @@ arrow attributes { tipLength, tipWidth } point vector =
                         , yDirection = Direction2d.perpendicularTo direction
                         }
 
-                place =
-                    Point2d.placeIn frame
+                localPoint coordinates =
+                    Point2d.placeIn frame (Point2d coordinates)
 
                 tipPoint =
-                    place (Point2d ( length, 0 ))
+                    localPoint ( length, 0 )
 
                 tipBasePoint =
-                    place (Point2d ( length - tipLength, 0 ))
+                    localPoint ( length - tipLength, 0 )
 
                 leftPoint =
-                    place (Point2d ( length - tipLength, tipWidth / 2 ))
+                    localPoint ( length - tipLength, tipWidth / 2 )
 
                 rightPoint =
-                    place (Point2d ( length - tipLength, -tipWidth / 2 ))
+                    localPoint ( length - tipLength, -tipWidth / 2 )
 
                 stem =
                     LineSegment2d ( point, tipBasePoint )
@@ -162,22 +162,22 @@ indicator3d =
 point2d : Point2d -> Svg Never
 point2d point =
     let
-        place =
-            Point2d.placeIn (Frame2d.at point)
-
         circle =
             Circle2d { centerPoint = point, radius = 2 }
 
+        localPoint coordinates =
+            Point2d.placeIn (Frame2d.at point) (Point2d coordinates)
+
         horizontal =
             LineSegment2d
-                ( place (Point2d ( -6, 0 ))
-                , place (Point2d ( 6, 0 ))
+                ( localPoint ( -6, 0 )
+                , localPoint ( 6, 0 )
                 )
 
         vertical =
             LineSegment2d
-                ( place (Point2d ( 0, -6 ))
-                , place (Point2d ( 0, 6 ))
+                ( localPoint ( 0, -6 )
+                , localPoint ( 0, 6 )
                 )
     in
         Svg.g []
