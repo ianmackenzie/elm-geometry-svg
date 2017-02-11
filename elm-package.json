@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "summary": "Render 2D OpenSolid types as SVG",
   "repository": "https://github.com/opensolid/svg.git",
   "license": "MPL-2.0",

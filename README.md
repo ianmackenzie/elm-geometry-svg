@@ -31,8 +31,8 @@ behave just like their standard OpenSolid counterparts. You can use them to do
 things that would be difficult to do using just SVG, such as mirror a fragment
 of SVG across an arbitrary axis:
 
-![scaleAbout](https://opensolid.github.io/images/svg/1.0/scaleAbout.svg)
-![rotateAround](https://opensolid.github.io/images/svg/1.0/rotateAround.svg)
+![scaleAbout](https://opensolid.github.io/images/svg/1.0.2/scaleAbout.svg)
+![rotateAround](https://opensolid.github.io/images/svg/1.0.2/rotateAround.svg)
 ![translateBy](https://opensolid.github.io/images/svg/1.0/translateBy.svg)
 ![mirrorAcross](https://opensolid.github.io/images/svg/1.0/mirrorAcross.svg)
 
@@ -69,7 +69,7 @@ to the `dependencies` field in your project's `elm-package.json`.
 
 ## Documentation
 
-[Full API documentation](http://package.elm-lang.org/packages/opensolid/svg/1.0.1/OpenSolid-Svg)
+[Full API documentation](http://package.elm-lang.org/packages/opensolid/svg/1.0.2/OpenSolid-Svg)
 is available.
 
 ## Questions? Comments?
