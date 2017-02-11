@@ -191,68 +191,6 @@ mirroredSvg =
             ]
 
 
-direction2d : Point2d -> Direction2d -> Svg msg
-direction2d basePoint direction =
-    let
-        frame =
-            Frame2d
-                { originPoint = basePoint
-                , xDirection = direction
-                , yDirection = Direction2d.perpendicularTo direction
-                }
-
-        tipPoint =
-            Point2d ( 50, 0 )
-
-        stemPoint =
-            Point2d ( 45, 0 )
-
-        leftPoint =
-            Point2d ( 45, 3 )
-
-        rightPoint =
-            Point2d ( 45, -3 )
-
-        stem =
-            LineSegment2d ( Point2d.origin, stemPoint )
-
-        tip =
-            Triangle2d ( tipPoint, leftPoint, rightPoint )
-
-        attributes =
-            [ Attributes.stroke "black"
-            , Attributes.fill "white"
-            , Attributes.strokeWidth "0.5"
-            ]
-    in
-        Svg.g attributes [ Svg.lineSegment2d [] stem, Svg.triangle2d [] tip ]
-            |> Svg.placeIn frame
-
-
-frame2d : Frame2d -> Svg msg
-frame2d frame =
-    let
-        originPoint =
-            Frame2d.originPoint frame
-
-        xDirection =
-            Frame2d.xDirection frame
-
-        yDirection =
-            Frame2d.yDirection frame
-    in
-        Svg.g []
-            [ direction2d originPoint xDirection
-            , direction2d originPoint yDirection
-            , Svg.circle2d
-                [ Attributes.stroke "black"
-                , Attributes.strokeWidth "0.5"
-                , Attributes.fill "white"
-                ]
-                (Circle2d { centerPoint = originPoint, radius = 3 })
-            ]
-
-
 placedSvg : Svg Never
 placedSvg =
     let
