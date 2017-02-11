@@ -282,16 +282,17 @@ circle2d attributes circle =
             referencePoint =
                 Point2d ( 100, 100 )
 
+            referencePointSvg =
+                Svg.circle2d [ Attributes.fill "black" ]
+                    (Circle2d { centerPoint = referencePoint, radius = 3 })
+
             scaledCircle : Float -> Svg Never
             scaledCircle scale =
                 Svg.scaleAbout referencePoint scale circleSvg
         in
-            Svg.g []
-                (centerPoint2d referencePoint
-                    :: List.map scaledCircle scales
-                )
+            Svg.g [] (referencePointSvg :: List.map scaledCircle scales)
 
-![scaleAbout](https://opensolid.github.io/images/svg/1.0/scaleAbout.svg)
+![scaleAbout](https://opensolid.github.io/images/svg/1.0.2/scaleAbout.svg)
 
 Note how _everything_ is scaled, including the stroke width of the circles. This
 may or may not be what you want; if you wanted the same stroke width on all
@@ -326,16 +327,17 @@ scaleAbout point scale element =
             referencePoint =
                 Point2d ( 200, 150 )
 
+            referencePointSvg =
+                Svg.circle2d [ Attributes.fill "black" ]
+                    (Circle2d { centerPoint = referencePoint, radius = 3 })
+
             rotatedCircle : Float -> Svg Never
             rotatedCircle angle =
                 Svg.rotateAround referencePoint angle circleSvg
         in
-            Svg.g []
-                (centerPoint2d referencePoint
-                    :: List.map rotatedCircle angles
-                )
+            Svg.g [] (referencePointSvg :: List.map rotatedCircle angles)
 
-![rotateAround](https://opensolid.github.io/images/svg/1.0/rotateAround.svg)
+![rotateAround](https://opensolid.github.io/images/svg/1.0.2/rotateAround.svg)
 -}
 rotateAround : Point2d -> Float -> Svg msg -> Svg msg
 rotateAround point angle =
@@ -370,18 +372,30 @@ translateBy vector =
                     , direction = Direction2d.x
                     }
 
+            horizontalAxisSegment =
+                LineSegment2d.along horizontalAxis 50 250
+
             angledAxis =
                 Axis2d
                     { originPoint = Point2d ( 0, 150 )
                     , direction = Direction2d.fromAngle (degrees -10)
                     }
+
+            angledAxisSegment =
+                LineSegment2d.along angledAxis 50 250
         in
             Svg.g []
                 [ polygonSvg
-                , axis2d horizontalAxis
                 , Svg.mirrorAcross horizontalAxis polygonSvg
-                , axis2d angledAxis
                 , Svg.mirrorAcross angledAxis polygonSvg
+                , Svg.g
+                    [ Attributes.strokeWidth "0.5"
+                    , Attributes.stroke "black"
+                    , Attributes.strokeDasharray "3 3"
+                    ]
+                    [ Svg.lineSegment2d [] horizontalAxisSegment
+                    , Svg.lineSegment2d [] angledAxisSegment
+                    ]
                 ]
 
 ![mirrorAcross](https://opensolid.github.io/images/svg/1.0/mirrorAcross.svg)

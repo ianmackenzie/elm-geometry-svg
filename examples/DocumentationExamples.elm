@@ -7,6 +7,7 @@ import OpenSolid.Geometry.Types exposing (..)
 import OpenSolid.Point2d as Point2d
 import OpenSolid.Direction2d as Direction2d
 import OpenSolid.Frame2d as Frame2d
+import OpenSolid.LineSegment2d as LineSegment2d
 import Html exposing (Html)
 
 
@@ -89,22 +90,6 @@ polygonSvg =
         )
 
 
-centerPoint2d : Point2d -> Svg Never
-centerPoint2d point =
-    let
-        ( x, y ) =
-            Point2d.coordinates point
-    in
-        Svg.g [ Attributes.stroke "black", Attributes.strokeWidth "1" ]
-            [ Svg.circle2d [ Attributes.fill "black" ]
-                (Circle2d { centerPoint = point, radius = 2 })
-            , Svg.lineSegment2d []
-                (LineSegment2d ( Point2d ( x - 6, y ), Point2d ( x + 6, y ) ))
-            , Svg.lineSegment2d []
-                (LineSegment2d ( Point2d ( x, y - 6 ), Point2d ( x, y + 6 ) ))
-            ]
-
-
 scaledSvg : Svg Never
 scaledSvg =
     let
@@ -114,14 +99,15 @@ scaledSvg =
         referencePoint =
             Point2d ( 100, 100 )
 
+        referencePointSvg =
+            Svg.circle2d [ Attributes.fill "black" ]
+                (Circle2d { centerPoint = referencePoint, radius = 3 })
+
         scaledCircle : Float -> Svg Never
         scaledCircle scale =
             Svg.scaleAbout referencePoint scale circleSvg
     in
-        Svg.g []
-            (centerPoint2d referencePoint
-                :: List.map scaledCircle scales
-            )
+        Svg.g [] (referencePointSvg :: List.map scaledCircle scales)
 
 
 rotatedSvg : Svg Never
@@ -134,14 +120,15 @@ rotatedSvg =
         referencePoint =
             Point2d ( 200, 150 )
 
+        referencePointSvg =
+            Svg.circle2d [ Attributes.fill "black" ]
+                (Circle2d { centerPoint = referencePoint, radius = 3 })
+
         rotatedCircle : Float -> Svg Never
         rotatedCircle angle =
             Svg.rotateAround referencePoint angle circleSvg
     in
-        Svg.g []
-            (centerPoint2d referencePoint
-                :: List.map rotatedCircle angles
-            )
+        Svg.g [] (referencePointSvg :: List.map rotatedCircle angles)
 
 
 translatedSvg : Svg Never
@@ -153,20 +140,6 @@ translatedSvg =
         ]
 
 
-axis2d : Axis2d -> Svg Never
-axis2d axis =
-    Svg.lineSegment2d
-        [ Attributes.strokeWidth "0.5"
-        , Attributes.stroke "black"
-        , Attributes.strokeDasharray "3 3"
-        ]
-        (LineSegment2d
-            ( Point2d.along axis 50
-            , Point2d.along axis 250
-            )
-        )
-
-
 mirroredSvg : Svg Never
 mirroredSvg =
     let
@@ -176,18 +149,30 @@ mirroredSvg =
                 , direction = Direction2d.x
                 }
 
+        horizontalAxisSegment =
+            LineSegment2d.along horizontalAxis 50 250
+
         angledAxis =
             Axis2d
                 { originPoint = Point2d ( 0, 150 )
                 , direction = Direction2d.fromAngle (degrees -10)
                 }
+
+        angledAxisSegment =
+            LineSegment2d.along angledAxis 50 250
     in
         Svg.g []
             [ polygonSvg
-            , axis2d horizontalAxis
             , Svg.mirrorAcross horizontalAxis polygonSvg
-            , axis2d angledAxis
             , Svg.mirrorAcross angledAxis polygonSvg
+            , Svg.g
+                [ Attributes.strokeWidth "0.5"
+                , Attributes.stroke "black"
+                , Attributes.strokeDasharray "3 3"
+                ]
+                [ Svg.lineSegment2d [] horizontalAxisSegment
+                , Svg.lineSegment2d [] angledAxisSegment
+                ]
             ]
 
 
