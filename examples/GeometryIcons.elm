@@ -25,6 +25,7 @@ import OpenSolid.Triangle2d as Triangle2d
 import OpenSolid.Triangle3d as Triangle3d
 import OpenSolid.BoundingBox2d as BoundingBox2d
 import OpenSolid.BoundingBox3d as BoundingBox3d
+import OpenSolid.Circle3d as Circle3d
 import Html exposing (Html)
 import Html.Attributes
 
@@ -619,6 +620,55 @@ boundingBox3dIcon =
         icon3d (boundingBox3d boundingBox)
 
 
+circle3d : Circle3d -> Svg Never
+circle3d circle =
+    let
+        projectedCenter =
+            Point3d.projectInto viewPlane (Circle3d.centerPoint circle)
+
+        ( x, y ) =
+            Point2d.coordinates projectedCenter
+
+        axialDirection =
+            Circle3d.axialDirection circle
+
+        xDirection =
+            axialDirection
+                |> Direction3d.projectInto viewPlane
+                |> Maybe.withDefault Direction2d.x
+
+        yDirection =
+            Direction2d.perpendicularTo xDirection
+
+        radius =
+            Circle3d.radius circle
+
+        normalDirection =
+            SketchPlane3d.normalDirection viewPlane
+
+        xRatio =
+            abs (Direction3d.componentIn normalDirection axialDirection)
+
+        frame =
+            Frame2d
+                { originPoint = projectedCenter
+                , xDirection = xDirection
+                , yDirection = yDirection
+                }
+    in
+        Svg.g []
+            [ Svg.ellipse
+                [ Attributes.cx "0"
+                , Attributes.cy "0"
+                , Attributes.rx (toString (xRatio * radius))
+                , Attributes.ry (toString radius)
+                , Attributes.fill "none"
+                ]
+                []
+            ]
+            |> Svg.placeIn frame
+
+
 circle2dIcon : Svg Never
 circle2dIcon =
     let
@@ -633,6 +683,31 @@ circle2dIcon =
             , point2d centerPoint
             ]
             |> icon2d
+
+
+circle3dIcon : Svg Never
+circle3dIcon =
+    let
+        centerPoint =
+            Point3d ( 0, 30, 30 )
+
+        axialDirection =
+            Direction2d.fromAngle (degrees 70)
+                |> Direction2d.placeOnto (SketchPlane3d.yz)
+
+        circle =
+            Circle3d
+                { centerPoint = centerPoint
+                , axialDirection = axialDirection
+                , radius = 15
+                }
+    in
+        Svg.g []
+            [ circle3d circle
+            , point3d centerPoint
+            , direction3d centerPoint axialDirection
+            ]
+            |> icon3d
 
 
 polyline2dIcon : Svg Never
@@ -698,6 +773,7 @@ icons =
     , boundingBox2dIcon
     , boundingBox3dIcon
     , circle2dIcon
+    , circle3dIcon
     , polyline2dIcon
     , polyline3dIcon
     , polygon2dIcon
