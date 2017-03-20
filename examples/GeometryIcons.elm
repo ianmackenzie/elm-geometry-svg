@@ -100,7 +100,7 @@ direction2d point direction =
     arrow [ Attributes.fill "white" ]
         { tipLength = 5, tipWidth = 5 }
         point
-        (Direction2d.scaleBy 25 direction)
+        (Vector2d.in_ direction 25)
 
 
 direction3d : Point3d -> Direction3d -> Svg Never
@@ -108,7 +108,7 @@ direction3d point direction =
     arrow [ Attributes.fill "white" ]
         { tipLength = 5, tipWidth = 5 }
         (Point3d.projectInto viewPlane point)
-        (Vector3d.projectInto viewPlane (Direction3d.scaleBy 25 direction))
+        (Vector3d.projectInto viewPlane (Vector3d.in_ direction 25))
 
 
 originPoint2d : Point2d -> Svg Never
@@ -671,7 +671,7 @@ polygon2dIcon =
         polygon =
             List.range 0 4
                 |> List.map (\n -> turns (toFloat n / 5))
-                |> List.map (\angle -> Point2d (fromPolar ( 15, angle )))
+                |> List.map (\angle -> Point2d.polar ( 15, angle ))
                 |> List.map (Point2d.translateBy (Vector2d ( 25, 25 )))
                 |> Polygon2d
     in

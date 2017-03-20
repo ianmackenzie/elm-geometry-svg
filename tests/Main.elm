@@ -14,21 +14,15 @@ import OpenSolid.Svg as Svg
 main : Html msg
 main =
     let
-        angles =
-            List.map (\index -> degrees (6 * index)) [0..15]
-
         --Raw geometry
-        polarPoint angle =
-            Point2d (fromPolar ( 300, angle ))
+        angles =
+            List.map (\index -> degrees (6 * toFloat index)) (List.range 0 15)
 
         points =
-            List.map polarPoint angles
-
-        segmentFromOrigin point =
-            LineSegment2d ( Point2d.origin, point )
+            List.map (\angle -> Point2d.polar ( 300, angle )) angles
 
         lineSegments =
-            List.map segmentFromOrigin points
+            List.map (\point -> LineSegment2d ( Point2d.origin, point )) points
 
         firstTriangle =
             Triangle2d
@@ -44,8 +38,9 @@ main =
             List.map rotatedTriangle angles
 
         -- Drawing functions
-        point2d =
-            Svg.point2d [ Attributes.r "5", Attributes.fill "cornflowerblue" ]
+        point2d point =
+            Svg.circle2d [ Attributes.fill "cornflowerblue" ]
+                (Circle2d { centerPoint = point, radius = 5 })
 
         lineSegment2d =
             Svg.lineSegment2d [ Attributes.strokeWidth "0.5" ]
@@ -77,12 +72,9 @@ main =
                 |> Svg.rotateAround Point2d.origin (degrees 45)
 
         originElement =
-            Svg.point2d
-                [ Attributes.r "5"
-                , Attributes.strokeWidth "0.5"
-                , Attributes.fill "white"
-                ]
-                Point2d.origin
+            Svg.circle2d
+                [ Attributes.strokeWidth "0.5", Attributes.fill "white" ]
+                (Circle2d { centerPoint = Point2d.origin, radius = 5 })
 
         -- Top level group
         defaultAttributes =
