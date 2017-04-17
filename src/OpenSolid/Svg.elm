@@ -422,11 +422,13 @@ cubicSpline2d attributes spline =
             [ "M"
             , toString x1
             , toString y1
-            , "Q"
+            , "C"
             , toString x2
             , toString y2
             , toString x3
             , toString y3
+            , toString x4
+            , toString y4
             ]
 
         pathAttribute =
