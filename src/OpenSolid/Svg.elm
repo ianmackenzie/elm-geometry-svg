@@ -91,6 +91,7 @@ can be more efficient since the geometry itself does not have to be recreated
 
 @docs scaleAbout, rotateAround, translateBy, mirrorAcross
 
+
 # Coordinate transformations
 
 Similar to the above transformations, these functions allow OpenSolid coordinate
