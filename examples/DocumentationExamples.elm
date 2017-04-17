@@ -9,6 +9,7 @@ import OpenSolid.Direction2d as Direction2d
 import OpenSolid.Frame2d as Frame2d
 import OpenSolid.LineSegment2d as LineSegment2d
 import Html exposing (Html)
+import Html.Attributes
 
 
 circleSvg : Svg Never
@@ -228,6 +229,10 @@ example ( minX, minY ) ( maxX, maxY ) svg =
             [ Svg.svg
                 [ Attributes.width (toString width)
                 , Attributes.height (toString height)
+                , Html.Attributes.style
+                    [ ( "border", "1px solid lightgrey" )
+                    , ( "margin", "10px" )
+                    ]
                 ]
                 [ Svg.relativeTo topLeftFrame svg ]
             ]
@@ -247,11 +252,6 @@ examples =
     ]
 
 
-divider : Html Never
-divider =
-    Html.hr [] []
-
-
 main : Html Never
 main =
-    Html.div [] (examples |> List.intersperse divider)
+    Html.div [] examples
