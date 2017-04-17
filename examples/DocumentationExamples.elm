@@ -107,6 +107,22 @@ arcSvg =
         )
 
 
+quadraticSplineSvg : Svg Never
+quadraticSplineSvg =
+    Svg.quadraticSpline2d
+        [ Attributes.stroke "blue"
+        , Attributes.strokeWidth "3"
+        , Attributes.strokeLinecap "round"
+        , Attributes.fill "none"
+        ]
+        (QuadraticSpline2d
+            ( Point2d ( 50, 50 )
+            , Point2d ( 100, 150 )
+            , Point2d ( 150, 100 )
+            )
+        )
+
+
 scaledSvg : Svg Never
 scaledSvg =
     let
@@ -261,6 +277,7 @@ examples =
     , example ( 90, 90 ) ( 210, 210 ) polylineSvg
     , example ( 90, 140 ) ( 210, 210 ) polygonSvg
     , example ( 70, 60 ) ( 170, 170 ) arcSvg
+    , example ( 35, 35 ) ( 165, 130 ) quadraticSplineSvg
     , example ( 90, 90 ) ( 250, 250 ) scaledSvg
     , example ( 130, 80 ) ( 270, 220 ) rotatedSvg
     , example ( 87, 25 ) ( 215, 255 ) translatedSvg
