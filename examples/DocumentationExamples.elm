@@ -223,14 +223,6 @@ example ( minX, minY ) ( maxX, maxY ) svg =
                 , xDirection = Direction2d.x
                 , yDirection = Direction2d.flip Direction2d.y
                 }
-
-        outline =
-            Polygon2d
-                [ Point2d.origin
-                , Point2d ( 0, height )
-                , Point2d ( width, height )
-                , Point2d ( width, 0 )
-                ]
     in
         Html.div []
             [ Svg.svg
