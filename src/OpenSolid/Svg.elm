@@ -4,7 +4,10 @@ module OpenSolid.Svg
         , triangle2d
         , polyline2d
         , polygon2d
+        , arc2d
         , circle2d
+        , quadraticSpline2d
+        , cubicSpline2d
         , scaleAbout
         , rotateAround
         , translateBy
@@ -49,7 +52,7 @@ attributes such as `points` and `transform` set appropriately. Each function
 also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
-@docs lineSegment2d, triangle2d, polyline2d, polygon2d, circle2d
+@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d, cubicSpline2d
 
 
 # Transformations
@@ -111,7 +114,10 @@ import OpenSolid.LineSegment2d as LineSegment2d
 import OpenSolid.Triangle2d as Triangle2d
 import OpenSolid.Polyline2d as Polyline2d
 import OpenSolid.Polygon2d as Polygon2d
+import OpenSolid.Arc2d as Arc2d
 import OpenSolid.Circle2d as Circle2d
+import OpenSolid.QuadraticSpline2d as QuadraticSpline2d
+import OpenSolid.CubicSpline2d as CubicSpline2d
 
 
 coordinatesString : Point2d -> String
@@ -245,6 +251,87 @@ polygon2d attributes polygon =
         Svg.polygon (pointsAttribute vertices :: attributes) []
 
 
+{-| Draw an `Arc2d` as an SVG `<path>` with the given attributes.
+
+    arcSvg : Svg Never
+    arcSvg =
+        Svg.arc2d
+            [ Attributes.stroke "blue"
+            , Attributes.strokeWidth "5"
+            ]
+            (Arc2d
+                { centerPoint = Point2d ( 100, 100 )
+                , startPoint = Point2d ( 150, 50 )
+                , sweptAngle = degrees 90
+                }
+            )
+
+![arc2d](https://opensolid.github.io/images/svg/1.0/arc2d.svg)
+
+-}
+arc2d : List (Attribute msg) -> Arc2d -> Svg msg
+arc2d attributes arc =
+    let
+        sweptAngle =
+            Arc2d.sweptAngle arc
+
+        maxSegmentAngle =
+            2 * pi / 3
+
+        numSegments =
+            1 + floor (abs sweptAngle / maxSegmentAngle)
+
+        sweepFlag =
+            if sweptAngle >= 0 then
+                "1"
+            else
+                "0"
+
+        ( x0, y0 ) =
+            Point2d.coordinates (Arc2d.startPoint arc)
+
+        radius =
+            Arc2d.radius arc
+
+        radiusString =
+            toString radius
+
+        moveCommand =
+            [ "M"
+            , toString x0
+            , toString y0
+            ]
+
+        arcSegment index =
+            let
+                t =
+                    toFloat index / toFloat numSegments
+
+                ( x, y ) =
+                    Point2d.coordinates (Arc2d.point arc t)
+            in
+                [ "A"
+                , radiusString
+                , radiusString
+                , "0"
+                , "0"
+                , sweepFlag
+                , toString x
+                , toString y
+                ]
+
+        arcSegments =
+            List.map arcSegment (List.range 1 numSegments)
+
+        pathComponents =
+            moveCommand ++ List.concat arcSegments
+
+        pathAttribute =
+            Attributes.d (String.join " " pathComponents)
+    in
+        Svg.path (pathAttribute :: attributes) []
+
+
 {-| Draw a `Circle2d` as an SVG `<circle>` with the given attributes.
 
     circleSvg : Svg Never
@@ -279,6 +366,73 @@ circle2d attributes circle =
             Attributes.r (toString (Circle2d.radius circle))
     in
         Svg.circle (cx :: cy :: r :: attributes) []
+
+
+quadraticSpline2d : List (Attribute msg) -> QuadraticSpline2d -> Svg msg
+quadraticSpline2d attributes spline =
+    let
+        ( p1, p2, p3 ) =
+            QuadraticSpline2d.controlPoints spline
+
+        ( x1, y1 ) =
+            Point2d.coordinates p1
+
+        ( x2, y2 ) =
+            Point2d.coordinates p2
+
+        ( x3, y3 ) =
+            Point2d.coordinates p3
+
+        pathComponents =
+            [ "M"
+            , toString x1
+            , toString y1
+            , "Q"
+            , toString x2
+            , toString y2
+            , toString x3
+            , toString y3
+            ]
+
+        pathAttribute =
+            Attributes.d (String.join " " pathComponents)
+    in
+        Svg.path (pathAttribute :: attributes) []
+
+
+cubicSpline2d : List (Attribute msg) -> CubicSpline2d -> Svg msg
+cubicSpline2d attributes spline =
+    let
+        ( p1, p2, p3, p4 ) =
+            CubicSpline2d.controlPoints spline
+
+        ( x1, y1 ) =
+            Point2d.coordinates p1
+
+        ( x2, y2 ) =
+            Point2d.coordinates p2
+
+        ( x3, y3 ) =
+            Point2d.coordinates p3
+
+        ( x4, y4 ) =
+            Point2d.coordinates p4
+
+        pathComponents =
+            [ "M"
+            , toString x1
+            , toString y1
+            , "Q"
+            , toString x2
+            , toString y2
+            , toString x3
+            , toString y3
+            ]
+
+        pathAttribute =
+            Attributes.d (String.join " " pathComponents)
+    in
+        Svg.path (pathAttribute :: attributes) []
 
 
 {-| Scale arbitrary SVG around a given point by a given scale.
