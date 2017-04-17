@@ -21,6 +21,7 @@ module OpenSolid.Svg
   - [Convert](#coordinate-transformations) SVG between different coordinate
     systems
 
+
 ## Reading this documentation
 
 For the examples, assume that the following imports are present:
@@ -40,6 +41,7 @@ coordinate system; they were all rendered with a final
 <code>Svg.relativeTo&nbsp;topLeftFrame</code> call as described in the
 [relativeTo](#relativeTo) documentation.
 
+
 # Geometry
 
 These functions turn OpenSolid values into SVG elements with geometric
@@ -48,6 +50,7 @@ also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
 @docs lineSegment2d, triangle2d, polyline2d, polygon2d, circle2d
+
 
 # Transformations
 
@@ -94,6 +97,7 @@ Similar to the above transformations, these functions allow OpenSolid coordinate
 conversion transformations to be applied to arbitrary SVG elements.
 
 @docs relativeTo, placeIn
+
 -}
 
 import Svg as Svg exposing (Svg, Attribute)
@@ -138,6 +142,7 @@ pointsAttribute points =
             )
 
 ![lineSegment2d](https://opensolid.github.io/images/svg/1.0/lineSegment2d.svg)
+
 -}
 lineSegment2d : List (Attribute msg) -> LineSegment2d -> Svg msg
 lineSegment2d attributes lineSegment =
@@ -166,6 +171,7 @@ lineSegment2d attributes lineSegment =
             )
 
 ![triangle2d](https://opensolid.github.io/images/svg/1.0/triangle2d.svg)
+
 -}
 triangle2d : List (Attribute msg) -> Triangle2d -> Svg msg
 triangle2d attributes triangle =
@@ -198,6 +204,7 @@ triangle2d attributes triangle =
             )
 
 ![polyline2d](https://opensolid.github.io/images/svg/1.0/polyline2d.svg)
+
 -}
 polyline2d : List (Attribute msg) -> Polyline2d -> Svg msg
 polyline2d attributes polyline =
@@ -226,6 +233,7 @@ polyline2d attributes polyline =
             )
 
 ![polygon2d](https://opensolid.github.io/images/svg/1.0/polygon2d.svg)
+
 -}
 polygon2d : List (Attribute msg) -> Polygon2d -> Svg msg
 polygon2d attributes polygon =
@@ -252,6 +260,7 @@ polygon2d attributes polygon =
             )
 
 ![circle2d](https://opensolid.github.io/images/svg/1.0/circle2d.svg)
+
 -}
 circle2d : List (Attribute msg) -> Circle2d -> Svg msg
 circle2d attributes circle =
@@ -294,11 +303,12 @@ circle2d attributes circle =
 
 ![scaleAbout](https://opensolid.github.io/images/svg/1.0.2/scaleAbout.svg)
 
-Note how _everything_ is scaled, including the stroke width of the circles. This
+Note how *everything* is scaled, including the stroke width of the circles. This
 may or may not be what you want; if you wanted the same stroke width on all
 circles, you could instead scale the `Circle2d` values themselves using
 `Circle2d.scaleAbout` and then draw the scaled circles with a specific stroke
 width using `Svg.circle2d`.
+
 -}
 scaleAbout : Point2d -> Float -> Svg msg -> Svg msg
 scaleAbout point scale element =
@@ -338,6 +348,7 @@ scaleAbout point scale element =
             Svg.g [] (referencePointSvg :: List.map rotatedCircle angles)
 
 ![rotateAround](https://opensolid.github.io/images/svg/1.0.2/rotateAround.svg)
+
 -}
 rotateAround : Point2d -> Float -> Svg msg -> Svg msg
 rotateAround point angle =
@@ -355,6 +366,7 @@ rotateAround point angle =
             ]
 
 ![translateBy](https://opensolid.github.io/images/svg/1.0/translateBy.svg)
+
 -}
 translateBy : Vector2d -> Svg msg -> Svg msg
 translateBy vector =
@@ -399,6 +411,7 @@ translateBy vector =
                 ]
 
 ![mirrorAcross](https://opensolid.github.io/images/svg/1.0/mirrorAcross.svg)
+
 -}
 mirrorAcross : Axis2d -> Svg msg -> Svg msg
 mirrorAcross axis =
@@ -430,6 +443,7 @@ into top-left SVG window coordinates and render the result to HTML with
 
     Svg.svg [ Attributes.width "300", Attributes.height "300" ]
         [ Svg.relativeTo topLeftFrame scene ]
+
 -}
 relativeTo : Frame2d -> Svg msg -> Svg msg
 relativeTo frame =
@@ -474,6 +488,7 @@ positions with different orientations:
             Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
 
 ![placeIn](https://opensolid.github.io/images/svg/1.0/placeIn.svg)
+
 -}
 placeIn : Frame2d -> Svg msg -> Svg msg
 placeIn frame element =
