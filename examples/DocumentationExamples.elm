@@ -91,6 +91,22 @@ polygonSvg =
         )
 
 
+arcSvg : Svg Never
+arcSvg =
+    Svg.arc2d
+        [ Attributes.stroke "blue"
+        , Attributes.strokeWidth "5"
+        , Attributes.fill "none"
+        , Attributes.strokeLinecap "round"
+        ]
+        (Arc2d
+            { centerPoint = Point2d ( 100, 100 )
+            , startPoint = Point2d ( 150, 75 )
+            , sweptAngle = degrees 135
+            }
+        )
+
+
 scaledSvg : Svg Never
 scaledSvg =
     let
@@ -244,6 +260,7 @@ examples =
     , example ( 90, 90 ) ( 210, 210 ) triangleSvg
     , example ( 90, 90 ) ( 210, 210 ) polylineSvg
     , example ( 90, 140 ) ( 210, 210 ) polygonSvg
+    , example ( 70, 60 ) ( 170, 170 ) arcSvg
     , example ( 90, 90 ) ( 250, 250 ) scaledSvg
     , example ( 130, 80 ) ( 270, 220 ) rotatedSvg
     , example ( 87, 25 ) ( 215, 255 ) translatedSvg
