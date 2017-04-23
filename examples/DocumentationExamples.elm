@@ -253,8 +253,8 @@ example ( minX, minY ) ( maxX, maxY ) svg =
         topLeftFrame =
             Frame2d
                 { originPoint = Point2d ( minX, maxY )
-                , xDirection = Direction2d.x
-                , yDirection = Direction2d.flip Direction2d.y
+                , xDirection = Direction2d.positiveX
+                , yDirection = Direction2d.negativeY
                 }
     in
         Html.div []
