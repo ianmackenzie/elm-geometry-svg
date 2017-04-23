@@ -589,8 +589,8 @@ the model coordinate system:
     topLeftFrame =
         Frame2d
             { originPoint = Point2d ( 0, 300 )
-            , xDirection = Direction2d.x
-            , yDirection = Direction2d.flip Direction2d.y
+            , xDirection = Direction2d.positiveX
+            , yDirection = Direction2d.negativeY
             }
 
 (As expressed in the model frame, the top-left SVG frame is at the point

@@ -229,8 +229,8 @@ logo model =
         topLeftFrame =
             Frame2d
                 { originPoint = Point2d ( -250, 250 )
-                , xDirection = Direction2d.x
-                , yDirection = Direction2d.flip Direction2d.y
+                , xDirection = Direction2d.positiveX
+                , yDirection = Direction2d.negativeY
                 }
 
         scene =
