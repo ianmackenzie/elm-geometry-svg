@@ -257,14 +257,15 @@ example ( minX, minY ) ( maxX, maxY ) svg =
                 , yDirection = Direction2d.negativeY
                 }
     in
-        Html.div []
+        Html.div
+            [ Html.Attributes.style
+                [ ( "border", "1px solid lightgrey" )
+                , ( "margin", "10px" )
+                ]
+            ]
             [ Svg.svg
                 [ Attributes.width (toString width)
                 , Attributes.height (toString height)
-                , Html.Attributes.style
-                    [ ( "border", "1px solid lightgrey" )
-                    , ( "margin", "10px" )
-                    ]
                 ]
                 [ Svg.relativeTo topLeftFrame svg ]
             ]
