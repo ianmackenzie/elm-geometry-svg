@@ -7,7 +7,7 @@ module OpenSolid.Svg
         , arc2d
         , circle2d
         , quadraticSpline2d
-        , cubicSpline2d
+          --, cubicSpline2d
         , scaleAbout
         , rotateAround
         , translateBy
@@ -52,7 +52,7 @@ attributes such as `points` and `transform` set appropriately. Each function
 also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
-@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d, cubicSpline2d
+@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d
 
 
 # Transformations
