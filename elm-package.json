@@ -4,7 +4,7 @@
   "repository": "https://github.com/opensolid/svg.git",
   "license": "MPL-2.0",
   "source-directories": [
-    "src"
+    "src",
     "../geometry/src"
   ],
   "exposed-modules": [
