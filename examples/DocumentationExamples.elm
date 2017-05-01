@@ -12,6 +12,99 @@ import Html exposing (Html)
 import Html.Attributes
 
 
+arrowSvg : Svg Never
+arrowSvg =
+    Svg.arrow2d
+        { tipLength = 30
+        , tipWidth = 15
+        , tipAttributes =
+            [ Attributes.fill "orange"
+            , Attributes.stroke "blue"
+            , Attributes.strokeWidth "2"
+            ]
+        , stemAttributes =
+            [ Attributes.stroke "blue"
+            , Attributes.strokeWidth "3"
+            , Attributes.strokeDasharray "3 3"
+            ]
+        , groupAttributes = []
+        }
+        (Point2d ( 100, 100 ))
+        (Point2d ( 200, 200 ))
+
+
+vectorSvg : Svg Never
+vectorSvg =
+    let
+        basePoint =
+            Point2d ( 100, 100 )
+
+        vectors =
+            [ Vector2d ( 100, 0 )
+            , Vector2d ( 100, 50 )
+            , Vector2d ( 100, 100 )
+            , Vector2d ( 50, 100 )
+            , Vector2d ( 0, 100 )
+            ]
+
+        attributes =
+            [ Attributes.stroke "blue"
+            , Attributes.fill "blue"
+            ]
+
+        draw vector =
+            Svg.vector2d attributes basePoint vector
+    in
+        Svg.g [] (List.map draw vectors)
+
+
+directionSvg : Svg Never
+directionSvg =
+    let
+        basePoint =
+            Point2d ( 100, 100 )
+
+        length =
+            100
+
+        directions =
+            [ 0, 15, 30, 45, 60, 75, 90 ]
+                |> List.map degrees
+                |> List.map Direction2d.fromAngle
+
+        attributes =
+            [ Attributes.stroke "blue" ]
+
+        draw direction =
+            Svg.direction2d attributes basePoint length direction
+    in
+        Svg.g [] (List.map draw directions)
+
+
+pointSvg : Svg Never
+pointSvg =
+    let
+        points =
+            [ Point2d ( 100, 100 )
+            , Point2d ( 200, 200 )
+            , Point2d ( 110, 130 )
+            , Point2d ( 140, 180 )
+            , Point2d ( 170, 110 )
+            , Point2d ( 180, 150 )
+            , Point2d ( 110, 190 )
+            ]
+
+        attributes =
+            [ Attributes.stroke "blue"
+            , Attributes.fill "white"
+            ]
+
+        draw point =
+            Svg.point2d attributes point
+    in
+        Svg.g [] (List.map draw points)
+
+
 circleSvg : Svg Never
 circleSvg =
     Svg.circle2d
@@ -272,7 +365,11 @@ example ( minX, minY ) ( maxX, maxY ) svg =
 
 
 examples =
-    [ example ( 130, 130 ) ( 170, 170 ) circleSvg
+    [ example ( 90, 90 ) ( 210, 210 ) arrowSvg
+    , example ( 90, 90 ) ( 210, 210 ) vectorSvg
+    , example ( 90, 90 ) ( 210, 210 ) directionSvg
+    , example ( 90, 90 ) ( 210, 210 ) pointSvg
+    , example ( 130, 130 ) ( 170, 170 ) circleSvg
     , example ( 90, 90 ) ( 210, 210 ) lineSegmentSvg
     , example ( 90, 90 ) ( 210, 210 ) triangleSvg
     , example ( 90, 90 ) ( 210, 210 ) polylineSvg
