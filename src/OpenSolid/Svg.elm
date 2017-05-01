@@ -1,6 +1,11 @@
 module OpenSolid.Svg
     exposing
-        ( lineSegment2d
+        ( vector2d
+        , direction2d
+        , point2d
+        , ArrowOptions
+        , arrow2d
+        , lineSegment2d
         , triangle2d
         , polyline2d
         , polygon2d
@@ -43,6 +48,18 @@ All examples use a Y-up coordinate system instead of SVG's Y-down (window)
 coordinate system; they were all rendered with a final
 <code>Svg.relativeTo&nbsp;topLeftFrame</code> call as described in the
 [relativeTo](#relativeTo) documentation.
+
+
+# Primitives
+
+The basic primitive types (points, directions, vectors) don't have an obvious
+mapping to SVG, but the functions in this section attempt to provide a simple
+default way to draw each of them. If you want more customization, you will
+likely need to write your own custom helper functions (perhaps using other
+functions from this package); for example, a 'crosshair' style point might be
+formed from a combination of `circle2d` and `lineSegment2d` calls.
+
+@docs vector2d, direction2d, point2d, ArrowOptions, arrow2d
 
 
 # Geometry
@@ -109,6 +126,7 @@ import Svg.Attributes as Attributes
 import OpenSolid.Geometry.Types exposing (..)
 import OpenSolid.Point2d as Point2d
 import OpenSolid.Direction2d as Direction2d
+import OpenSolid.Vector2d as Vector2d
 import OpenSolid.Frame2d as Frame2d
 import OpenSolid.LineSegment2d as LineSegment2d
 import OpenSolid.Triangle2d as Triangle2d
@@ -132,6 +150,218 @@ coordinatesString point =
 pointsAttribute : List Point2d -> Attribute msg
 pointsAttribute points =
     Attributes.points (String.join " " (List.map coordinatesString points))
+
+
+{-| Draw the given vector from the given base point, with the given attributes.
+The tip of the vector will have length 8 and width 6, and will be filled black
+unless a custom fill color is set. If you want a different appearance, use the
+`arrow` function instead which allows these options to be customized.
+
+    vectorSvg : Svg Never
+    vectorSvg =
+        let
+            basePoint =
+                Point2d ( 100, 100 )
+
+            vectors =
+                [ Vector2d ( 100, 0 )
+                , Vector2d ( 100, 50 )
+                , Vector2d ( 100, 100 )
+                , Vector2d ( 50, 100 )
+                , Vector2d ( 0, 100 )
+                ]
+
+            attributes =
+                [ Attributes.stroke "blue"
+                , Attributes.fill "blue"
+                ]
+
+            draw vector =
+                Svg.vector2d attributes basePoint vector
+        in
+            Svg.g [] (List.map draw vectors)
+
+![vector2d](https://opensolid.github.io/images/svg/1.1/vector2d.svg)
+
+-}
+vector2d : List (Attribute msg) -> Point2d -> Vector2d -> Svg msg
+vector2d attributes basePoint vector =
+    arrow2d
+        { tipLength = 8
+        , tipWidth = 6
+        , stemAttributes = []
+        , tipAttributes = []
+        , groupAttributes = Attributes.fill "black" :: attributes
+        }
+        basePoint
+        (Point2d.translateBy vector basePoint)
+
+
+{-| Draw the given direction from the given base point, with the given displayed
+length and attributes. The tip of the direction will have length 7 and width 7,
+and will be filled white unless a custom fill color is set. If you want a
+different appearance, use the `arrow` function instead which allows these
+options to be customized.
+
+    directionSvg : Svg Never
+    directionSvg =
+        let
+            basePoint =
+                Point2d ( 100, 100 )
+
+            length =
+                50
+
+            directions =
+                [ 0, 15, 30, 45, 60, 75, 90 ]
+                    |> List.map degrees
+                    |> List.map Direction2d.fromAngle
+
+            attributes =
+                [ Attributes.stroke "blue" ]
+
+            draw direction =
+                Svg.direction2d attributes basePoint length direction
+        in
+            Svg.g [] (List.map draw directions)
+
+![direction2d](https://opensolid.github.io/images/svg/1.1/direction2d.svg)
+
+-}
+direction2d : List (Attribute msg) -> Point2d -> Float -> Direction2d -> Svg msg
+direction2d attributes basePoint length direction =
+    arrow2d
+        { tipLength = 7
+        , tipWidth = 7
+        , stemAttributes = []
+        , tipAttributes = []
+        , groupAttributes = Attributes.fill "white" :: attributes
+        }
+        basePoint
+        (Point2d.translateBy (Vector2d.in_ direction length) basePoint)
+
+
+{-| Draw the given point as a circle with radius 2.
+
+    pointSvg : Svg Never
+    pointSvg =
+        let
+            points =
+                [ Point2d ( 100, 100 )
+                , Point2d ( 200, 200 )
+                , Point2d ( 110, 130 )
+                , Point2d ( 140, 180 )
+                , Point2d ( 170, 110 )
+                , Point2d ( 180, 150 )
+                , Point2d ( 110, 190 )
+                ]
+
+            attributes =
+                [ Attributes.stroke "blue"
+                , Attributes.fill "white"
+                ]
+
+            draw point =
+                Svg.point2d attributes point
+        in
+            Svg.g [] (List.map draw points)
+
+![point2d](https://opensolid.github.io/images/svg/1.1/point2d.svg)
+
+-}
+point2d : List (Attribute msg) -> Point2d -> Svg msg
+point2d attributes point =
+    circle2d attributes (Circle2d { centerPoint = point, radius = 3 })
+
+
+{-| Options type used by the `arrow` function.
+-}
+type alias ArrowOptions msg =
+    { tipWidth : Float
+    , tipLength : Float
+    , stemAttributes : List (Attribute msg)
+    , tipAttributes : List (Attribute msg)
+    , groupAttributes : List (Attribute msg)
+    }
+
+
+{-| Draw an arrow from the first given point to the second using the given
+options. Nothing will be drawn if the points are coincident. Arrows are composed
+of a stem line and a tip triangle and have the following options:
+
+  - `tipWidth` is the width of the tip triangle
+  - `tipLength` is the length of the tip triangle
+  - `stemAttributes` are applied to the stem line
+  - `tipAttributes` are applied to the tip triangle
+  - `groupAttributes` are applied to the group formed by the stem line and
+    tip triangle (the entire arrow)
+
+Both `vector2d` and `direction2d` are defined in terms of `arrow2d`, so it is
+useful when more customization is needed.
+
+    arrowSvg : Svg Never
+    arrowSvg =
+        Svg.arrow2d
+            { tipLength = 30
+            , tipWidth = 15
+            , tipAttributes =
+                [ Attributes.fill "orange"
+                , Attributes.stroke "blue"
+                , Attributes.strokeWidth "2"
+                ]
+            , stemAttributes =
+                [ Attributes.stroke "blue"
+                , Attributes.strokeWidth "3"
+                , Attributes.strokeDasharray "3 3"
+                ]
+            , groupAttributes = []
+            }
+            (Point2d ( 100, 100 ))
+            (Point2d ( 200, 200 ))
+
+![arrow2d](https://opensolid.github.io/images/svg/1.1/arrow2d.svg)
+
+-}
+arrow2d : ArrowOptions msg -> Point2d -> Point2d -> Svg msg
+arrow2d options basePoint tipPoint =
+    case Vector2d.lengthAndDirection (Point2d.vectorFrom basePoint tipPoint) of
+        Just ( length, direction ) ->
+            let
+                frame =
+                    Frame2d
+                        { originPoint = basePoint
+                        , xDirection = direction
+                        , yDirection = Direction2d.perpendicularTo direction
+                        }
+
+                tipLength =
+                    options.tipLength
+
+                tipWidth =
+                    options.tipWidth
+
+                tipBasePoint =
+                    Point2d.in_ frame ( length - tipLength, 0 )
+
+                leftPoint =
+                    Point2d.in_ frame ( length - tipLength, tipWidth / 2 )
+
+                rightPoint =
+                    Point2d.in_ frame ( length - tipLength, -tipWidth / 2 )
+
+                stem =
+                    LineSegment2d ( basePoint, tipBasePoint )
+
+                tip =
+                    Triangle2d ( rightPoint, tipPoint, leftPoint )
+            in
+                Svg.g options.groupAttributes
+                    [ lineSegment2d options.stemAttributes stem
+                    , triangle2d options.tipAttributes tip
+                    ]
+
+        Nothing ->
+            Svg.text ""
 
 
 {-| Draw a `LineSegment2d` as an SVG `<polyline>` with the given attributes.
