@@ -598,6 +598,26 @@ circle2d attributes circle =
         Svg.circle (cx :: cy :: r :: attributes) []
 
 
+{-| Draw a quadratic spline as an SVG `<path>` with the given attributes.
+
+    quadraticSplineSvg : Svg Never
+    quadraticSplineSvg =
+        Svg.quadraticSpline2d
+            [ Attributes.stroke "blue"
+            , Attributes.strokeWidth "3"
+            , Attributes.strokeLinecap "round"
+            , Attributes.fill "none"
+            ]
+            (QuadraticSpline2d
+                ( Point2d ( 50, 50 )
+                , Point2d ( 100, 150 )
+                , Point2d ( 150, 100 )
+                )
+            )
+
+![quadraticSpline2d](https://opensolid.github.io/images/svg/1.1/quadraticSpline2d.svg)
+
+-}
 quadraticSpline2d : List (Attribute msg) -> QuadraticSpline2d -> Svg msg
 quadraticSpline2d attributes spline =
     let
