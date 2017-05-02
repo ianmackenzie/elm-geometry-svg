@@ -10,11 +10,13 @@ import OpenSolid.Frame2d as Frame2d
 import OpenSolid.LineSegment2d as LineSegment2d
 import Html exposing (Html)
 import Html.Attributes
+import Navigation
+import UrlParser
 
 
-arrowSvg : Svg Never
-arrowSvg =
-    Svg.arrow2d
+vectorSvg : Svg Never
+vectorSvg =
+    Svg.vector2d
         { tipLength = 30
         , tipWidth = 15
         , tipAttributes =
@@ -30,32 +32,19 @@ arrowSvg =
         , groupAttributes = []
         }
         (Point2d ( 100, 100 ))
-        (Point2d ( 200, 200 ))
+        (Vector2d ( 100, 100 ))
 
 
-vectorSvg : Svg Never
-vectorSvg =
-    let
-        basePoint =
-            Point2d ( 100, 100 )
-
-        vectors =
-            [ Vector2d ( 100, 0 )
-            , Vector2d ( 100, 50 )
-            , Vector2d ( 100, 100 )
-            , Vector2d ( 50, 100 )
-            , Vector2d ( 0, 100 )
-            ]
-
-        attributes =
-            [ Attributes.stroke "blue"
-            , Attributes.fill "blue"
-            ]
-
-        draw vector =
-            Svg.vector2d attributes basePoint vector
-    in
-        Svg.g [] (List.map draw vectors)
+drawDirection : Point2d -> Direction2d -> Svg Never
+drawDirection =
+    Svg.direction2d
+        { length = 100
+        , tipLength = 8
+        , tipWidth = 8
+        , tipAttributes = [ Attributes.fill "orange" ]
+        , stemAttributes = []
+        , groupAttributes = [ Attributes.stroke "blue" ]
+        }
 
 
 directionSvg : Svg Never
@@ -64,21 +53,23 @@ directionSvg =
         basePoint =
             Point2d ( 100, 100 )
 
-        length =
-            100
-
         directions =
             [ 0, 15, 30, 45, 60, 75, 90 ]
                 |> List.map degrees
                 |> List.map Direction2d.fromAngle
-
-        attributes =
-            [ Attributes.stroke "blue" ]
-
-        draw direction =
-            Svg.direction2d attributes basePoint length direction
     in
-        Svg.g [] (List.map draw directions)
+        Svg.g [] (List.map (drawDirection basePoint) directions)
+
+
+drawPoint : Point2d -> Svg Never
+drawPoint =
+    Svg.point2d
+        { radius = 3
+        , attributes =
+            [ Attributes.stroke "blue"
+            , Attributes.fill "orange"
+            ]
+        }
 
 
 pointSvg : Svg Never
@@ -93,16 +84,8 @@ pointSvg =
             , Point2d ( 180, 150 )
             , Point2d ( 110, 190 )
             ]
-
-        attributes =
-            [ Attributes.stroke "blue"
-            , Attributes.fill "white"
-            ]
-
-        draw point =
-            Svg.point2d attributes point
     in
-        Svg.g [] (List.map draw points)
+        Svg.g [] (List.map drawPoint points)
 
 
 circleSvg : Svg Never
@@ -226,8 +209,8 @@ scaledSvg =
             Point2d ( 100, 100 )
 
         referencePointSvg =
-            Svg.circle2d [ Attributes.fill "black" ]
-                (Circle2d { centerPoint = referencePoint, radius = 3 })
+            Svg.point2d { radius = 3, attributes = [ Attributes.fill "black" ] }
+                referencePoint
 
         scaledCircle : Float -> Svg Never
         scaledCircle scale =
@@ -247,8 +230,8 @@ rotatedSvg =
             Point2d ( 200, 150 )
 
         referencePointSvg =
-            Svg.circle2d [ Attributes.fill "black" ]
-                (Circle2d { centerPoint = referencePoint, radius = 3 })
+            Svg.point2d { radius = 3, attributes = [ Attributes.fill "black" ] }
+                referencePoint
 
         rotatedCircle : Float -> Svg Never
         rotatedCircle angle =
@@ -350,12 +333,7 @@ example ( minX, minY ) ( maxX, maxY ) svg =
                 , yDirection = Direction2d.negativeY
                 }
     in
-        Html.div
-            [ Html.Attributes.style
-                [ ( "border", "1px solid lightgrey" )
-                , ( "margin", "10px" )
-                ]
-            ]
+        Html.div []
             [ Svg.svg
                 [ Attributes.width (toString width)
                 , Attributes.height (toString height)
@@ -365,25 +343,94 @@ example ( minX, minY ) ( maxX, maxY ) svg =
 
 
 examples =
-    [ example ( 90, 90 ) ( 210, 210 ) arrowSvg
-    , example ( 90, 90 ) ( 210, 210 ) vectorSvg
-    , example ( 90, 90 ) ( 210, 210 ) directionSvg
-    , example ( 90, 90 ) ( 210, 210 ) pointSvg
-    , example ( 130, 130 ) ( 170, 170 ) circleSvg
-    , example ( 90, 90 ) ( 210, 210 ) lineSegmentSvg
-    , example ( 90, 90 ) ( 210, 210 ) triangleSvg
-    , example ( 90, 90 ) ( 210, 210 ) polylineSvg
-    , example ( 90, 140 ) ( 210, 210 ) polygonSvg
-    , example ( 70, 60 ) ( 170, 170 ) arcSvg
-    , example ( 35, 35 ) ( 165, 130 ) quadraticSplineSvg
-    , example ( 90, 90 ) ( 250, 250 ) scaledSvg
-    , example ( 130, 80 ) ( 270, 220 ) rotatedSvg
-    , example ( 87, 25 ) ( 215, 255 ) translatedSvg
-    , example ( 35, 20 ) ( 265, 300 ) mirroredSvg
-    , example ( 10, 10 ) ( 235, 190 ) placedSvg
-    ]
+    { vector = example ( 90, 90 ) ( 210, 210 ) vectorSvg
+    , direction = example ( 90, 90 ) ( 210, 210 ) directionSvg
+    , point = example ( 90, 90 ) ( 210, 210 ) pointSvg
+    , circle = example ( 130, 130 ) ( 170, 170 ) circleSvg
+    , lineSegment = example ( 90, 90 ) ( 210, 210 ) lineSegmentSvg
+    , triangle = example ( 90, 90 ) ( 210, 210 ) triangleSvg
+    , polyline = example ( 90, 90 ) ( 210, 210 ) polylineSvg
+    , polygon = example ( 90, 140 ) ( 210, 210 ) polygonSvg
+    , arc = example ( 70, 60 ) ( 170, 170 ) arcSvg
+    , quadraticSpline = example ( 35, 35 ) ( 165, 130 ) quadraticSplineSvg
+    , scaled = example ( 90, 90 ) ( 250, 250 ) scaledSvg
+    , rotated = example ( 130, 80 ) ( 270, 220 ) rotatedSvg
+    , translated = example ( 87, 25 ) ( 215, 255 ) translatedSvg
+    , mirrored = example ( 35, 20 ) ( 265, 300 ) mirroredSvg
+    , placed = example ( 10, 10 ) ( 235, 190 ) placedSvg
+    }
 
 
-main : Html Never
+type alias Model =
+    Maybe (Html Never)
+
+
+type alias Msg =
+    Navigation.Location
+
+
+main : Program Never Model Msg
 main =
-    Html.div [] examples
+    let
+        hashParser =
+            UrlParser.oneOf
+                [ UrlParser.map examples.vector (UrlParser.s "vector")
+                , UrlParser.map examples.direction (UrlParser.s "direction")
+                , UrlParser.map examples.point (UrlParser.s "point")
+                , UrlParser.map examples.circle (UrlParser.s "circle")
+                , UrlParser.map examples.lineSegment (UrlParser.s "lineSegment")
+                , UrlParser.map examples.triangle (UrlParser.s "triangle")
+                , UrlParser.map examples.polyline (UrlParser.s "polyline")
+                , UrlParser.map examples.polygon (UrlParser.s "polygon")
+                , UrlParser.map examples.arc (UrlParser.s "arc")
+                , UrlParser.map examples.quadraticSpline (UrlParser.s "quadraticSpline")
+                , UrlParser.map examples.scaled (UrlParser.s "scaled")
+                , UrlParser.map examples.rotated (UrlParser.s "rotated")
+                , UrlParser.map examples.translated (UrlParser.s "translated")
+                , UrlParser.map examples.mirrored (UrlParser.s "mirrored")
+                , UrlParser.map examples.placed (UrlParser.s "placed")
+                ]
+
+        parseLocation : Navigation.Location -> Maybe (Html Never)
+        parseLocation =
+            UrlParser.parseHash hashParser
+
+        init location =
+            ( parseLocation location, Cmd.none )
+
+        update location model =
+            ( parseLocation location, Cmd.none )
+
+        view model =
+            case model of
+                Just html ->
+                    html |> Html.map never
+
+                Nothing ->
+                    Html.div []
+                        [ Html.text "Please enter an example name:"
+                        , Html.ul []
+                            [ Html.li [] [ Html.text "vector" ]
+                            , Html.li [] [ Html.text "direction" ]
+                            , Html.li [] [ Html.text "point" ]
+                            , Html.li [] [ Html.text "circle" ]
+                            , Html.li [] [ Html.text "lineSegment" ]
+                            , Html.li [] [ Html.text "triangle" ]
+                            , Html.li [] [ Html.text "polyline" ]
+                            , Html.li [] [ Html.text "polygon" ]
+                            , Html.li [] [ Html.text "arc" ]
+                            , Html.li [] [ Html.text "quadraticSpline" ]
+                            , Html.li [] [ Html.text "scaled" ]
+                            , Html.li [] [ Html.text "rotated" ]
+                            , Html.li [] [ Html.text "translated" ]
+                            , Html.li [] [ Html.text "mirrored" ]
+                            , Html.li [] [ Html.text "placed" ]
+                            ]
+                        ]
+    in
+        Navigation.program identity
+            { init = init
+            , update = update
+            , view = view
+            , subscriptions = always Sub.none
+            }
