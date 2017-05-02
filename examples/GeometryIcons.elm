@@ -38,56 +38,15 @@ viewPlane =
         |> Frame3d.yzSketchPlane
 
 
-arrow :
-    List (Svg.Attribute Never)
-    -> { tipLength : Float, tipWidth : Float }
-    -> Point2d
-    -> Vector2d
-    -> Svg Never
-arrow attributes { tipLength, tipWidth } point vector =
-    case Vector2d.lengthAndDirection vector of
-        Just ( length, direction ) ->
-            let
-                frame =
-                    Frame2d
-                        { originPoint = point
-                        , xDirection = direction
-                        , yDirection = Direction2d.perpendicularTo direction
-                        }
-
-                localPoint coordinates =
-                    Point2d.placeIn frame (Point2d coordinates)
-
-                tipPoint =
-                    localPoint ( length, 0 )
-
-                tipBasePoint =
-                    localPoint ( length - tipLength, 0 )
-
-                leftPoint =
-                    localPoint ( length - tipLength, tipWidth / 2 )
-
-                rightPoint =
-                    localPoint ( length - tipLength, -tipWidth / 2 )
-
-                stem =
-                    LineSegment2d ( point, tipBasePoint )
-
-                tip =
-                    Triangle2d ( rightPoint, tipPoint, leftPoint )
-            in
-                Svg.g attributes
-                    [ Svg.lineSegment2d [] stem
-                    , Svg.triangle2d [] tip
-                    ]
-
-        Nothing ->
-            Svg.text ""
-
-
 vector2d : Point2d -> Vector2d -> Svg Never
 vector2d =
-    arrow [ Attributes.fill "black" ] { tipLength = 6, tipWidth = 5 }
+    Svg.vector2d
+        { tipAttributes = [ Attributes.fill "black" ]
+        , stemAttributes = []
+        , groupAttributes = []
+        , tipLength = 6
+        , tipWidth = 5
+        }
 
 
 vector3d : Point3d -> Vector3d -> Svg Never
@@ -97,25 +56,36 @@ vector3d point vector =
 
 
 direction2d : Point2d -> Direction2d -> Svg Never
-direction2d point direction =
-    arrow [ Attributes.fill "white" ]
-        { tipLength = 5, tipWidth = 5 }
-        point
-        (Vector2d.in_ direction 25)
+direction2d =
+    Svg.direction2d
+        { tipAttributes = [ Attributes.fill "white" ]
+        , stemAttributes = []
+        , groupAttributes = []
+        , tipLength = 5
+        , tipWidth = 5
+        , length = 25
+        }
 
 
 direction3d : Point3d -> Direction3d -> Svg Never
 direction3d point direction =
-    arrow [ Attributes.fill "white" ]
-        { tipLength = 5, tipWidth = 5 }
+    Svg.vector2d
+        { tipAttributes = [ Attributes.fill "white" ]
+        , stemAttributes = []
+        , groupAttributes = []
+        , tipLength = 5
+        , tipWidth = 5
+        }
         (Point3d.projectInto viewPlane point)
         (Vector3d.projectInto viewPlane (Vector3d.in_ direction 25))
 
 
 originPoint2d : Point2d -> Svg Never
-originPoint2d point =
-    Svg.circle2d [ Attributes.fill "white" ]
-        (Circle2d { centerPoint = point, radius = 1.5 })
+originPoint2d =
+    Svg.point2d
+        { attributes = [ Attributes.fill "white" ]
+        , radius = 1.5
+        }
 
 
 originPoint3d : Point3d -> Svg Never
