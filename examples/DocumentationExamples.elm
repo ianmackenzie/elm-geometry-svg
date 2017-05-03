@@ -199,6 +199,55 @@ quadraticSplineSvg =
         )
 
 
+drawText : Point2d -> String -> String -> String -> Svg Never
+drawText point tag anchor baseline =
+    Svg.g []
+        [ Svg.point2d
+            { radius = 2
+            , attributes = [ Attributes.fill "orange" ]
+            }
+            point
+        , Svg.text2d
+            [ Attributes.textAnchor anchor
+            , Attributes.alignmentBaseline baseline
+            , Attributes.fill "blue"
+            ]
+            point
+            (tag ++ ": " ++ anchor ++ "/" ++ baseline)
+        ]
+
+
+textSvg : Svg Never
+textSvg =
+    let
+        p1 =
+            Point2d ( 100, 100 )
+
+        p2 =
+            Point2d ( 300, 145 )
+
+        p3 =
+            Point2d ( 175, 190 )
+
+        p4 =
+            Point2d ( 300, 250 )
+    in
+        Svg.g []
+            [ drawText p1 "p1" "start" "baseline"
+            , drawText p2 "p2" "end" "middle"
+                |> Svg.scaleAbout p2 1.33
+            , drawText p3 "p3" "middle" "baseline"
+                |> Svg.mirrorAcross
+                    (Axis2d
+                        { originPoint = p3
+                        , direction = Direction2d.x
+                        }
+                    )
+            , drawText p4 "p4" "end" "hanging"
+                |> Svg.rotateAround p4 (degrees 10)
+            ]
+
+
 scaledSvg : Svg Never
 scaledSvg =
     let
