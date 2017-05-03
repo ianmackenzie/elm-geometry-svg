@@ -14,6 +14,7 @@ module OpenSolid.Svg
         , circle2d
         , quadraticSpline2d
           --, cubicSpline2d
+        , text2d
         , scaleAbout
         , rotateAround
         , translateBy
@@ -71,6 +72,11 @@ also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
 @docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d
+
+
+# Text
+
+@docs text2d
 
 
 # Transformations
@@ -668,6 +674,77 @@ cubicSpline2d attributes spline =
             Attributes.d (String.join " " pathComponents)
     in
         Svg.path (pathAttribute :: attributes) []
+
+
+{-| Draw a string of text with the given attributes at the given point.
+
+The wrinkle is that this function assumes that you are constructing your diagram
+in a coordinate system where positive X is to the right and positive Y is up. As
+a result, it will actually draw the text *upside down*, assuming that you will
+eventually flip your entire diagram upside down again to convert it to the
+Y-down coordinate system used by SVG (perhaps by using `render2d`).
+
+Note that you can apply all the usual transformations to SVG text just like any
+other SVG element!
+
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#text" style="width: 220px; height: 170px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#text>
+
+    drawText : Point2d -> String -> String -> Svg Never
+    drawText point anchor baseline =
+        Svg.g []
+            [ Svg.point2d
+                { radius = 2
+                , attributes = [ Attributes.fill "orange" ]
+                }
+                point
+            , Svg.text2d
+                [ Attributes.textAnchor anchor
+                , Attributes.alignmentBaseline baseline
+                , Attributes.fill "blue"
+                ]
+                point
+                (anchor ++ "/" ++ baseline)
+            ]
+
+    textSvg : Svg Never
+    textSvg =
+        Svg.g []
+            [ drawText (Point2d ( 100, 100 )) "start" "baseline"
+            , drawText (Point2d ( 200, 130 )) "end" "middle"
+                |> Svg.scaleAbout (Point2d ( 200, 130 )) 1.33
+            , drawText (Point2d ( 150, 155 )) "middle" "baseline"
+                |> Svg.mirrorAcross
+                    (Axis2d
+                        { originPoint = Point2d ( 150, 155 )
+                        , direction = Direction2d.x
+                        }
+                    )
+            , drawText (Point2d ( 200, 200 )) "end" "hanging"
+                |> Svg.rotateAround (Point2d ( 200, 200 )) (degrees 10)
+            ]
+
+-}
+text2d : List (Attribute msg) -> Point2d -> String -> Svg msg
+text2d attributes basePoint text =
+    let
+        ( x, y ) =
+            Point2d.coordinates basePoint
+
+        mirrorAxis =
+            Axis2d
+                { originPoint = basePoint
+                , direction = Direction2d.x
+                }
+
+        xAttribute =
+            Attributes.x (toString x)
+
+        yAttribute =
+            Attributes.y (toString y)
+    in
+        Svg.text_ (xAttribute :: yAttribute :: attributes) [ Svg.text text ]
+            |> mirrorAcross mirrorAxis
 
 
 {-| Scale arbitrary SVG around a given point by a given scale.
