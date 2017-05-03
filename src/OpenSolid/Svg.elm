@@ -740,8 +740,8 @@ other SVG element!
 <iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#text" style="width: 220px; height: 170px" scrolling=no frameborder=0></iframe>
 <https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#text>
 
-    drawText : Point2d -> String -> String -> Svg Never
-    drawText point anchor baseline =
+    drawText : Point2d -> String -> String -> String -> Svg Never
+    drawText point tag anchor baseline =
         Svg.g []
             [ Svg.point2d
                 { radius = 2
@@ -754,25 +754,38 @@ other SVG element!
                 , Attributes.fill "blue"
                 ]
                 point
-                (anchor ++ "/" ++ baseline)
+                (tag ++ ": " ++ anchor ++ "/" ++ baseline)
             ]
 
     textSvg : Svg Never
     textSvg =
-        Svg.g []
-            [ drawText (Point2d ( 100, 100 )) "start" "baseline"
-            , drawText (Point2d ( 200, 130 )) "end" "middle"
-                |> Svg.scaleAbout (Point2d ( 200, 130 )) 1.33
-            , drawText (Point2d ( 150, 155 )) "middle" "baseline"
-                |> Svg.mirrorAcross
-                    (Axis2d
-                        { originPoint = Point2d ( 150, 155 )
-                        , direction = Direction2d.x
-                        }
-                    )
-            , drawText (Point2d ( 200, 200 )) "end" "hanging"
-                |> Svg.rotateAround (Point2d ( 200, 200 )) (degrees 10)
-            ]
+        let
+            p1 =
+                Point2d ( 100, 100 )
+
+            p2 =
+                Point2d ( 300, 145 )
+
+            p3 =
+                Point2d ( 175, 190 )
+
+            p4 =
+                Point2d ( 300, 250 )
+        in
+            Svg.g []
+                [ drawText p1 "p1" "start" "baseline"
+                , drawText p2 "p2" "end" "middle"
+                    |> Svg.scaleAbout p2 1.33
+                , drawText p3 "p3" "middle" "baseline"
+                    |> Svg.mirrorAcross
+                        (Axis2d
+                            { originPoint = p3
+                            , direction = Direction2d.x
+                            }
+                        )
+                , drawText p4 "p4" "end" "hanging"
+                    |> Svg.rotateAround p4 (degrees 10)
+                ]
 
 -}
 text2d : List (Attribute msg) -> Point2d -> String -> Svg msg
