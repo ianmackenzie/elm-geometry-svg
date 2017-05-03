@@ -221,7 +221,8 @@ arrow with a stem line and a tip triangle and have the following options:
   - `groupAttributes` are applied to the group formed by the stem line and
     tip triangle (the entire arrow)
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#vector" style="width: 120px; height: 120px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#vector" style="width: 120px; height: 120px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#vector>
 
     vectorSvg : Svg Never
     vectorSvg =
@@ -309,7 +310,8 @@ their own).
 The intent is that for simple cases, you can partially apply this function to
 create a helper function with your preferred display options 'baked in':
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#direction" style="width: 120px; height: 120px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#direction" style="width: 120px; height: 120px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#direction>
 
     drawDirection : Point2d -> Direction2d -> Svg Never
     drawDirection =
@@ -359,7 +361,8 @@ type alias PointOptions msg =
 
 {-| Draw a point as a circle with the given options.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#point" style="width: 120px; height: 120px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#point" style="width: 120px; height: 120px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#point>
 
     drawPoint : Point2d -> Svg Never
     drawPoint =
@@ -395,7 +398,8 @@ point2d options point =
 
 {-| Draw a `LineSegment2d` as an SVG `<polyline>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#lineSegment" style="width: 120px; height: 120px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#lineSegment" style="width: 120px; height: 120px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#lineSegment>
 
     lineSegmentSvg : Svg Never
     lineSegmentSvg =
@@ -421,7 +425,8 @@ lineSegment2d attributes lineSegment =
 
 {-| Draw a `Triangle2d` as an SVG `<polygon>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#triangle" style="width: 120px; height: 120px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#triangle" style="width: 120px; height: 120px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#triangle>
 
     triangleSvg : Svg Never
     triangleSvg =
@@ -450,7 +455,8 @@ triangle2d attributes triangle =
 
 {-| Draw a `Polyline2d` as an SVG `<polyline>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#polyline" style="width: 120px; height: 120px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#polyline" style="width: 120px; height: 120px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#polyline>
 
     polylineSvg : Svg Never
     polylineSvg =
@@ -483,7 +489,8 @@ polyline2d attributes polyline =
 
 {-| Draw a `Polygon2d` as an SVG `<polygon>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#polygon" style="width: 120px; height: 70px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#polygon" style="width: 120px; height: 70px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#polygon>
 
     polygonSvg : Svg Never
     polygonSvg =
@@ -512,7 +519,8 @@ polygon2d attributes polygon =
 
 {-| Draw an `Arc2d` as an SVG `<path>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#arc" style="width: 100px; height: 110px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#arc" style="width: 100px; height: 110px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#arc>
 
     arcSvg : Svg Never
     arcSvg =
@@ -593,7 +601,8 @@ arc2d attributes arc =
 
 {-| Draw a `Circle2d` as an SVG `<circle>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#circle" style="width: 40px; height: 40px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#circle" style="width: 40px; height: 40px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#circle>
 
     circleSvg : Svg Never
     circleSvg =
@@ -629,7 +638,8 @@ circle2d attributes circle =
 
 {-| Draw a quadratic spline as an SVG `<path>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#quadraticSpline" style="width: 130px; height: 95px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#quadraticSpline" style="width: 130px; height: 95px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#quadraticSpline>
 
     quadraticSplineSvg : Svg Never
     quadraticSplineSvg =
@@ -789,7 +799,8 @@ text2d attributes basePoint text =
 
 {-| Scale arbitrary SVG around a given point by a given scale.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#scaled" style="width: 160px; height: 160px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#scaled" style="width: 160px; height: 160px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#scaled>
 
     scaledSvg : Svg Never
     scaledSvg =
@@ -834,7 +845,8 @@ scaleAbout point scale element =
 
 {-| Rotate arbitrary SVG around a given point by a given angle.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#rotated" style="width: 140px; height: 140px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#rotated" style="width: 140px; height: 140px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#rotated>
 
     rotatedSvg : Svg Never
     rotatedSvg =
@@ -864,7 +876,8 @@ rotateAround point angle =
 
 {-| Translate arbitrary SVG by a given displacement.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#translated" style="width: 128px; height: 230px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#translated" style="width: 128px; height: 230px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#translated>
 
     translatedSvg : Svg Never
     translatedSvg =
@@ -882,7 +895,8 @@ translateBy vector =
 
 {-| Mirror arbitrary SVG across a given axis.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#mirrored" style="width: 230px; height: 280px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#mirrored" style="width: 230px; height: 280px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#mirrored>
 
     mirroredSvg : Svg Never
     mirroredSvg =
@@ -963,7 +977,8 @@ and return that SVG expressed in global coordinates.
 This can be useful for taking a chunk of SVG and 'stamping' it in different
 positions with different orientations:
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#placed" style="width: 225px; height: 180px" scrolling=no frameborder=0>iframes not supported</iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#placed" style="width: 225px; height: 180px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#placed>
 
     placedSvg : Svg Never
     placedSvg =
