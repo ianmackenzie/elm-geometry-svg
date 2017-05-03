@@ -379,22 +379,23 @@ example ( minX, minY ) ( maxX, maxY ) =
 
 
 examples =
-    { vector = example ( 90, 90 ) ( 210, 210 ) vectorSvg
-    , direction = example ( 90, 90 ) ( 210, 210 ) directionSvg
-    , point = example ( 90, 90 ) ( 210, 210 ) pointSvg
-    , circle = example ( 130, 130 ) ( 170, 170 ) circleSvg
-    , lineSegment = example ( 90, 90 ) ( 210, 210 ) lineSegmentSvg
-    , triangle = example ( 90, 90 ) ( 210, 210 ) triangleSvg
-    , polyline = example ( 90, 90 ) ( 210, 210 ) polylineSvg
-    , polygon = example ( 90, 140 ) ( 210, 210 ) polygonSvg
-    , arc = example ( 70, 60 ) ( 170, 170 ) arcSvg
-    , quadraticSpline = example ( 35, 35 ) ( 165, 130 ) quadraticSplineSvg
-    , scaled = example ( 90, 90 ) ( 250, 250 ) scaledSvg
-    , rotated = example ( 130, 80 ) ( 270, 220 ) rotatedSvg
-    , translated = example ( 87, 25 ) ( 215, 255 ) translatedSvg
-    , mirrored = example ( 35, 20 ) ( 265, 300 ) mirroredSvg
-    , placed = example ( 10, 10 ) ( 235, 190 ) placedSvg
-    }
+    [ ( "vector", example ( 90, 90 ) ( 210, 210 ) vectorSvg )
+    , ( "direction", example ( 90, 90 ) ( 210, 210 ) directionSvg )
+    , ( "point", example ( 90, 90 ) ( 210, 210 ) pointSvg )
+    , ( "circle", example ( 130, 130 ) ( 170, 170 ) circleSvg )
+    , ( "lineSegment", example ( 90, 90 ) ( 210, 210 ) lineSegmentSvg )
+    , ( "triangle", example ( 90, 90 ) ( 210, 210 ) triangleSvg )
+    , ( "polyline", example ( 90, 90 ) ( 210, 210 ) polylineSvg )
+    , ( "polygon", example ( 90, 140 ) ( 210, 210 ) polygonSvg )
+    , ( "arc", example ( 70, 60 ) ( 170, 170 ) arcSvg )
+    , ( "quadraticSpline", example ( 35, 35 ) ( 165, 130 ) quadraticSplineSvg )
+    , ( "text", example ( 90, 90 ) ( 310, 260 ) textSvg )
+    , ( "scaled", example ( 90, 90 ) ( 250, 250 ) scaledSvg )
+    , ( "rotated", example ( 130, 80 ) ( 270, 220 ) rotatedSvg )
+    , ( "translated", example ( 87, 25 ) ( 215, 255 ) translatedSvg )
+    , ( "mirrored", example ( 35, 20 ) ( 265, 300 ) mirroredSvg )
+    , ( "placed", example ( 10, 10 ) ( 235, 190 ) placedSvg )
+    ]
 
 
 type alias Model =
@@ -410,22 +411,12 @@ main =
     let
         hashParser =
             UrlParser.oneOf
-                [ UrlParser.map examples.vector (UrlParser.s "vector")
-                , UrlParser.map examples.direction (UrlParser.s "direction")
-                , UrlParser.map examples.point (UrlParser.s "point")
-                , UrlParser.map examples.circle (UrlParser.s "circle")
-                , UrlParser.map examples.lineSegment (UrlParser.s "lineSegment")
-                , UrlParser.map examples.triangle (UrlParser.s "triangle")
-                , UrlParser.map examples.polyline (UrlParser.s "polyline")
-                , UrlParser.map examples.polygon (UrlParser.s "polygon")
-                , UrlParser.map examples.arc (UrlParser.s "arc")
-                , UrlParser.map examples.quadraticSpline (UrlParser.s "quadraticSpline")
-                , UrlParser.map examples.scaled (UrlParser.s "scaled")
-                , UrlParser.map examples.rotated (UrlParser.s "rotated")
-                , UrlParser.map examples.translated (UrlParser.s "translated")
-                , UrlParser.map examples.mirrored (UrlParser.s "mirrored")
-                , UrlParser.map examples.placed (UrlParser.s "placed")
-                ]
+                (examples
+                    |> List.map
+                        (\( name, example ) ->
+                            UrlParser.s name |> UrlParser.map example
+                        )
+                )
 
         parseLocation : Navigation.Location -> Maybe (Html Never)
         parseLocation =
@@ -443,26 +434,18 @@ main =
                     html |> Html.map never
 
                 Nothing ->
-                    Html.div []
-                        [ Html.text "Please enter an example name:"
-                        , Html.ul []
-                            [ Html.li [] [ Html.text "vector" ]
-                            , Html.li [] [ Html.text "direction" ]
-                            , Html.li [] [ Html.text "point" ]
-                            , Html.li [] [ Html.text "circle" ]
-                            , Html.li [] [ Html.text "lineSegment" ]
-                            , Html.li [] [ Html.text "triangle" ]
-                            , Html.li [] [ Html.text "polyline" ]
-                            , Html.li [] [ Html.text "polygon" ]
-                            , Html.li [] [ Html.text "arc" ]
-                            , Html.li [] [ Html.text "quadraticSpline" ]
-                            , Html.li [] [ Html.text "scaled" ]
-                            , Html.li [] [ Html.text "rotated" ]
-                            , Html.li [] [ Html.text "translated" ]
-                            , Html.li [] [ Html.text "mirrored" ]
-                            , Html.li [] [ Html.text "placed" ]
+                    let
+                        exampleItem ( name, _ ) =
+                            Html.li []
+                                [ Html.a
+                                    [ Html.Attributes.href ("#" ++ name) ]
+                                    [ Html.text name ]
+                                ]
+                    in
+                        Html.div []
+                            [ Html.text "Please choose an example:"
+                            , Html.ul [] (List.map exampleItem examples)
                             ]
-                        ]
     in
         Navigation.program identity
             { init = init
