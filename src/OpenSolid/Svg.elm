@@ -1,6 +1,7 @@
 module OpenSolid.Svg
     exposing
-        ( VectorOptions
+        ( render2d
+        , VectorOptions
         , vector2d
         , DirectionOptions
         , direction2d
@@ -50,6 +51,11 @@ All examples use a Y-up coordinate system instead of SVG's Y-down (window)
 coordinate system; they were all rendered with a final
 <code>Svg.relativeTo&nbsp;topLeftFrame</code> call as described in the
 [relativeTo](#relativeTo) documentation.
+
+
+# Rendering
+
+@docs render2d
 
 
 # Primitives
@@ -128,7 +134,8 @@ conversion transformations to be applied to arbitrary SVG elements.
 
 -}
 
-import Svg as Svg exposing (Svg, Attribute)
+import Svg exposing (Svg, Attribute)
+import Html exposing (Html)
 import Svg.Attributes as Attributes
 import OpenSolid.Geometry.Types exposing (..)
 import OpenSolid.Point2d as Point2d
@@ -143,6 +150,39 @@ import OpenSolid.Arc2d as Arc2d
 import OpenSolid.Circle2d as Circle2d
 import OpenSolid.QuadraticSpline2d as QuadraticSpline2d
 import OpenSolid.CubicSpline2d as CubicSpline2d
+import OpenSolid.BoundingBox2d as BoundingBox2d
+
+
+{-| Render some SVG to an HTML `<svg>` element, clipping to the given bounding
+box. It is assumed that the SVG is already in pixel units, the bounding box is
+also used to set the width and height of the resulting `<svg>` element.
+
+In addition, it is assumed that the SVG has been drawn in a coordinate system
+with positive X to the right and positive Y up, so this function will flip the
+coordinate system so that coordinates start at the top-left corner as required.
+
+-}
+render2d : BoundingBox2d -> Svg msg -> Html msg
+render2d boundingBox svg =
+    let
+        { minX, maxX, minY, maxY } =
+            BoundingBox2d.extrema boundingBox
+
+        ( width, height ) =
+            BoundingBox2d.dimensions boundingBox
+
+        topLeftFrame =
+            Frame2d
+                { originPoint = Point2d ( minX, maxY )
+                , xDirection = Direction2d.positiveX
+                , yDirection = Direction2d.negativeY
+                }
+    in
+        Svg.svg
+            [ Attributes.width (toString width)
+            , Attributes.height (toString height)
+            ]
+            [ relativeTo topLeftFrame svg ]
 
 
 coordinatesString : Point2d -> String
