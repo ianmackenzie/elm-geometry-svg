@@ -367,28 +367,15 @@ placedSvg =
 
 
 example : ( Float, Float ) -> ( Float, Float ) -> Svg Never -> Html Never
-example ( minX, minY ) ( maxX, maxY ) svg =
-    let
-        width =
-            maxX - minX
-
-        height =
-            maxY - minY
-
-        topLeftFrame =
-            Frame2d
-                { originPoint = Point2d ( minX, maxY )
-                , xDirection = Direction2d.positiveX
-                , yDirection = Direction2d.negativeY
-                }
-    in
-        Html.div []
-            [ Svg.svg
-                [ Attributes.width (toString width)
-                , Attributes.height (toString height)
-                ]
-                [ Svg.relativeTo topLeftFrame svg ]
-            ]
+example ( minX, minY ) ( maxX, maxY ) =
+    Svg.render2d
+        (BoundingBox2d
+            { minX = minX
+            , maxX = maxX
+            , minY = minY
+            , maxY = maxY
+            }
+        )
 
 
 examples =
