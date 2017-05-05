@@ -9,6 +9,7 @@ import OpenSolid.Direction2d as Direction2d
 import OpenSolid.Frame2d as Frame2d
 import OpenSolid.LineSegment2d as LineSegment2d
 import OpenSolid.QuadraticSpline2d as QuadraticSpline2d
+import OpenSolid.CubicSpline2d as CubicSpline2d
 import Html exposing (Html)
 import Html.Attributes
 import Navigation
@@ -218,6 +219,41 @@ quadraticSplineSvg =
             ]
 
 
+cubicSplineSvg : Svg Never
+cubicSplineSvg =
+    let
+        spline =
+            CubicSpline2d
+                ( Point2d ( 50, 50 )
+                , Point2d ( 100, 150 )
+                , Point2d ( 150, 25 )
+                , Point2d ( 200, 125 )
+                )
+
+        ( p1, p2, p3, p4 ) =
+            CubicSpline2d.controlPoints spline
+
+        points =
+            [ p1, p2, p3, p4 ]
+    in
+        Svg.g [ Attributes.stroke "blue" ]
+            [ Svg.cubicSpline2d
+                [ Attributes.strokeWidth "3"
+                , Attributes.strokeLinecap "round"
+                , Attributes.fill "none"
+                ]
+                spline
+            , Svg.polyline2d
+                [ Attributes.strokeWidth "1"
+                , Attributes.fill "none"
+                , Attributes.strokeDasharray "3 3"
+                ]
+                (Polyline2d points)
+            , Svg.g [ Attributes.fill "white" ]
+                (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+            ]
+
+
 drawText : Point2d -> String -> String -> String -> Svg Never
 drawText point tag anchor baseline =
     Svg.g []
@@ -408,6 +444,7 @@ examples =
     , ( "polygon", example ( 90, 140 ) ( 210, 210 ) polygonSvg )
     , ( "arc", example ( 70, 60 ) ( 170, 170 ) arcSvg )
     , ( "quadraticSpline", example ( 35, 35 ) ( 165, 165 ) quadraticSplineSvg )
+    , ( "cubicSpline", example ( 30, 5 ) ( 220, 170 ) cubicSplineSvg )
     , ( "text", example ( 90, 90 ) ( 310, 260 ) textSvg )
     , ( "scaled", example ( 90, 90 ) ( 250, 250 ) scaledSvg )
     , ( "rotated", example ( 130, 80 ) ( 270, 220 ) rotatedSvg )

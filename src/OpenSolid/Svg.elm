@@ -14,7 +14,7 @@ module OpenSolid.Svg
         , arc2d
         , circle2d
         , quadraticSpline2d
-          --, cubicSpline2d
+        , cubicSpline2d
         , text2d
         , scaleAbout
         , rotateAround
@@ -77,7 +77,7 @@ attributes such as `points` and `transform` set appropriately. Each function
 also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
-@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d
+@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d, cubicSpline2d
 
 
 # Text
@@ -707,6 +707,46 @@ quadraticSpline2d attributes spline =
         Svg.path (pathAttribute :: attributes) []
 
 
+{-| Draw a cubic spline as an SVG `<path>` with the given attributes.
+
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#cubicSpline" style="width: 190px; height: 165px" scrolling=no frameborder=0></iframe>
+<https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#cubicSpline>
+
+    cubicSplineSvg : Svg Never
+    cubicSplineSvg =
+        let
+            spline =
+                CubicSpline2d
+                    ( Point2d ( 50, 50 )
+                    , Point2d ( 100, 150 )
+                    , Point2d ( 150, 25 )
+                    , Point2d ( 200, 125 )
+                    )
+
+            ( p1, p2, p3, p4 ) =
+                CubicSpline2d.controlPoints spline
+
+            points =
+                [ p1, p2, p3, p4 ]
+        in
+            Svg.g [ Attributes.stroke "blue" ]
+                [ Svg.cubicSpline2d
+                    [ Attributes.strokeWidth "3"
+                    , Attributes.strokeLinecap "round"
+                    , Attributes.fill "none"
+                    ]
+                    spline
+                , Svg.polyline2d
+                    [ Attributes.strokeWidth "1"
+                    , Attributes.fill "none"
+                    , Attributes.strokeDasharray "3 3"
+                    ]
+                    (Polyline2d points)
+                , Svg.g [ Attributes.fill "white" ]
+                    (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+                ]
+
+-}
 cubicSpline2d : List (Attribute msg) -> CubicSpline2d -> Svg msg
 cubicSpline2d attributes spline =
     let
