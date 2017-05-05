@@ -638,23 +638,41 @@ circle2d attributes circle =
 
 {-| Draw a quadratic spline as an SVG `<path>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#quadraticSpline" style="width: 130px; height: 95px" scrolling=no frameborder=0></iframe>
+<iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#quadraticSpline" style="width: 130px; height: 130px" scrolling=no frameborder=0></iframe>
 <https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#quadraticSpline>
 
     quadraticSplineSvg : Svg Never
     quadraticSplineSvg =
-        Svg.quadraticSpline2d
-            [ Attributes.stroke "blue"
-            , Attributes.strokeWidth "3"
-            , Attributes.strokeLinecap "round"
-            , Attributes.fill "none"
-            ]
-            (QuadraticSpline2d
-                ( Point2d ( 50, 50 )
-                , Point2d ( 100, 150 )
-                , Point2d ( 150, 100 )
-                )
-            )
+        let
+            spline =
+                QuadraticSpline2d
+                    ( Point2d ( 50, 50 )
+                    , Point2d ( 100, 150 )
+                    , Point2d ( 150, 100 )
+                    )
+
+            ( p1, p2, p3 ) =
+                QuadraticSpline2d.controlPoints spline
+
+            points =
+                [ p1, p2, p3 ]
+        in
+            Svg.g [ Attributes.stroke "blue" ]
+                [ Svg.quadraticSpline2d
+                    [ Attributes.strokeWidth "3"
+                    , Attributes.strokeLinecap "round"
+                    , Attributes.fill "none"
+                    ]
+                    spline
+                , Svg.polyline2d
+                    [ Attributes.strokeWidth "1"
+                    , Attributes.fill "none"
+                    , Attributes.strokeDasharray "3 3"
+                    ]
+                    (Polyline2d points)
+                , Svg.g [ Attributes.fill "white" ]
+                    (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+                ]
 
 -}
 quadraticSpline2d : List (Attribute msg) -> QuadraticSpline2d -> Svg msg

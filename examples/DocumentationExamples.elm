@@ -8,6 +8,7 @@ import OpenSolid.Point2d as Point2d
 import OpenSolid.Direction2d as Direction2d
 import OpenSolid.Frame2d as Frame2d
 import OpenSolid.LineSegment2d as LineSegment2d
+import OpenSolid.QuadraticSpline2d as QuadraticSpline2d
 import Html exposing (Html)
 import Html.Attributes
 import Navigation
@@ -185,18 +186,36 @@ arcSvg =
 
 quadraticSplineSvg : Svg Never
 quadraticSplineSvg =
-    Svg.quadraticSpline2d
-        [ Attributes.stroke "blue"
-        , Attributes.strokeWidth "3"
-        , Attributes.strokeLinecap "round"
-        , Attributes.fill "none"
-        ]
-        (QuadraticSpline2d
-            ( Point2d ( 50, 50 )
-            , Point2d ( 100, 150 )
-            , Point2d ( 150, 100 )
-            )
-        )
+    let
+        spline =
+            QuadraticSpline2d
+                ( Point2d ( 50, 50 )
+                , Point2d ( 100, 150 )
+                , Point2d ( 150, 100 )
+                )
+
+        ( p1, p2, p3 ) =
+            QuadraticSpline2d.controlPoints spline
+
+        points =
+            [ p1, p2, p3 ]
+    in
+        Svg.g [ Attributes.stroke "blue" ]
+            [ Svg.quadraticSpline2d
+                [ Attributes.strokeWidth "3"
+                , Attributes.strokeLinecap "round"
+                , Attributes.fill "none"
+                ]
+                spline
+            , Svg.polyline2d
+                [ Attributes.strokeWidth "1"
+                , Attributes.fill "none"
+                , Attributes.strokeDasharray "3 3"
+                ]
+                (Polyline2d points)
+            , Svg.g [ Attributes.fill "white" ]
+                (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+            ]
 
 
 drawText : Point2d -> String -> String -> String -> Svg Never
@@ -388,7 +407,7 @@ examples =
     , ( "polyline", example ( 90, 90 ) ( 210, 210 ) polylineSvg )
     , ( "polygon", example ( 90, 140 ) ( 210, 210 ) polygonSvg )
     , ( "arc", example ( 70, 60 ) ( 170, 170 ) arcSvg )
-    , ( "quadraticSpline", example ( 35, 35 ) ( 165, 130 ) quadraticSplineSvg )
+    , ( "quadraticSpline", example ( 35, 35 ) ( 165, 165 ) quadraticSplineSvg )
     , ( "text", example ( 90, 90 ) ( 310, 260 ) textSvg )
     , ( "scaled", example ( 90, 90 ) ( 250, 250 ) scaledSvg )
     , ( "rotated", example ( 130, 80 ) ( 270, 220 ) rotatedSvg )
