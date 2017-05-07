@@ -26,6 +26,12 @@ import OpenSolid.Triangle3d as Triangle3d
 import OpenSolid.BoundingBox2d as BoundingBox2d
 import OpenSolid.BoundingBox3d as BoundingBox3d
 import OpenSolid.Circle3d as Circle3d
+import OpenSolid.Arc2d as Arc2d
+import OpenSolid.Arc3d as Arc3d
+import OpenSolid.QuadraticSpline2d as QuadraticSpline2d
+import OpenSolid.CubicSpline2d as CubicSpline2d
+import OpenSolid.QuadraticSpline3d as QuadraticSpline3d
+import OpenSolid.CubicSpline3d as CubicSpline3d
 import Html exposing (Html)
 import Html.Attributes
 
@@ -680,6 +686,128 @@ circle3dIcon =
             |> icon3d
 
 
+arc2d : Arc2d -> Svg Never
+arc2d arc =
+    Svg.g []
+        [ Svg.arc2d [ Attributes.fill "none" ] arc
+        , vertex2d (Arc2d.startPoint arc)
+        , vertex2d (Arc2d.endPoint arc)
+        , point2d (Arc2d.centerPoint arc)
+        ]
+
+
+arc2dIcon : Svg Never
+arc2dIcon =
+    let
+        arc =
+            Arc2d
+                { startPoint = Point2d ( 30, 10 )
+                , centerPoint = Point2d ( 15, 15 )
+                , sweptAngle = degrees 120
+                }
+    in
+        icon2d (arc2d arc)
+
+
+arc3dIcon : Svg Never
+arc3dIcon =
+    let
+        startPoint =
+            Point3d ( 0, 35, 10 )
+
+        axialDirection =
+            Direction2d.fromAngle (degrees 60)
+                |> Direction2d.placeOnto SketchPlane3d.yz
+
+        axis =
+            Axis3d
+                { originPoint = Point3d ( 0, 20, 15 )
+                , direction = axialDirection
+                }
+
+        arc =
+            Arc3d
+                { startPoint = startPoint
+                , axis = axis
+                , sweptAngle = degrees 150
+                }
+
+        centerPoint =
+            Arc3d.centerPoint arc
+
+        projectedCenter =
+            Point3d.projectInto viewPlane centerPoint
+
+        xDirection =
+            axialDirection
+                |> Direction3d.projectInto viewPlane
+                |> Maybe.withDefault Direction2d.x
+
+        yDirection =
+            Direction2d.perpendicularTo xDirection
+
+        localFrame =
+            Frame2d
+                { originPoint = projectedCenter
+                , xDirection = xDirection
+                , yDirection = yDirection
+                }
+
+        localStart =
+            Point3d.projectInto viewPlane (Arc3d.startPoint arc)
+                |> Point2d.relativeTo localFrame
+
+        ( x1, y1 ) =
+            Point2d.coordinates localStart
+
+        localEnd =
+            Point3d.projectInto viewPlane (Arc3d.endPoint arc)
+                |> Point2d.relativeTo localFrame
+
+        ( x2, y2 ) =
+            Point2d.coordinates localEnd
+
+        radius =
+            Arc3d.radius arc
+
+        normalDirection =
+            SketchPlane3d.normalDirection viewPlane
+
+        xRatio =
+            abs (Direction3d.componentIn normalDirection axialDirection)
+
+        localPathComponents =
+            [ "M"
+            , toString x1
+            , toString y1
+            , "A"
+            , toString (xRatio * radius)
+            , toString radius
+            , "0"
+            , "0"
+            , "1"
+            , toString x2
+            , toString y2
+            ]
+
+        ellipticalArc =
+            Svg.path
+                [ Attributes.d (String.join " " localPathComponents)
+                , Attributes.fill "none"
+                ]
+                []
+                |> Svg.placeIn localFrame
+    in
+        Svg.g []
+            [ ellipticalArc
+            , vertex3d (Arc3d.startPoint arc)
+            , vertex3d (Arc3d.endPoint arc)
+            , point3d centerPoint
+            , direction3d centerPoint axialDirection
+            ]
+            |> icon3d
+
+
 polyline2dIcon : Svg Never
 polyline2dIcon =
     let
@@ -723,6 +851,160 @@ polygon2dIcon =
         icon2d (polygon2d polygon)
 
 
+quadraticSpline2d : QuadraticSpline2d -> Svg Never
+quadraticSpline2d spline =
+    let
+        ( p1, p2, p3 ) =
+            QuadraticSpline2d.controlPoints spline
+
+        points =
+            [ p1, p2, p3 ]
+    in
+        Svg.g []
+            [ Svg.quadraticSpline2d
+                [ Attributes.fill "none" ]
+                spline
+            , Svg.polyline2d
+                [ Attributes.fill "none"
+                , Attributes.strokeDasharray "2 2"
+                ]
+                (Polyline2d points)
+            , Svg.g [ Attributes.fill "white" ]
+                (List.map (Svg.point2d { radius = 2, attributes = [] }) points)
+            ]
+
+
+cubicSpline2d : CubicSpline2d -> Svg Never
+cubicSpline2d spline =
+    let
+        ( p1, p2, p3, p4 ) =
+            CubicSpline2d.controlPoints spline
+
+        points =
+            [ p1, p2, p3, p4 ]
+    in
+        Svg.g []
+            [ Svg.cubicSpline2d
+                [ Attributes.fill "none" ]
+                spline
+            , Svg.polyline2d
+                [ Attributes.fill "none"
+                , Attributes.strokeDasharray "2 2"
+                ]
+                (Polyline2d points)
+            , Svg.g [ Attributes.fill "white" ]
+                (List.map (Svg.point2d { radius = 2, attributes = [] }) points)
+            ]
+
+
+quadraticSpline3d : QuadraticSpline3d -> Svg Never
+quadraticSpline3d spline =
+    let
+        ( p1, p2, p3 ) =
+            QuadraticSpline3d.controlPoints spline
+
+        points =
+            [ p1, p2, p3 ]
+
+        drawControlPoint point =
+            Svg.point2d { radius = 2, attributes = [] }
+                (Point3d.projectInto viewPlane point)
+    in
+        Svg.g []
+            [ Svg.quadraticSpline2d
+                [ Attributes.fill "none" ]
+                (QuadraticSpline3d.projectInto viewPlane spline)
+            , Svg.polyline2d
+                [ Attributes.fill "none"
+                , Attributes.strokeDasharray "2 2"
+                ]
+                (Polyline3d points |> Polyline3d.projectInto viewPlane)
+            , Svg.g [ Attributes.fill "white" ]
+                (List.map drawControlPoint points)
+            ]
+
+
+cubicSpline3d : CubicSpline3d -> Svg Never
+cubicSpline3d spline =
+    let
+        ( p1, p2, p3, p4 ) =
+            CubicSpline3d.controlPoints spline
+
+        points =
+            [ p1, p2, p3, p4 ]
+
+        drawControlPoint point =
+            Svg.point2d { radius = 2, attributes = [] }
+                (Point3d.projectInto viewPlane point)
+    in
+        Svg.g []
+            [ Svg.cubicSpline2d
+                [ Attributes.fill "none" ]
+                (CubicSpline3d.projectInto viewPlane spline)
+            , Svg.polyline2d
+                [ Attributes.fill "none"
+                , Attributes.strokeDasharray "2 2"
+                ]
+                (Polyline3d points |> Polyline3d.projectInto viewPlane)
+            , Svg.g [ Attributes.fill "white" ]
+                (List.map drawControlPoint points)
+            ]
+
+
+quadraticSpline2dIcon : Svg Never
+quadraticSpline2dIcon =
+    let
+        spline =
+            QuadraticSpline2d
+                ( Point2d ( 10, 10 )
+                , Point2d ( 20, 30 )
+                , Point2d ( 40, 20 )
+                )
+    in
+        icon2d (quadraticSpline2d spline)
+
+
+cubicSpline2dIcon : Svg Never
+cubicSpline2dIcon =
+    let
+        spline =
+            CubicSpline2d
+                ( Point2d ( 10, 10 )
+                , Point2d ( 15, 30 )
+                , Point2d ( 30, 15 )
+                , Point2d ( 40, 35 )
+                )
+    in
+        icon2d (cubicSpline2d spline)
+
+
+quadraticSpline3dIcon : Svg Never
+quadraticSpline3dIcon =
+    let
+        spline =
+            QuadraticSpline3d
+                ( Point3d ( 0, 10, 10 )
+                , Point3d ( 20, 35, 55 )
+                , Point3d ( 0, 40, 25 )
+                )
+    in
+        icon3d (quadraticSpline3d spline)
+
+
+cubicSpline3dIcon : Svg Never
+cubicSpline3dIcon =
+    let
+        spline =
+            CubicSpline3d
+                ( Point3d ( 0, 15, 45 )
+                , Point3d ( 0, 10, 10 )
+                , Point3d ( 0, 35, 40 )
+                , Point3d ( 0, 35, 15 )
+                )
+    in
+        icon3d (cubicSpline3d spline)
+
+
 icons =
     [ point2dIcon
     , point3dIcon
@@ -744,9 +1026,15 @@ icons =
     , boundingBox3dIcon
     , circle2dIcon
     , circle3dIcon
+    , arc2dIcon
+    , arc3dIcon
     , polyline2dIcon
     , polyline3dIcon
     , polygon2dIcon
+    , quadraticSpline2dIcon
+    , cubicSpline2dIcon
+    , quadraticSpline3dIcon
+    , cubicSpline3dIcon
     ]
 
 
