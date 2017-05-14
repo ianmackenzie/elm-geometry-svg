@@ -783,7 +783,10 @@ cubicSpline2d attributes spline =
         Svg.path (pathAttribute :: attributes) []
 
 
-{-| Draw a string of text with the given attributes at the given point.
+{-| Draw a string of text with the given attributes at the given point. You can
+use the SVG [`textAnchor`](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor)
+and [`alignmentBaseline`](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/alignment-baseline)
+attributes to align the text relative to the given point as desired.
 
 The wrinkle is that this function assumes that you are constructing your diagram
 in a coordinate system where positive X is to the right and positive Y is up. As
