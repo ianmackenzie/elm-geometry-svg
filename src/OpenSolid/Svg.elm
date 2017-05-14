@@ -165,11 +165,8 @@ coordinate system so that coordinates start at the top-left corner as required.
 render2d : BoundingBox2d -> Svg msg -> Html msg
 render2d boundingBox svg =
     let
-        { minX, maxX, minY, maxY } =
+        { minX, maxY } =
             BoundingBox2d.extrema boundingBox
-
-        ( width, height ) =
-            BoundingBox2d.dimensions boundingBox
 
         topLeftFrame =
             Frame2d
@@ -177,6 +174,9 @@ render2d boundingBox svg =
                 , xDirection = Direction2d.positiveX
                 , yDirection = Direction2d.negativeY
                 }
+
+        ( width, height ) =
+            BoundingBox2d.dimensions boundingBox
     in
         Svg.svg
             [ Attributes.width (toString width)
