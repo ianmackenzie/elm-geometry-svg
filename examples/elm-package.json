@@ -5,8 +5,7 @@
     "license": "MPL-2.0",
     "source-directories": [
         ".",
-        "../src",
-        "../../geometry/src"
+        "../src"
     ],
     "exposed-modules": [],
     "dependencies": {
@@ -14,7 +13,8 @@
         "elm-lang/html": "2.0.0 <= v < 3.0.0",
         "elm-lang/navigation": "2.1.0 <= v < 3.0.0",
         "elm-lang/svg": "2.0.0 <= v < 3.0.0",
-        "evancz/url-parser": "2.0.1 <= v < 3.0.0"
+        "evancz/url-parser": "2.0.1 <= v < 3.0.0",
+        "opensolid/geometry": "1.2.0 <= v < 2.0.0"
     },
     "elm-version": "0.18.0 <= v < 0.19.0"
 }
