@@ -154,8 +154,8 @@ import OpenSolid.BoundingBox2d as BoundingBox2d
 
 
 {-| Render some SVG to an HTML `<svg>` element, clipping to the given bounding
-box. It is assumed that the SVG is already in pixel units, the bounding box is
-also used to set the width and height of the resulting `<svg>` element.
+box. It is assumed that the SVG is already in pixel units, so the bounding box
+is also used to set the width and height of the resulting `<svg>` element.
 
 In addition, it is assumed that the SVG has been drawn in a coordinate system
 with positive X to the right and positive Y up, so this function will flip the
