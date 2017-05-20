@@ -10,10 +10,11 @@ geometric data types. You can:
 
 ## Drawing
 
-The `lineSegment2d`, `triangle2d`, `polyline2d`, `polygon2d`, and `circle2d`
-functions all produce standard
-[Svg msg](http://package.elm-lang.org/packages/elm-lang/svg/latest/Svg#Svg)
-values that can be included in any SVG diagram:
+The `lineSegment2d`, `triangle2d`, `polyline2d`, `polygon2d`, `circle2d`,
+`arc2d`, `quadraticSpline2d`, `cubicSpline2d`, `point2d`, `vector2d`,
+`direction2d` and `text2d` functions all produce standard [Svg
+msg](http://package.elm-lang.org/packages/elm-lang/svg/latest/Svg#Svg) values
+that can be included in any SVG diagram:
 
 ![lineSegment2d](https://opensolid.github.io/images/svg/1.0/lineSegment2d.svg)
 ![triangle2d](https://opensolid.github.io/images/svg/1.0/triangle2d.svg)
@@ -48,6 +49,9 @@ display, where (0,0) is the top left corner and positive Y is down.
 different positions with different orientations:
 
 ![placeIn](https://opensolid.github.io/images/svg/1.0/placeIn.svg)
+
+The `render2d` function provides a convenient wrapper on top of `relativeTo` to
+handle both coordinate conversion and creation of the top-level SVG element.
 
 ## Installation
 
