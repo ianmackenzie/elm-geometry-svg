@@ -1,27 +1,27 @@
 module OpenSolid.Svg
     exposing
-        ( render2d
-        , VectorOptions
-        , vector2d
-        , DirectionOptions
-        , direction2d
+        ( DirectionOptions
         , PointOptions
-        , point2d
-        , lineSegment2d
-        , triangle2d
-        , polyline2d
-        , polygon2d
+        , VectorOptions
         , arc2d
         , circle2d
-        , quadraticSpline2d
         , cubicSpline2d
-        , text2d
-        , scaleAbout
-        , rotateAround
-        , translateBy
+        , direction2d
+        , lineSegment2d
         , mirrorAcross
-        , relativeTo
         , placeIn
+        , point2d
+        , polygon2d
+        , polyline2d
+        , quadraticSpline2d
+        , relativeTo
+        , render2d
+        , rotateAround
+        , scaleAbout
+        , text2d
+        , translateBy
+        , triangle2d
+        , vector2d
         )
 
 {-| Various OpenSolid-related SVG functionality:
@@ -133,23 +133,23 @@ conversion transformations to be applied to arbitrary SVG elements.
 
 -}
 
-import Svg exposing (Svg, Attribute)
 import Html exposing (Html)
-import Svg.Attributes as Attributes
-import OpenSolid.Geometry.Types exposing (..)
-import OpenSolid.Point2d as Point2d
-import OpenSolid.Direction2d as Direction2d
-import OpenSolid.Vector2d as Vector2d
-import OpenSolid.Frame2d as Frame2d
-import OpenSolid.LineSegment2d as LineSegment2d
-import OpenSolid.Triangle2d as Triangle2d
-import OpenSolid.Polyline2d as Polyline2d
-import OpenSolid.Polygon2d as Polygon2d
 import OpenSolid.Arc2d as Arc2d
-import OpenSolid.Circle2d as Circle2d
-import OpenSolid.QuadraticSpline2d as QuadraticSpline2d
-import OpenSolid.CubicSpline2d as CubicSpline2d
 import OpenSolid.BoundingBox2d as BoundingBox2d
+import OpenSolid.Circle2d as Circle2d
+import OpenSolid.CubicSpline2d as CubicSpline2d
+import OpenSolid.Direction2d as Direction2d
+import OpenSolid.Frame2d as Frame2d
+import OpenSolid.Geometry.Types exposing (..)
+import OpenSolid.LineSegment2d as LineSegment2d
+import OpenSolid.Point2d as Point2d
+import OpenSolid.Polygon2d as Polygon2d
+import OpenSolid.Polyline2d as Polyline2d
+import OpenSolid.QuadraticSpline2d as QuadraticSpline2d
+import OpenSolid.Triangle2d as Triangle2d
+import OpenSolid.Vector2d as Vector2d
+import Svg exposing (Attribute, Svg)
+import Svg.Attributes as Attributes
 
 
 {-| Render some SVG to an HTML `<svg>` element, clipping to the given bounding
@@ -177,11 +177,11 @@ render2d boundingBox svg =
         ( width, height ) =
             BoundingBox2d.dimensions boundingBox
     in
-        Svg.svg
-            [ Attributes.width (toString width)
-            , Attributes.height (toString height)
-            ]
-            [ relativeTo topLeftFrame svg ]
+    Svg.svg
+        [ Attributes.width (toString width)
+        , Attributes.height (toString height)
+        ]
+        [ relativeTo topLeftFrame svg ]
 
 
 coordinatesString : Point2d -> String
@@ -190,7 +190,7 @@ coordinatesString point =
         ( x, y ) =
             Point2d.coordinates point
     in
-        toString x ++ "," ++ toString y
+    toString x ++ "," ++ toString y
 
 
 pointsAttribute : List Point2d -> Attribute msg
@@ -280,10 +280,10 @@ vector2d options basePoint vector =
                 tip =
                     Triangle2d ( rightPoint, tipPoint, leftPoint )
             in
-                Svg.g options.groupAttributes
-                    [ lineSegment2d options.stemAttributes stem
-                    , triangle2d options.tipAttributes tip
-                    ]
+            Svg.g options.groupAttributes
+                [ lineSegment2d options.stemAttributes stem
+                , triangle2d options.tipAttributes tip
+                ]
 
         Nothing ->
             Svg.text ""
@@ -334,7 +334,7 @@ create a helper function with your preferred display options 'baked in':
                     |> List.map degrees
                     |> List.map Direction2d.fromAngle
         in
-            Svg.g [] (List.map (drawDirection basePoint) directions)
+        Svg.g [] (List.map (drawDirection basePoint) directions)
 
 -}
 direction2d : DirectionOptions msg -> Point2d -> Direction2d -> Svg msg
@@ -386,7 +386,7 @@ type alias PointOptions msg =
                 , Point2d ( 110, 190 )
                 ]
         in
-            Svg.g [] (List.map drawPoint points)
+        Svg.g [] (List.map drawPoint points)
 
 -}
 point2d : PointOptions msg -> Point2d -> Svg msg
@@ -419,7 +419,7 @@ lineSegment2d attributes lineSegment =
         ( p1, p2 ) =
             LineSegment2d.endpoints lineSegment
     in
-        Svg.polyline (pointsAttribute [ p1, p2 ] :: attributes) []
+    Svg.polyline (pointsAttribute [ p1, p2 ] :: attributes) []
 
 
 {-| Draw a `Triangle2d` as an SVG `<polygon>` with the given attributes.
@@ -449,7 +449,7 @@ triangle2d attributes triangle =
         ( p1, p2, p3 ) =
             Triangle2d.vertices triangle
     in
-        Svg.polygon (pointsAttribute [ p1, p2, p3 ] :: attributes) []
+    Svg.polygon (pointsAttribute [ p1, p2, p3 ] :: attributes) []
 
 
 {-| Draw a `Polyline2d` as an SVG `<polyline>` with the given attributes.
@@ -483,7 +483,7 @@ polyline2d attributes polyline =
         vertices =
             Polyline2d.vertices polyline
     in
-        Svg.polyline (pointsAttribute vertices :: attributes) []
+    Svg.polyline (pointsAttribute vertices :: attributes) []
 
 
 {-| Draw a `Polygon2d` as an SVG `<polygon>` with the given attributes.
@@ -513,7 +513,7 @@ polygon2d attributes polygon =
         vertices =
             Polygon2d.vertices polygon
     in
-        Svg.polygon (pointsAttribute vertices :: attributes) []
+    Svg.polygon (pointsAttribute vertices :: attributes) []
 
 
 {-| Draw an `Arc2d` as an SVG `<path>` with the given attributes.
@@ -576,15 +576,15 @@ arc2d attributes arc =
                 ( x, y ) =
                     Point2d.coordinates (Arc2d.point arc t)
             in
-                [ "A"
-                , radiusString
-                , radiusString
-                , "0"
-                , "0"
-                , sweepFlag
-                , toString x
-                , toString y
-                ]
+            [ "A"
+            , radiusString
+            , radiusString
+            , "0"
+            , "0"
+            , sweepFlag
+            , toString x
+            , toString y
+            ]
 
         arcSegments =
             List.map arcSegment (List.range 1 numSegments)
@@ -595,7 +595,7 @@ arc2d attributes arc =
         pathAttribute =
             Attributes.d (String.join " " pathComponents)
     in
-        Svg.path (pathAttribute :: attributes) []
+    Svg.path (pathAttribute :: attributes) []
 
 
 {-| Draw a `Circle2d` as an SVG `<circle>` with the given attributes.
@@ -632,7 +632,7 @@ circle2d attributes circle =
         r =
             Attributes.r (toString (Circle2d.radius circle))
     in
-        Svg.circle (cx :: cy :: r :: attributes) []
+    Svg.circle (cx :: cy :: r :: attributes) []
 
 
 {-| Draw a quadratic spline as an SVG `<path>` with the given attributes.
@@ -656,22 +656,22 @@ circle2d attributes circle =
             points =
                 [ p1, p2, p3 ]
         in
-            Svg.g [ Attributes.stroke "blue" ]
-                [ Svg.quadraticSpline2d
-                    [ Attributes.strokeWidth "3"
-                    , Attributes.strokeLinecap "round"
-                    , Attributes.fill "none"
-                    ]
-                    spline
-                , Svg.polyline2d
-                    [ Attributes.strokeWidth "1"
-                    , Attributes.fill "none"
-                    , Attributes.strokeDasharray "3 3"
-                    ]
-                    (Polyline2d points)
-                , Svg.g [ Attributes.fill "white" ]
-                    (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+        Svg.g [ Attributes.stroke "blue" ]
+            [ Svg.quadraticSpline2d
+                [ Attributes.strokeWidth "3"
+                , Attributes.strokeLinecap "round"
+                , Attributes.fill "none"
                 ]
+                spline
+            , Svg.polyline2d
+                [ Attributes.strokeWidth "1"
+                , Attributes.fill "none"
+                , Attributes.strokeDasharray "3 3"
+                ]
+                (Polyline2d points)
+            , Svg.g [ Attributes.fill "white" ]
+                (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+            ]
 
 -}
 quadraticSpline2d : List (Attribute msg) -> QuadraticSpline2d -> Svg msg
@@ -703,7 +703,7 @@ quadraticSpline2d attributes spline =
         pathAttribute =
             Attributes.d (String.join " " pathComponents)
     in
-        Svg.path (pathAttribute :: attributes) []
+    Svg.path (pathAttribute :: attributes) []
 
 
 {-| Draw a cubic spline as an SVG `<path>` with the given attributes.
@@ -728,22 +728,22 @@ quadraticSpline2d attributes spline =
             points =
                 [ p1, p2, p3, p4 ]
         in
-            Svg.g [ Attributes.stroke "blue" ]
-                [ Svg.cubicSpline2d
-                    [ Attributes.strokeWidth "3"
-                    , Attributes.strokeLinecap "round"
-                    , Attributes.fill "none"
-                    ]
-                    spline
-                , Svg.polyline2d
-                    [ Attributes.strokeWidth "1"
-                    , Attributes.fill "none"
-                    , Attributes.strokeDasharray "3 3"
-                    ]
-                    (Polyline2d points)
-                , Svg.g [ Attributes.fill "white" ]
-                    (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+        Svg.g [ Attributes.stroke "blue" ]
+            [ Svg.cubicSpline2d
+                [ Attributes.strokeWidth "3"
+                , Attributes.strokeLinecap "round"
+                , Attributes.fill "none"
                 ]
+                spline
+            , Svg.polyline2d
+                [ Attributes.strokeWidth "1"
+                , Attributes.fill "none"
+                , Attributes.strokeDasharray "3 3"
+                ]
+                (Polyline2d points)
+            , Svg.g [ Attributes.fill "white" ]
+                (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+            ]
 
 -}
 cubicSpline2d : List (Attribute msg) -> CubicSpline2d -> Svg msg
@@ -780,7 +780,7 @@ cubicSpline2d attributes spline =
         pathAttribute =
             Attributes.d (String.join " " pathComponents)
     in
-        Svg.path (pathAttribute :: attributes) []
+    Svg.path (pathAttribute :: attributes) []
 
 
 {-| Draw a string of text with the given attributes at the given point. You can
@@ -790,7 +790,7 @@ attributes to align the text relative to the given point as desired.
 
 The wrinkle is that this function assumes that you are constructing your diagram
 in a coordinate system where positive X is to the right and positive Y is up. As
-a result, it will actually draw the text *upside down*, assuming that you will
+a result, it will actually draw the text _upside down_, assuming that you will
 eventually flip your entire diagram upside down again to convert it to the
 Y-down coordinate system used by SVG (perhaps by using `render2d`).
 
@@ -832,20 +832,20 @@ other SVG element!
             p4 =
                 Point2d ( 300, 250 )
         in
-            Svg.g []
-                [ drawText p1 "p1" "start" "baseline"
-                , drawText p2 "p2" "end" "middle"
-                    |> Svg.scaleAbout p2 1.33
-                , drawText p3 "p3" "middle" "baseline"
-                    |> Svg.mirrorAcross
-                        (Axis2d
-                            { originPoint = p3
-                            , direction = Direction2d.x
-                            }
-                        )
-                , drawText p4 "p4" "end" "hanging"
-                    |> Svg.rotateAround p4 (degrees 10)
-                ]
+        Svg.g []
+            [ drawText p1 "p1" "start" "baseline"
+            , drawText p2 "p2" "end" "middle"
+                |> Svg.scaleAbout p2 1.33
+            , drawText p3 "p3" "middle" "baseline"
+                |> Svg.mirrorAcross
+                    (Axis2d
+                        { originPoint = p3
+                        , direction = Direction2d.x
+                        }
+                    )
+            , drawText p4 "p4" "end" "hanging"
+                |> Svg.rotateAround p4 (degrees 10)
+            ]
 
 -}
 text2d : List (Attribute msg) -> Point2d -> String -> Svg msg
@@ -866,8 +866,8 @@ text2d attributes basePoint text =
         yAttribute =
             Attributes.y (toString y)
     in
-        Svg.text_ (xAttribute :: yAttribute :: attributes) [ Svg.text text ]
-            |> mirrorAcross mirrorAxis
+    Svg.text_ (xAttribute :: yAttribute :: attributes) [ Svg.text text ]
+        |> mirrorAcross mirrorAxis
 
 
 {-| Scale arbitrary SVG around a given point by a given scale.
@@ -892,9 +892,9 @@ text2d attributes basePoint text =
             scaledCircle scale =
                 Svg.scaleAbout referencePoint scale circleSvg
         in
-            Svg.g [] (referencePointSvg :: List.map scaledCircle scales)
+        Svg.g [] (referencePointSvg :: List.map scaledCircle scales)
 
-Note how *everything* is scaled, including the stroke width of the circles. This
+Note how _everything_ is scaled, including the stroke width of the circles. This
 may or may not be what you want; if you wanted the same stroke width on all
 circles, you could instead scale the `Circle2d` values themselves using
 `Circle2d.scaleAbout` and then draw the scaled circles with a specific stroke
@@ -913,7 +913,7 @@ scaleAbout point scale element =
         transform =
             "matrix(" ++ String.join " " components ++ ")"
     in
-        Svg.g [ Attributes.transform transform ] [ element ]
+    Svg.g [ Attributes.transform transform ] [ element ]
 
 
 {-| Rotate arbitrary SVG around a given point by a given angle.
@@ -939,7 +939,7 @@ scaleAbout point scale element =
             rotatedCircle angle =
                 Svg.rotateAround referencePoint angle circleSvg
         in
-            Svg.g [] (referencePointSvg :: List.map rotatedCircle angles)
+        Svg.g [] (referencePointSvg :: List.map rotatedCircle angles)
 
 -}
 rotateAround : Point2d -> Float -> Svg msg -> Svg msg
@@ -992,19 +992,19 @@ translateBy vector =
             angledAxisSegment =
                 LineSegment2d.along angledAxis 50 250
         in
-            Svg.g []
-                [ polygonSvg
-                , Svg.mirrorAcross horizontalAxis polygonSvg
-                , Svg.mirrorAcross angledAxis polygonSvg
-                , Svg.g
-                    [ Attributes.strokeWidth "0.5"
-                    , Attributes.stroke "black"
-                    , Attributes.strokeDasharray "3 3"
-                    ]
-                    [ Svg.lineSegment2d [] horizontalAxisSegment
-                    , Svg.lineSegment2d [] angledAxisSegment
-                    ]
+        Svg.g []
+            [ polygonSvg
+            , Svg.mirrorAcross horizontalAxis polygonSvg
+            , Svg.mirrorAcross angledAxis polygonSvg
+            , Svg.g
+                [ Attributes.strokeWidth "0.5"
+                , Attributes.stroke "black"
+                , Attributes.strokeDasharray "3 3"
                 ]
+                [ Svg.lineSegment2d [] horizontalAxisSegment
+                , Svg.lineSegment2d [] angledAxisSegment
+                ]
+            ]
 
 -}
 mirrorAcross : Axis2d -> Svg msg -> Svg msg
@@ -1082,7 +1082,7 @@ positions with different orientations:
                     |> Frame2d.rotateBy (degrees -30)
                 ]
         in
-            Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
+        Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
 
 -}
 placeIn : Frame2d -> Svg msg -> Svg msg
@@ -1103,4 +1103,4 @@ placeIn frame element =
         transform =
             "matrix(" ++ String.join " " components ++ ")"
     in
-        Svg.g [ Attributes.transform transform ] [ element ]
+    Svg.g [ Attributes.transform transform ] [ element ]
