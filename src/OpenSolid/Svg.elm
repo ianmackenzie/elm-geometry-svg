@@ -6,6 +6,7 @@ module OpenSolid.Svg
         , arc2d
         , circle2d
         , cubicSpline2d
+        , curve2d
         , direction2d
         , lineSegment2d
         , mirrorAcross
@@ -76,7 +77,7 @@ attributes such as `points` and `transform` set appropriately. Each function
 also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
-@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d, cubicSpline2d
+@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d, cubicSpline2d, curve2d
 
 
 # Text
@@ -138,10 +139,12 @@ import OpenSolid.Arc2d as Arc2d
 import OpenSolid.BoundingBox2d as BoundingBox2d
 import OpenSolid.Circle2d as Circle2d
 import OpenSolid.CubicSpline2d as CubicSpline2d
+import OpenSolid.Curve2d as Curve2d
 import OpenSolid.Direction2d as Direction2d
 import OpenSolid.Frame2d as Frame2d
 import OpenSolid.Geometry.Types exposing (..)
 import OpenSolid.LineSegment2d as LineSegment2d
+import OpenSolid.Parametric.Types exposing (..)
 import OpenSolid.Point2d as Point2d
 import OpenSolid.Polygon2d as Polygon2d
 import OpenSolid.Polyline2d as Polyline2d
@@ -781,6 +784,19 @@ cubicSpline2d attributes spline =
             Attributes.d (String.join " " pathComponents)
     in
     Svg.path (pathAttribute :: attributes) []
+
+
+{-| Draw a generic curve as SVG with the given attributes. Arcs, lines and
+quadratic and cubic splines will be drawn using native SVG paths. Other curves
+will be converted to polylines using the given tolerance.
+-}
+curve2d : List (Attribute msg) -> Float -> Curve2d -> Svg msg
+curve2d attributes tolerance =
+    Curve2d.if_ (Curve2d.isLineSegment (lineSegment2d attributes))
+        |> Curve2d.elseIf (Curve2d.isArc (arc2d attributes))
+        |> Curve2d.elseIf (Curve2d.isQuadraticSpline (quadraticSpline2d attributes))
+        |> Curve2d.elseIf (Curve2d.isQuadraticSpline (quadraticSpline2d attributes))
+        |> Curve2d.else_ (Curve2d.toPolyline tolerance >> polyline2d attributes)
 
 
 {-| Draw a string of text with the given attributes at the given point. You can
