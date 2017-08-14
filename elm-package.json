@@ -1,19 +1,22 @@
 {
-  "version": "1.1.0",
-  "summary": "Render 2D OpenSolid types as SVG",
-  "repository": "https://github.com/opensolid/svg.git",
-  "license": "MPL-2.0",
-  "source-directories": [
-    "src"
-  ],
-  "exposed-modules": [
-    "OpenSolid.Svg"
-  ],
-  "dependencies": {
-    "elm-lang/core": "5.0.0 <= v < 6.0.0",
-    "elm-lang/html": "2.0.0 <= v < 3.0.0",
-    "elm-lang/svg": "2.0.0 <= v < 3.0.0",
-    "opensolid/geometry": "1.2.0 <= v < 2.0.0"
-  },
-  "elm-version": "0.18.0 <= v < 0.19.0"
+    "version": "1.1.0",
+    "summary": "Render 2D OpenSolid types as SVG",
+    "repository": "https://github.com/opensolid/svg.git",
+    "license": "MPL-2.0",
+    "source-directories": [
+        "src",
+        "../geometry/src",
+        "../parametric/src",
+        "../mesh/src"
+    ],
+    "exposed-modules": [
+        "OpenSolid.Svg"
+    ],
+    "dependencies": {
+        "Skinney/elm-array-exploration": "2.0.5 <= v < 3.0.0",
+        "elm-lang/core": "5.0.0 <= v < 6.0.0",
+        "elm-lang/html": "2.0.0 <= v < 3.0.0",
+        "elm-lang/svg": "2.0.0 <= v < 3.0.0"
+    },
+    "elm-version": "0.18.0 <= v < 0.19.0"
 }
