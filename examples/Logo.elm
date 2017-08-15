@@ -3,16 +3,16 @@ module Logo exposing (..)
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events as Events
-import Svg exposing (Svg)
-import Svg.Attributes
+import OpenSolid.Axis3d as Axis3d
+import OpenSolid.Direction2d as Direction2d
+import OpenSolid.Frame3d as Frame3d
 import OpenSolid.Geometry.Types exposing (..)
 import OpenSolid.Point2d as Point2d
 import OpenSolid.Point3d as Point3d
-import OpenSolid.Direction2d as Direction2d
-import OpenSolid.Frame3d as Frame3d
-import OpenSolid.Axis3d as Axis3d
 import OpenSolid.Polygon2d as Polygon2d
 import OpenSolid.Svg as Svg
+import Svg exposing (Svg)
+import Svg.Attributes
 
 
 type alias Model =
@@ -53,28 +53,28 @@ update msg model =
                 newValue =
                     Result.withDefault model.height (String.toFloat input)
             in
-                { model | height = newValue }
+            { model | height = newValue }
 
         XOffset input ->
             let
                 newValue =
                     Result.withDefault model.xOffset (String.toFloat input)
             in
-                { model | xOffset = newValue }
+            { model | xOffset = newValue }
 
         YOffset input ->
             let
                 newValue =
                     Result.withDefault model.yOffset (String.toFloat input)
             in
-                { model | yOffset = newValue }
+            { model | yOffset = newValue }
 
         ZOffset input ->
             let
                 newValue =
                     Result.withDefault model.zOffset (String.toFloat input)
             in
-                { model | zOffset = newValue }
+            { model | zOffset = newValue }
 
         Azimuth input ->
             let
@@ -82,7 +82,7 @@ update msg model =
                     Result.withDefault model.azimuth
                         (Result.map degrees (String.toFloat input))
             in
-                { model | azimuth = newValue }
+            { model | azimuth = newValue }
 
         Elevation input ->
             let
@@ -90,7 +90,7 @@ update msg model =
                     Result.withDefault model.elevation
                         (Result.map degrees (String.toFloat input))
             in
-                { model | elevation = newValue }
+            { model | elevation = newValue }
 
 
 view : Model -> Html Msg
@@ -154,7 +154,7 @@ logo model =
         viewFrame =
             Frame3d.at (Point3d ( 0.5, 0.5, model.height / 2 ))
                 |> Frame3d.rotateAroundOwn Frame3d.zAxis model.azimuth
-                |> Frame3d.rotateAroundOwn Frame3d.yAxis (-model.elevation)
+                |> Frame3d.rotateAroundOwn Frame3d.yAxis -model.elevation
 
         to2d =
             Point3d.projectInto (Frame3d.yzSketchPlane viewFrame)
@@ -191,8 +191,8 @@ logo model =
                     , Svg.Attributes.strokeWidth "0.03"
                     ]
             in
-                Svg.mask [ Svg.Attributes.id id ]
-                    [ Svg.polygon2d attributes polygon ]
+            Svg.mask [ Svg.Attributes.id id ]
+                [ Svg.polygon2d attributes polygon ]
 
         face color clipPathId polygon =
             let
@@ -201,7 +201,7 @@ logo model =
                     , Svg.Attributes.mask ("url(#" ++ clipPathId ++ ")")
                     ]
             in
-                Svg.polygon2d attributes polygon
+            Svg.polygon2d attributes polygon
 
         defs =
             Svg.defs []
@@ -237,8 +237,8 @@ logo model =
             Svg.relativeTo topLeftFrame
                 (Svg.scaleAbout Point2d.origin 200 elements)
     in
-        Svg.svg [ Svg.Attributes.width "500", Svg.Attributes.height "500" ]
-            [ scene ]
+    Svg.svg [ Svg.Attributes.width "500", Svg.Attributes.height "500" ]
+        [ scene ]
 
 
 main : Program Never Model Msg

@@ -1,14 +1,14 @@
 module Main exposing (..)
 
 import Html exposing (Html)
-import Svg as Svg exposing (Svg)
-import Svg.Attributes as Attributes
-import OpenSolid.Geometry.Types exposing (..)
-import OpenSolid.Point2d as Point2d
 import OpenSolid.Axis2d as Axis2d
 import OpenSolid.Frame2d as Frame2d
-import OpenSolid.Triangle2d as Triangle2d
+import OpenSolid.Geometry.Types exposing (..)
+import OpenSolid.Point2d as Point2d
 import OpenSolid.Svg as Svg
+import OpenSolid.Triangle2d as Triangle2d
+import Svg as Svg exposing (Svg)
+import Svg.Attributes as Attributes
 
 
 main : Html msg
@@ -91,5 +91,5 @@ main =
         topLeftFrame =
             Frame2d.at (Point2d ( -400, 400 )) |> Frame2d.flipY
     in
-        Svg.svg [ Attributes.width "800", Attributes.height "800" ]
-            [ Svg.relativeTo topLeftFrame topLevelGroup ]
+    Svg.svg [ Attributes.width "800", Attributes.height "800" ]
+        [ Svg.relativeTo topLeftFrame topLevelGroup ]

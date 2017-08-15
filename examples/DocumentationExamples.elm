@@ -1,18 +1,18 @@
 module DocumentationExamples exposing (..)
 
-import Svg exposing (Svg)
-import Svg.Attributes as Attributes
-import OpenSolid.Svg as Svg
-import OpenSolid.Geometry.Types exposing (..)
-import OpenSolid.Point2d as Point2d
-import OpenSolid.Direction2d as Direction2d
-import OpenSolid.Frame2d as Frame2d
-import OpenSolid.LineSegment2d as LineSegment2d
-import OpenSolid.QuadraticSpline2d as QuadraticSpline2d
-import OpenSolid.CubicSpline2d as CubicSpline2d
 import Html exposing (Html)
 import Html.Attributes
 import Navigation
+import OpenSolid.CubicSpline2d as CubicSpline2d
+import OpenSolid.Direction2d as Direction2d
+import OpenSolid.Frame2d as Frame2d
+import OpenSolid.Geometry.Types exposing (..)
+import OpenSolid.LineSegment2d as LineSegment2d
+import OpenSolid.Point2d as Point2d
+import OpenSolid.QuadraticSpline2d as QuadraticSpline2d
+import OpenSolid.Svg as Svg
+import Svg exposing (Svg)
+import Svg.Attributes as Attributes
 import UrlParser
 
 
@@ -60,7 +60,7 @@ directionSvg =
                 |> List.map degrees
                 |> List.map Direction2d.fromAngle
     in
-        Svg.g [] (List.map (drawDirection basePoint) directions)
+    Svg.g [] (List.map (drawDirection basePoint) directions)
 
 
 drawPoint : Point2d -> Svg Never
@@ -87,7 +87,7 @@ pointSvg =
             , Point2d ( 110, 190 )
             ]
     in
-        Svg.g [] (List.map drawPoint points)
+    Svg.g [] (List.map drawPoint points)
 
 
 circleSvg : Svg Never
@@ -201,22 +201,22 @@ quadraticSplineSvg =
         points =
             [ p1, p2, p3 ]
     in
-        Svg.g [ Attributes.stroke "blue" ]
-            [ Svg.quadraticSpline2d
-                [ Attributes.strokeWidth "3"
-                , Attributes.strokeLinecap "round"
-                , Attributes.fill "none"
-                ]
-                spline
-            , Svg.polyline2d
-                [ Attributes.strokeWidth "1"
-                , Attributes.fill "none"
-                , Attributes.strokeDasharray "3 3"
-                ]
-                (Polyline2d points)
-            , Svg.g [ Attributes.fill "white" ]
-                (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+    Svg.g [ Attributes.stroke "blue" ]
+        [ Svg.quadraticSpline2d
+            [ Attributes.strokeWidth "3"
+            , Attributes.strokeLinecap "round"
+            , Attributes.fill "none"
             ]
+            spline
+        , Svg.polyline2d
+            [ Attributes.strokeWidth "1"
+            , Attributes.fill "none"
+            , Attributes.strokeDasharray "3 3"
+            ]
+            (Polyline2d points)
+        , Svg.g [ Attributes.fill "white" ]
+            (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+        ]
 
 
 cubicSplineSvg : Svg Never
@@ -236,22 +236,22 @@ cubicSplineSvg =
         points =
             [ p1, p2, p3, p4 ]
     in
-        Svg.g [ Attributes.stroke "blue" ]
-            [ Svg.cubicSpline2d
-                [ Attributes.strokeWidth "3"
-                , Attributes.strokeLinecap "round"
-                , Attributes.fill "none"
-                ]
-                spline
-            , Svg.polyline2d
-                [ Attributes.strokeWidth "1"
-                , Attributes.fill "none"
-                , Attributes.strokeDasharray "3 3"
-                ]
-                (Polyline2d points)
-            , Svg.g [ Attributes.fill "white" ]
-                (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+    Svg.g [ Attributes.stroke "blue" ]
+        [ Svg.cubicSpline2d
+            [ Attributes.strokeWidth "3"
+            , Attributes.strokeLinecap "round"
+            , Attributes.fill "none"
             ]
+            spline
+        , Svg.polyline2d
+            [ Attributes.strokeWidth "1"
+            , Attributes.fill "none"
+            , Attributes.strokeDasharray "3 3"
+            ]
+            (Polyline2d points)
+        , Svg.g [ Attributes.fill "white" ]
+            (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+        ]
 
 
 drawText : Point2d -> String -> String -> String -> Svg Never
@@ -287,20 +287,20 @@ textSvg =
         p4 =
             Point2d ( 300, 250 )
     in
-        Svg.g []
-            [ drawText p1 "p1" "start" "baseline"
-            , drawText p2 "p2" "end" "middle"
-                |> Svg.scaleAbout p2 1.33
-            , drawText p3 "p3" "middle" "baseline"
-                |> Svg.mirrorAcross
-                    (Axis2d
-                        { originPoint = p3
-                        , direction = Direction2d.x
-                        }
-                    )
-            , drawText p4 "p4" "end" "hanging"
-                |> Svg.rotateAround p4 (degrees 10)
-            ]
+    Svg.g []
+        [ drawText p1 "p1" "start" "baseline"
+        , drawText p2 "p2" "end" "middle"
+            |> Svg.scaleAbout p2 1.33
+        , drawText p3 "p3" "middle" "baseline"
+            |> Svg.mirrorAcross
+                (Axis2d
+                    { originPoint = p3
+                    , direction = Direction2d.x
+                    }
+                )
+        , drawText p4 "p4" "end" "hanging"
+            |> Svg.rotateAround p4 (degrees 10)
+        ]
 
 
 scaledSvg : Svg Never
@@ -320,7 +320,7 @@ scaledSvg =
         scaledCircle scale =
             Svg.scaleAbout referencePoint scale circleSvg
     in
-        Svg.g [] (referencePointSvg :: List.map scaledCircle scales)
+    Svg.g [] (referencePointSvg :: List.map scaledCircle scales)
 
 
 rotatedSvg : Svg Never
@@ -341,7 +341,7 @@ rotatedSvg =
         rotatedCircle angle =
             Svg.rotateAround referencePoint angle circleSvg
     in
-        Svg.g [] (referencePointSvg :: List.map rotatedCircle angles)
+    Svg.g [] (referencePointSvg :: List.map rotatedCircle angles)
 
 
 translatedSvg : Svg Never
@@ -374,19 +374,19 @@ mirroredSvg =
         angledAxisSegment =
             LineSegment2d.along angledAxis 50 250
     in
-        Svg.g []
-            [ polygonSvg
-            , Svg.mirrorAcross horizontalAxis polygonSvg
-            , Svg.mirrorAcross angledAxis polygonSvg
-            , Svg.g
-                [ Attributes.strokeWidth "0.5"
-                , Attributes.stroke "black"
-                , Attributes.strokeDasharray "3 3"
-                ]
-                [ Svg.lineSegment2d [] horizontalAxisSegment
-                , Svg.lineSegment2d [] angledAxisSegment
-                ]
+    Svg.g []
+        [ polygonSvg
+        , Svg.mirrorAcross horizontalAxis polygonSvg
+        , Svg.mirrorAcross angledAxis polygonSvg
+        , Svg.g
+            [ Attributes.strokeWidth "0.5"
+            , Attributes.stroke "black"
+            , Attributes.strokeDasharray "3 3"
             ]
+            [ Svg.lineSegment2d [] horizontalAxisSegment
+            , Svg.lineSegment2d [] angledAxisSegment
+            ]
+        ]
 
 
 placedSvg : Svg Never
@@ -418,7 +418,7 @@ placedSvg =
                 |> Frame2d.rotateBy (degrees -30)
             ]
     in
-        Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
+    Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
 
 
 example : ( Float, Float ) -> ( Float, Float ) -> Svg Never -> Html Never
@@ -498,14 +498,14 @@ main =
                                     [ Html.text name ]
                                 ]
                     in
-                        Html.div []
-                            [ Html.text "Please choose an example:"
-                            , Html.ul [] (List.map exampleItem examples)
-                            ]
+                    Html.div []
+                        [ Html.text "Please choose an example:"
+                        , Html.ul [] (List.map exampleItem examples)
+                        ]
     in
-        Navigation.program identity
-            { init = init
-            , update = update
-            , view = view
-            , subscriptions = always Sub.none
-            }
+    Navigation.program identity
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = always Sub.none
+        }
