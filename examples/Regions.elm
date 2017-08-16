@@ -61,120 +61,6 @@ drawMesh tolerance region =
     Svg.g [] (List.map drawMeshTriangle triangles)
 
 
-roundedRectangle : Rectangle2d -> Float -> Region2d
-roundedRectangle rectangle cornerRadius =
-    let
-        ( width, height ) =
-            Rectangle2d.dimensions rectangle
-
-        halfWidth =
-            width / 2
-
-        halfHeight =
-            height / 2
-
-        frame =
-            Rectangle2d.axes rectangle
-
-        xAxis =
-            Frame2d.xAxis frame
-
-        yAxis =
-            Frame2d.yAxis frame
-
-        cornerCenter =
-            Point2d.in_ frame
-                ( halfWidth - cornerRadius
-                , halfHeight - cornerRadius
-                )
-
-        cornerStart =
-            Point2d.in_ frame ( halfWidth, halfHeight - cornerRadius )
-
-        topRightCorner =
-            Region2d.revolutionWith
-                { start = Region2d.interior
-                , end = Region2d.interior
-                , inside = Region2d.interior
-                , outside = Region2d.exterior
-                }
-                (Curve2d.lineSegment ( cornerCenter, cornerStart ))
-                cornerCenter
-                (degrees 90)
-
-        rightRectangle =
-            Region2d.fromRectangleWith
-                { left = Region2d.interior
-                , right = Region2d.exterior
-                , top = Region2d.interior
-                , bottom = Region2d.interior
-                }
-                (Rectangle2d.in_ frame
-                    { minX = halfWidth - cornerRadius
-                    , maxX = halfWidth
-                    , minY = -halfHeight + cornerRadius
-                    , maxY = halfHeight - cornerRadius
-                    }
-                )
-
-        topRectangle =
-            Region2d.fromRectangleWith
-                { left = Region2d.interior
-                , right = Region2d.interior
-                , top = Region2d.exterior
-                , bottom = Region2d.interior
-                }
-                (Rectangle2d.in_ frame
-                    { minX = -halfWidth + cornerRadius
-                    , maxX = halfWidth - cornerRadius
-                    , minY = halfHeight - cornerRadius
-                    , maxY = halfHeight
-                    }
-                )
-
-        leftRectangle =
-            rightRectangle |> Region2d.mirrorAcross yAxis
-
-        bottomRectangle =
-            topRectangle |> Region2d.mirrorAcross xAxis
-
-        topLeftCorner =
-            topRightCorner |> Region2d.mirrorAcross yAxis
-
-        bottomRightCorner =
-            topRightCorner |> Region2d.mirrorAcross xAxis
-
-        bottomLeftCorner =
-            topLeftCorner |> Region2d.mirrorAcross xAxis
-
-        innerRectangle =
-            Region2d.fromRectangleWith
-                { left = Region2d.interior
-                , right = Region2d.interior
-                , top = Region2d.interior
-                , bottom = Region2d.interior
-                }
-                (Rectangle2d.in_ frame
-                    { minX = -halfWidth + cornerRadius
-                    , maxX = halfWidth - cornerRadius
-                    , minY = -halfHeight + cornerRadius
-                    , maxY = halfHeight - cornerRadius
-                    }
-                )
-    in
-    Region2d.fuse
-        [ topLeftCorner
-        , topRectangle
-        , topRightCorner
-        , leftRectangle
-        , innerRectangle
-        , rightRectangle
-        , bottomLeftCorner
-        , bottomRectangle
-        , bottomRightCorner
-        ]
-
-
 main : Html Never
 main =
     let
@@ -193,7 +79,7 @@ main =
             1
 
         region =
-            roundedRectangle rectangle 100
+            Region2d.roundedRectangle rectangle 100
 
         boundaries =
             drawBoundaries tolerance region
