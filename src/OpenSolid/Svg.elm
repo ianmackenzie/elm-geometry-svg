@@ -135,22 +135,22 @@ conversion transformations to be applied to arbitrary SVG elements.
 -}
 
 import Html exposing (Html)
-import OpenSolid.Arc2d as Arc2d
-import OpenSolid.BoundingBox2d as BoundingBox2d
-import OpenSolid.Circle2d as Circle2d
-import OpenSolid.CubicSpline2d as CubicSpline2d
+import OpenSolid.Arc2d as Arc2d exposing (Arc2d)
+import OpenSolid.Axis2d as Axis2d exposing (Axis2d)
+import OpenSolid.BoundingBox2d as BoundingBox2d exposing (BoundingBox2d)
+import OpenSolid.Circle2d as Circle2d exposing (Circle2d)
+import OpenSolid.CubicSpline2d as CubicSpline2d exposing (CubicSpline2d)
 import OpenSolid.Curve2d as Curve2d
-import OpenSolid.Direction2d as Direction2d
-import OpenSolid.Frame2d as Frame2d
-import OpenSolid.Geometry.Types exposing (..)
-import OpenSolid.LineSegment2d as LineSegment2d
+import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
+import OpenSolid.Frame2d as Frame2d exposing (Frame2d)
+import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
 import OpenSolid.Parametric.Types exposing (..)
-import OpenSolid.Point2d as Point2d
-import OpenSolid.Polygon2d as Polygon2d
-import OpenSolid.Polyline2d as Polyline2d
-import OpenSolid.QuadraticSpline2d as QuadraticSpline2d
-import OpenSolid.Triangle2d as Triangle2d
-import OpenSolid.Vector2d as Vector2d
+import OpenSolid.Point2d as Point2d exposing (Point2d)
+import OpenSolid.Polygon2d as Polygon2d exposing (Polygon2d)
+import OpenSolid.Polyline2d as Polyline2d exposing (Polyline2d)
+import OpenSolid.QuadraticSpline2d as QuadraticSpline2d exposing (QuadraticSpline2d)
+import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
+import OpenSolid.Vector2d as Vector2d exposing (Vector2d)
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Attributes
 
@@ -171,8 +171,8 @@ render2d boundingBox svg =
             BoundingBox2d.extrema boundingBox
 
         topLeftFrame =
-            Frame2d
-                { originPoint = Point2d ( minX, maxY )
+            Frame2d.with
+                { originPoint = Point2d.withCoordinates ( minX, maxY )
                 , xDirection = Direction2d.positiveX
                 , yDirection = Direction2d.negativeY
                 }
@@ -253,7 +253,7 @@ vector2d options basePoint vector =
         Just ( length, direction ) ->
             let
                 frame =
-                    Frame2d
+                    Frame2d.with
                         { originPoint = basePoint
                         , xDirection = direction
                         , yDirection = Direction2d.perpendicularTo direction
@@ -278,10 +278,10 @@ vector2d options basePoint vector =
                     Point2d.in_ frame ( length - tipLength, -tipWidth / 2 )
 
                 stem =
-                    LineSegment2d ( basePoint, tipBasePoint )
+                    LineSegment2d.withEndpoints ( basePoint, tipBasePoint )
 
                 tip =
-                    Triangle2d ( rightPoint, tipPoint, leftPoint )
+                    Triangle2d.withVertices ( rightPoint, tipPoint, leftPoint )
             in
             Svg.g options.groupAttributes
                 [ lineSegment2d options.stemAttributes stem
@@ -395,7 +395,7 @@ type alias PointOptions msg =
 point2d : PointOptions msg -> Point2d -> Svg msg
 point2d options point =
     circle2d options.attributes
-        (Circle2d { centerPoint = point, radius = options.radius })
+        (Circle2d.with { centerPoint = point, radius = options.radius })
 
 
 {-| Draw a `LineSegment2d` as an SVG `<polyline>` with the given attributes.
@@ -871,7 +871,7 @@ text2d attributes basePoint text =
             Point2d.coordinates basePoint
 
         mirrorAxis =
-            Axis2d
+            Axis2d.with
                 { originPoint = basePoint
                 , direction = Direction2d.x
                 }
