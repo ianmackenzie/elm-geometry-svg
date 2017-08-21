@@ -795,7 +795,7 @@ curve2d attributes tolerance =
     Curve2d.if_ (Curve2d.isLineSegment (lineSegment2d attributes))
         |> Curve2d.elseIf (Curve2d.isArc (arc2d attributes))
         |> Curve2d.elseIf (Curve2d.isQuadraticSpline (quadraticSpline2d attributes))
-        |> Curve2d.elseIf (Curve2d.isQuadraticSpline (quadraticSpline2d attributes))
+        |> Curve2d.elseIf (Curve2d.isCubicSpline (cubicSpline2d attributes))
         |> Curve2d.else_ (Curve2d.toPolyline tolerance >> polyline2d attributes)
 
 
