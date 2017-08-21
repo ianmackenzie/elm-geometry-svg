@@ -1005,6 +1005,7 @@ cubicSpline3dIcon =
     icon3d (cubicSpline3d spline)
 
 
+icons : List (Svg Never)
 icons =
     [ point2dIcon
     , point3dIcon
