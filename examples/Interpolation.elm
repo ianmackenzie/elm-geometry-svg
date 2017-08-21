@@ -3,7 +3,8 @@ module Interpolation exposing (..)
 import Html exposing (Html)
 import Html.Attributes
 import Kintail.InputWidget as InputWidget
-import OpenSolid.Geometry.Types exposing (..)
+import OpenSolid.BoundingBox2d as BoundingBox2d
+import OpenSolid.CubicSpline2d as CubicSpline2d
 import OpenSolid.Point2d as Point2d
 import OpenSolid.Svg as Svg
 import Svg
@@ -33,7 +34,7 @@ view : Model -> Html Msg
 view { x0 } =
     let
         boundingBox =
-            BoundingBox2d
+            BoundingBox2d.with
                 { minX = 0
                 , maxX = 300
                 , minY = -100
@@ -47,11 +48,11 @@ view { x0 } =
             (2 * x0 - 1) / (3 * x0)
 
         spline =
-            CubicSpline2d
+            CubicSpline2d.withControlPoints
                 ( Point2d.origin
-                , Point2d ( 1 / 3, y1 )
-                , Point2d ( 2 / 3, y2 )
-                , Point2d ( 1, 1 )
+                , Point2d.withCoordinates ( 1 / 3, y1 )
+                , Point2d.withCoordinates ( 2 / 3, y2 )
+                , Point2d.withCoordinates ( 1, 1 )
                 )
 
         svg =
@@ -62,7 +63,7 @@ view { x0 } =
                     , Svg.Attributes.strokeWidth "0.01"
                     ]
                     spline
-                , Svg.point2d { radius = 0.02, attributes = [] } (Point2d ( x0, x0 ))
+                , Svg.point2d { radius = 0.02, attributes = [] } (Point2d.withCoordinates ( x0, x0 ))
                 ]
     in
     Html.div []

@@ -1,16 +1,13 @@
 module Regions exposing (..)
 
 import Html exposing (Html)
-import OpenSolid.Curve2d as Curve2d
-import OpenSolid.Frame2d as Frame2d
-import OpenSolid.Geometry.Types exposing (..)
+import OpenSolid.BoundingBox2d as BoundingBox2d
 import OpenSolid.Mesh as Mesh
 import OpenSolid.Parametric.Types exposing (..)
-import OpenSolid.Point2d as Point2d
 import OpenSolid.Rectangle2d as Rectangle2d
 import OpenSolid.Region2d as Region2d
 import OpenSolid.Svg as Svg
-import OpenSolid.Triangle2d as Triangle2d
+import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
 import Svg exposing (Svg)
 import Svg.Attributes as Attributes
 
@@ -56,7 +53,7 @@ drawMesh tolerance region =
             Region2d.toMesh tolerance region
 
         triangles =
-            Mesh.faces mesh |> List.map Triangle2d
+            Mesh.faces mesh |> List.map Triangle2d.withVertices
     in
     Svg.g [] (List.map drawMeshTriangle triangles)
 
@@ -65,7 +62,7 @@ main : Html Never
 main =
     let
         boundingBox =
-            BoundingBox2d
+            BoundingBox2d.with
                 { minX = 0
                 , maxX = 800
                 , minY = 0
