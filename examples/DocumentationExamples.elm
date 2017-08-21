@@ -433,6 +433,7 @@ example ( minX, minY ) ( maxX, maxY ) =
         )
 
 
+examples : List ( String, Html Never )
 examples =
     [ ( "vector", example ( 90, 90 ) ( 210, 210 ) vectorSvg )
     , ( "direction", example ( 90, 90 ) ( 210, 210 ) directionSvg )
