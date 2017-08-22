@@ -41,12 +41,11 @@ For the examples, assume that the following imports are present:
     import Svg exposing (Svg)
     import Svg.Attributes as Attributes
     import OpenSolid.Svg as Svg
-    import OpenSolid.Geometry.Types exposing (..)
 
-Also assume that any necessary OpenSolid modules have been imported using the
-following format:
+Also assume that any necessary OpenSolid modules/types have been imported using
+the following format:
 
-    import OpenSolid.Point2d as Point2d
+    import OpenSolid.Point2d as Point2d exposing (Point2d)
 
 All examples use a Y-up coordinate system instead of SVG's Y-down (window)
 coordinate system; they were all rendered with a final [`render2d`](#render2d)
