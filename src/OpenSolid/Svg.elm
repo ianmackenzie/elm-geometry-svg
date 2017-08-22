@@ -577,7 +577,7 @@ arc2d attributes arc =
                     toFloat index / toFloat numSegments
 
                 ( x, y ) =
-                    Point2d.coordinates (Arc2d.point arc t)
+                    Point2d.coordinates (Arc2d.pointOn arc t)
             in
             [ "A"
             , radiusString
