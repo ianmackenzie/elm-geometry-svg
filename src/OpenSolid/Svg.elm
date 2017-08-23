@@ -170,11 +170,8 @@ render2d boundingBox svg =
             BoundingBox2d.extrema boundingBox
 
         topLeftFrame =
-            Frame2d.with
-                { originPoint = Point2d.withCoordinates ( minX, maxY )
-                , xDirection = Direction2d.positiveX
-                , yDirection = Direction2d.negativeY
-                }
+            Frame2d.at (Point2d.withCoordinates ( minX, maxY ))
+                |> Frame2d.flipY
 
         ( width, height ) =
             BoundingBox2d.dimensions boundingBox

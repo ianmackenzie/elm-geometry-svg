@@ -1057,11 +1057,8 @@ icons =
 
 topLeftFrame : Frame2d
 topLeftFrame =
-    Frame2d.with
-        { originPoint = Point2d.withCoordinates ( -20, 60 )
-        , xDirection = Direction2d.positiveX
-        , yDirection = Direction2d.negativeY
-        }
+    Frame2d.at (Point2d.withCoordinates ( -20, 60 ))
+        |> Frame2d.flipY
 
 
 container : Svg Never -> Html Never

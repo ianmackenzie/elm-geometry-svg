@@ -226,11 +226,8 @@ logo model =
             Svg.g [] [ defs, leftFace, rightFace, topFace, triangleFace ]
 
         topLeftFrame =
-            Frame2d.with
-                { originPoint = Point2d.withCoordinates ( -250, 250 )
-                , xDirection = Direction2d.positiveX
-                , yDirection = Direction2d.negativeY
-                }
+            Frame2d.at (Point2d.withCoordinates ( -250, 250 ))
+                |> Frame2d.flipY
 
         scene =
             Svg.relativeTo topLeftFrame
