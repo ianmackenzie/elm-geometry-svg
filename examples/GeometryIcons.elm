@@ -740,9 +740,8 @@ arc3dIcon =
                 }
 
         arc =
-            Arc3d.with
+            Arc3d.around axis
                 { startPoint = startPoint
-                , axis = axis
                 , sweptAngle = degrees 150
                 }
 
