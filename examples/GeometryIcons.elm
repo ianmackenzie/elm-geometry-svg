@@ -82,7 +82,7 @@ direction3d point direction =
         , tipWidth = 5
         }
         (Point3d.projectInto viewPlane point)
-        (Vector3d.projectInto viewPlane (Vector3d.in_ direction 25))
+        (Vector3d.projectInto viewPlane (Vector3d.withLength 25 direction))
 
 
 originPoint2d : Point2d -> Svg Never
@@ -235,7 +235,7 @@ plane3d sketchPlane =
             SketchPlane3d.originPoint sketchPlane
 
         normalDirection =
-            SketchPlane3d.plane sketchPlane |> Plane3d.normalDirection
+            SketchPlane3d.normalDirection sketchPlane
     in
     Svg.g []
         [ Svg.polygon2d
