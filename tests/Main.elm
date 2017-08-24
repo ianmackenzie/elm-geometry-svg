@@ -19,7 +19,9 @@ main =
             List.map (\index -> degrees (6 * toFloat index)) (List.range 0 15)
 
         points =
-            List.map (\angle -> Point2d.polar ( 300, angle )) angles
+            angles
+                |> List.map
+                    (\angle -> Point2d.withPolarCoordinates ( 300, angle ))
 
         lineSegments =
             List.map (\point -> LineSegment2d ( Point2d.origin, point )) points

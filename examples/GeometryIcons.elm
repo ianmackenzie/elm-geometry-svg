@@ -860,7 +860,8 @@ polygon2dIcon =
         polygon =
             List.range 0 4
                 |> List.map (\n -> turns (toFloat n / 5))
-                |> List.map (\angle -> Point2d.polar ( 15, angle ))
+                |> List.map
+                    (\angle -> Point2d.withPolarCoordinates ( 15, angle ))
                 |> List.map (Point2d.translateBy displacement)
                 |> Polygon2d.withVertices
     in
