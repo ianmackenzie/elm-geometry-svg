@@ -329,9 +329,8 @@ create a helper function with your preferred display options 'baked in':
                 Point2d.withCoordinates ( 100, 100 )
 
             directions =
-                [ 0, 15, 30, 45, 60, 75, 90 ]
-                    |> List.map degrees
-                    |> List.map Direction2d.fromAngle
+                List.map degrees [ 0, 15, 30, 45, 60, 75, 90 ]
+                    |> List.map Direction2d.withPolarAngle
         in
         Svg.g [] (List.map (drawDirection basePoint) directions)
 
@@ -996,9 +995,9 @@ translateBy vector =
                 LineSegment2d.along horizontalAxis 50 250
 
             angledAxis =
-                    , direction = Direction2d.fromAngle (degrees -10)
                 Axis2d.with
                     { originPoint = Point2d.withCoordinates ( 0, 150 )
+                    , direction = Direction2d.withPolarAngle (degrees -10)
                     }
 
             angledAxisSegment =

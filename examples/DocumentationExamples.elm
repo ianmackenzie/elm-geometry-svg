@@ -63,9 +63,8 @@ directionSvg =
             Point2d.withCoordinates ( 100, 100 )
 
         directions =
-            [ 0, 15, 30, 45, 60, 75, 90 ]
-                |> List.map degrees
-                |> List.map Direction2d.fromAngle
+            List.map degrees [ 0, 15, 30, 45, 60, 75, 90 ]
+                |> List.map Direction2d.withPolarAngle
     in
     Svg.g [] (List.map (drawDirection basePoint) directions)
 
@@ -375,7 +374,7 @@ mirroredSvg =
         angledAxis =
             Axis2d.with
                 { originPoint = Point2d.withCoordinates ( 0, 150 )
-                , direction = Direction2d.fromAngle (degrees -10)
+                , direction = Direction2d.withPolarAngle (degrees -10)
                 }
 
         angledAxisSegment =

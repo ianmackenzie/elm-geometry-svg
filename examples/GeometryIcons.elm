@@ -313,7 +313,8 @@ vector3dIcon =
 
 direction2dIcon : Svg Never
 direction2dIcon =
-    icon2d (direction2d Point2d.origin (Direction2d.fromAngle (degrees 45)))
+    icon2d <|
+        direction2d Point2d.origin (Direction2d.withPolarAngle (degrees 45))
 
 
 direction3dIcon : Svg Never
@@ -328,7 +329,7 @@ axis2dIcon =
         axis =
             Axis2d.with
                 { originPoint = Point2d.withCoordinates ( 10, 15 )
-                , direction = Direction2d.fromAngle (degrees 20)
+                , direction = Direction2d.withPolarAngle (degrees 20)
                 }
     in
     icon2d (axis2d axis)
@@ -341,7 +342,7 @@ axis3dIcon =
             Axis3d.with
                 { originPoint = Point3d.withCoordinates ( 0, 20, 40 )
                 , direction =
-                    Direction2d.fromAngle (degrees -20)
+                    Direction2d.withPolarAngle (degrees -20)
                         |> Direction2d.placeOnto SketchPlane3d.yz
                 }
     in
@@ -682,7 +683,7 @@ circle3dIcon =
             Point3d.withCoordinates ( 0, 30, 30 )
 
         axialDirection =
-            Direction2d.fromAngle (degrees 70)
+            Direction2d.withPolarAngle (degrees 70)
                 |> Direction2d.placeOnto SketchPlane3d.yz
 
         circle =
@@ -730,7 +731,7 @@ arc3dIcon =
             Point3d.withCoordinates ( 0, 35, 10 )
 
         axialDirection =
-            Direction2d.fromAngle (degrees 60)
+            Direction2d.withPolarAngle (degrees 60)
                 |> Direction2d.placeOnto SketchPlane3d.yz
 
         axis =
