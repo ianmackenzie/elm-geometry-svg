@@ -320,7 +320,8 @@ direction2dIcon =
 direction3dIcon : Svg Never
 direction3dIcon =
     icon3d <|
-        direction3d Point3d.origin (Direction3d.withComponents ( 0, 0.8, 0.6 ))
+        direction3d Point3d.origin
+            (Direction3d.with { azimuth = degrees 90, elevation = degrees 35 })
 
 
 axis2dIcon : Svg Never
