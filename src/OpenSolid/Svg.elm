@@ -274,7 +274,7 @@ vector2d options basePoint vector =
                     Point2d.in_ frame ( length - tipLength, -tipWidth / 2 )
 
                 stem =
-                    LineSegment2d.withEndpoints ( basePoint, tipBasePoint )
+                    LineSegment2d.from basePoint tipBasePoint
 
                 tip =
                     Triangle2d.withVertices ( rightPoint, tipPoint, leftPoint )
