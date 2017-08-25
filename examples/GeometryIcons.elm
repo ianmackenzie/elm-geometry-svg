@@ -220,7 +220,7 @@ plane3d sketchPlane =
     let
         point x y =
             Point2d.withCoordinates ( x, y )
-                |> Point2d.placeOnto sketchPlane
+                |> Point3d.on sketchPlane
                 |> Point3d.projectInto viewPlane
 
         outline =
@@ -254,7 +254,7 @@ sketchPlane3d sketchPlane =
     let
         point x y =
             Point2d.withCoordinates ( x, y )
-                |> Point2d.placeOnto sketchPlane
+                |> Point3d.on sketchPlane
                 |> Point3d.projectInto viewPlane
 
         outline =
@@ -343,8 +343,8 @@ axis3dIcon =
             Axis3d.with
                 { originPoint = Point3d.withCoordinates ( 0, 20, 40 )
                 , direction =
-                    Direction2d.withPolarAngle (degrees -20)
-                        |> Direction2d.placeOnto SketchPlane3d.yz
+                    Direction3d.on SketchPlane3d.yz <|
+                        Direction2d.withPolarAngle (degrees -20)
                 }
     in
     icon3d (axis3d axis)
@@ -680,8 +680,8 @@ circle3dIcon =
             Point3d.withCoordinates ( 0, 30, 30 )
 
         axialDirection =
-            Direction2d.withPolarAngle (degrees 70)
-                |> Direction2d.placeOnto SketchPlane3d.yz
+            Direction3d.on SketchPlane3d.yz <|
+                Direction2d.withPolarAngle (degrees 70)
 
         circle =
             Circle3d.with
@@ -728,8 +728,8 @@ arc3dIcon =
             Point3d.withCoordinates ( 0, 35, 10 )
 
         axialDirection =
-            Direction2d.withPolarAngle (degrees 60)
-                |> Direction2d.placeOnto SketchPlane3d.yz
+            Direction3d.on SketchPlane3d.yz <|
+                Direction2d.withPolarAngle (degrees 60)
 
         axis =
             Axis3d.with
