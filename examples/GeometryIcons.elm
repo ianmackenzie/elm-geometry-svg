@@ -629,9 +629,6 @@ circle3d circle =
                 |> Direction3d.projectInto viewPlane
                 |> Maybe.withDefault Direction2d.x
 
-        yDirection =
-            Direction2d.perpendicularTo xDirection
-
         radius =
             Circle3d.radius circle
 
@@ -642,10 +639,9 @@ circle3d circle =
             abs (Direction3d.componentIn normalDirection axialDirection)
 
         frame =
-            Frame2d.unsafe
+            Frame2d.with
                 { originPoint = projectedCenter
                 , xDirection = xDirection
-                , yDirection = yDirection
                 }
     in
     Svg.g []
@@ -758,14 +754,10 @@ arc3dIcon =
                 |> Direction3d.projectInto viewPlane
                 |> Maybe.withDefault Direction2d.x
 
-        yDirection =
-            Direction2d.perpendicularTo xDirection
-
         localFrame =
-            Frame2d.unsafe
+            Frame2d.with
                 { originPoint = projectedCenter
                 , xDirection = xDirection
-                , yDirection = yDirection
                 }
 
         localStart =

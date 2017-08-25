@@ -249,10 +249,9 @@ vector2d options basePoint vector =
         Just ( length, direction ) ->
             let
                 frame =
-                    Frame2d.unsafe
+                    Frame2d.with
                         { originPoint = basePoint
                         , xDirection = direction
-                        , yDirection = Direction2d.perpendicularTo direction
                         }
 
                 tipLength =
