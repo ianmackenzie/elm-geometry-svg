@@ -786,11 +786,13 @@ will be converted to polylines using the given tolerance.
 -}
 curve2d : List (Attribute msg) -> Float -> Curve2d -> Svg msg
 curve2d attributes tolerance =
-    Curve2d.if_ (Curve2d.isLineSegment (lineSegment2d attributes))
-        |> Curve2d.elseIf (Curve2d.isArc (arc2d attributes))
-        |> Curve2d.elseIf (Curve2d.isQuadraticSpline (quadraticSpline2d attributes))
-        |> Curve2d.elseIf (Curve2d.isCubicSpline (cubicSpline2d attributes))
-        |> Curve2d.else_ (Curve2d.toPolyline tolerance >> polyline2d attributes)
+    Curve2d.match
+        |> Curve2d.isLineSegment (lineSegment2d attributes)
+        |> Curve2d.isArc (arc2d attributes)
+        |> Curve2d.isQuadraticSpline (quadraticSpline2d attributes)
+        |> Curve2d.isCubicSpline (cubicSpline2d attributes)
+        |> Curve2d.otherwise
+            (Curve2d.toPolyline tolerance >> polyline2d attributes)
 
 
 {-| Draw a string of text with the given attributes at the given point. You can
