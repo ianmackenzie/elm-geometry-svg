@@ -642,7 +642,7 @@ circle3d circle =
             abs (Direction3d.componentIn normalDirection axialDirection)
 
         frame =
-            Frame2d.with
+            Frame2d.unsafe
                 { originPoint = projectedCenter
                 , xDirection = xDirection
                 , yDirection = yDirection
@@ -762,7 +762,7 @@ arc3dIcon =
             Direction2d.perpendicularTo xDirection
 
         localFrame =
-            Frame2d.with
+            Frame2d.unsafe
                 { originPoint = projectedCenter
                 , xDirection = xDirection
                 , yDirection = yDirection
