@@ -784,8 +784,8 @@ cubicSpline2d attributes spline =
 quadratic and cubic splines will be drawn using native SVG paths. Other curves
 will be converted to polylines using the given tolerance.
 -}
-curve2d : List (Attribute msg) -> Float -> Curve2d -> Svg msg
-curve2d attributes tolerance =
+curve2d : Float -> List (Attribute msg) -> Curve2d -> Svg msg
+curve2d tolerance attributes =
     Curve2d.match
         |> Curve2d.isLineSegment (lineSegment2d attributes)
         |> Curve2d.isArc (arc2d attributes)

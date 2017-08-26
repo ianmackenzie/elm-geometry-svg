@@ -24,7 +24,7 @@ drawBoundaries tolerance region =
             , Attributes.stroke "black"
             ]
     in
-    Svg.g curveAttributes (List.map (Svg.curve2d [] tolerance) boundaryCurves)
+    Svg.g curveAttributes (List.map (Svg.curve2d tolerance []) boundaryCurves)
 
 
 drawMeshTriangle : Triangle2d -> Svg msg
