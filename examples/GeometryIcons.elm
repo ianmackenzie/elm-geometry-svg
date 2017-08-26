@@ -1,4 +1,4 @@
-module DocumentationExamples exposing (..)
+module GeometryIcons exposing (..)
 
 import Html exposing (Html)
 import OpenSolid.Arc2d as Arc2d exposing (Arc2d)
