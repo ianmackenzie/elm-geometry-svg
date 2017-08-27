@@ -420,7 +420,7 @@ polyline3d =
 polygon2d : Polygon2d -> Svg Never
 polygon2d polygon =
     Svg.g []
-        [ Svg.polygon2d [ Attributes.fill "lightgrey" ] polygon
+        [ Svg.polygon2d [ Attributes.fill "none" ] polygon
         , Svg.g [] (List.map vertex2d (Polygon2d.vertices polygon))
         ]
 
