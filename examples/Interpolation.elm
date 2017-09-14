@@ -48,11 +48,11 @@ view { x0 } =
             (2 * x0 - 1) / (3 * x0)
 
         spline =
-            CubicSpline2d.withControlPoints
+            CubicSpline2d.fromControlPoints
                 ( Point2d.origin
-                , Point2d.withCoordinates ( 1 / 3, y1 )
-                , Point2d.withCoordinates ( 2 / 3, y2 )
-                , Point2d.withCoordinates ( 1, 1 )
+                , Point2d.fromCoordinates ( 1 / 3, y1 )
+                , Point2d.fromCoordinates ( 2 / 3, y2 )
+                , Point2d.fromCoordinates ( 1, 1 )
                 )
 
         svg =
@@ -63,7 +63,7 @@ view { x0 } =
                     , Svg.Attributes.strokeWidth "0.01"
                     ]
                     spline
-                , Svg.point2d { radius = 0.02, attributes = [] } (Point2d.withCoordinates ( x0, x0 ))
+                , Svg.point2d { radius = 0.02, attributes = [] } (Point2d.fromCoordinates ( x0, x0 ))
                 ]
     in
     Html.div []

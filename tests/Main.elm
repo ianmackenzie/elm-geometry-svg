@@ -21,7 +21,7 @@ main =
         points =
             angles
                 |> List.map
-                    (\angle -> Point2d.withPolarCoordinates ( 300, angle ))
+                    (\angle -> Point2d.fromPolarCoordinates ( 300, angle ))
 
         lineSegments =
             List.map (\point -> LineSegment2d ( Point2d.origin, point )) points

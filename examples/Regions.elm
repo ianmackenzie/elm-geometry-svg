@@ -53,7 +53,7 @@ drawMesh tolerance region =
             Region2d.toMesh tolerance region
 
         triangles =
-            Mesh.faces mesh |> List.map Triangle2d.withVertices
+            Mesh.faces mesh |> List.map Triangle2d.fromVertices
     in
     Svg.g [] (List.map drawMeshTriangle triangles)
 

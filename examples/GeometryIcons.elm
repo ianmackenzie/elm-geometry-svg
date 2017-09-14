@@ -149,13 +149,13 @@ point2d point =
             Point2d.in_ (Frame2d.at point) coordinates
 
         horizontal =
-            LineSegment2d.withEndpoints
+            LineSegment2d.fromEndpoints
                 ( localPoint ( -6, 0 )
                 , localPoint ( 6, 0 )
                 )
 
         vertical =
-            LineSegment2d.withEndpoints
+            LineSegment2d.fromEndpoints
                 ( localPoint ( 0, -6 )
                 , localPoint ( 0, 6 )
                 )
@@ -179,7 +179,7 @@ axis2d axis =
             Axis2d.originPoint axis
 
         segment =
-            LineSegment2d.withEndpoints
+            LineSegment2d.fromEndpoints
                 ( Point2d.along axis -20
                 , Point2d.along axis 45
                 )
@@ -202,7 +202,7 @@ axis3d axis =
             Axis3d.originPoint axis
 
         segment =
-            LineSegment3d.withEndpoints
+            LineSegment3d.fromEndpoints
                 ( Point3d.along axis -20
                 , Point3d.along axis 45
                 )
@@ -223,12 +223,12 @@ plane3d : SketchPlane3d -> Svg Never
 plane3d sketchPlane =
     let
         point x y =
-            Point2d.withCoordinates ( x, y )
+            Point2d.fromCoordinates ( x, y )
                 |> Point3d.on sketchPlane
                 |> Point3d.projectInto viewPlane
 
         outline =
-            Polygon2d.withVertices
+            Polygon2d.fromVertices
                 [ point -16 -16
                 , point 16 -16
                 , point 16 16
@@ -257,12 +257,12 @@ sketchPlane3d : SketchPlane3d -> Svg Never
 sketchPlane3d sketchPlane =
     let
         point x y =
-            Point2d.withCoordinates ( x, y )
+            Point2d.fromCoordinates ( x, y )
                 |> Point3d.on sketchPlane
                 |> Point3d.projectInto viewPlane
 
         outline =
-            Polygon2d.withVertices
+            Polygon2d.fromVertices
                 [ point -6 -6
                 , point 30 -6
                 , point 30 30
@@ -297,28 +297,27 @@ icon3d svg =
 
 point2dIcon : Svg Never
 point2dIcon =
-    icon2d (point2d (Point2d.withCoordinates ( 30, 30 )))
+    icon2d (point2d (Point2d.fromCoordinates ( 30, 30 )))
 
 
 point3dIcon : Svg Never
 point3dIcon =
-    icon3d (point3d (Point3d.withCoordinates ( 0, 40, 30 )))
+    icon3d (point3d (Point3d.fromCoordinates ( 0, 40, 30 )))
 
 
 vector2dIcon : Svg Never
 vector2dIcon =
-    icon2d (vector2d Point2d.origin (Vector2d.withComponents ( 30, 30 )))
+    icon2d (vector2d Point2d.origin (Vector2d.fromComponents ( 30, 30 )))
 
 
 vector3dIcon : Svg Never
 vector3dIcon =
-    icon3d (vector3d Point3d.origin (Vector3d.withComponents ( 0, 40, 30 )))
+    icon3d (vector3d Point3d.origin (Vector3d.fromComponents ( 0, 40, 30 )))
 
 
 direction2dIcon : Svg Never
 direction2dIcon =
-    icon2d <|
-        direction2d Point2d.origin (Direction2d.withPolarAngle (degrees 45))
+    icon2d <| direction2d Point2d.origin (Direction2d.fromAngle (degrees 45))
 
 
 direction3dIcon : Svg Never
@@ -333,8 +332,8 @@ axis2dIcon =
     let
         axis =
             Axis2d.with
-                { originPoint = Point2d.withCoordinates ( 10, 15 )
-                , direction = Direction2d.withPolarAngle (degrees 20)
+                { originPoint = Point2d.fromCoordinates ( 10, 15 )
+                , direction = Direction2d.fromAngle (degrees 20)
                 }
     in
     icon2d (axis2d axis)
@@ -345,10 +344,10 @@ axis3dIcon =
     let
         axis =
             Axis3d.with
-                { originPoint = Point3d.withCoordinates ( 0, 20, 40 )
+                { originPoint = Point3d.fromCoordinates ( 0, 20, 40 )
                 , direction =
                     Direction3d.on SketchPlane3d.yz <|
-                        Direction2d.withPolarAngle (degrees -20)
+                        Direction2d.fromAngle (degrees -20)
                 }
     in
     icon3d (axis3d axis)
@@ -361,7 +360,7 @@ plane3dIcon =
             SketchPlane3d.xy
                 |> SketchPlane3d.rotateAround Axis3d.x (degrees -20)
                 |> SketchPlane3d.rotateAround Axis3d.y (degrees -5)
-                |> SketchPlane3d.moveTo (Point3d.withCoordinates ( 0, 40, 30 ))
+                |> SketchPlane3d.moveTo (Point3d.fromCoordinates ( 0, 40, 30 ))
     in
     icon3d (plane3d sketchPlane)
 
@@ -372,7 +371,7 @@ sketchPlane3dIcon =
         sketchPlane =
             SketchPlane3d.xy
                 |> SketchPlane3d.rotateAround Axis3d.x (degrees -10)
-                |> SketchPlane3d.moveTo (Point3d.withCoordinates ( 0, 32, 38 ))
+                |> SketchPlane3d.moveTo (Point3d.fromCoordinates ( 0, 32, 38 ))
     in
     icon3d (sketchPlane3d sketchPlane)
 
@@ -381,7 +380,7 @@ frame2dIcon : Svg Never
 frame2dIcon =
     let
         frame =
-            Frame2d.at (Point2d.withCoordinates ( 25, 15 ))
+            Frame2d.at (Point2d.fromCoordinates ( 25, 15 ))
                 |> Frame2d.rotateBy (degrees 20)
     in
     icon2d (frame2d frame)
@@ -391,7 +390,7 @@ frame3dIcon : Svg Never
 frame3dIcon =
     let
         frame =
-            Frame3d.at (Point3d.withCoordinates ( 0, 30, 30 ))
+            Frame3d.at (Point3d.fromCoordinates ( 0, 30, 30 ))
                 |> Frame3d.rotateAroundOwn Frame3d.zAxis (degrees 20)
                 |> Frame3d.rotateAroundOwn Frame3d.xAxis (degrees 15)
     in
@@ -435,7 +434,7 @@ lineSegment2d lineSegment =
         ( p1, p2 ) =
             LineSegment2d.endpoints lineSegment
     in
-    polyline2d (Polyline2d.withVertices [ p1, p2 ])
+    polyline2d (Polyline2d.fromVertices [ p1, p2 ])
 
 
 lineSegment3d : LineSegment3d -> Svg Never
@@ -449,7 +448,7 @@ triangle2d triangle =
         ( p1, p2, p3 ) =
             Triangle2d.vertices triangle
     in
-    polygon2d (Polygon2d.withVertices [ p1, p2, p3 ])
+    polygon2d (Polygon2d.fromVertices [ p1, p2, p3 ])
 
 
 triangle3d : Triangle3d -> Svg Never
@@ -461,9 +460,9 @@ lineSegment2dIcon : Svg Never
 lineSegment2dIcon =
     let
         lineSegment =
-            LineSegment2d.withEndpoints
-                ( Point2d.withCoordinates ( 15, 20 )
-                , Point2d.withCoordinates ( 40, 30 )
+            LineSegment2d.fromEndpoints
+                ( Point2d.fromCoordinates ( 15, 20 )
+                , Point2d.fromCoordinates ( 40, 30 )
                 )
     in
     icon2d (lineSegment2d lineSegment)
@@ -473,9 +472,9 @@ lineSegment3dIcon : Svg Never
 lineSegment3dIcon =
     let
         lineSegment =
-            LineSegment3d.withEndpoints
-                ( Point3d.withCoordinates ( 0, 15, 20 )
-                , Point3d.withCoordinates ( 0, 50, 40 )
+            LineSegment3d.fromEndpoints
+                ( Point3d.fromCoordinates ( 0, 15, 20 )
+                , Point3d.fromCoordinates ( 0, 50, 40 )
                 )
     in
     icon3d (lineSegment3d lineSegment)
@@ -485,10 +484,10 @@ triangle2dIcon : Svg Never
 triangle2dIcon =
     let
         triangle =
-            Triangle2d.withVertices
-                ( Point2d.withCoordinates ( 10, 10 )
-                , Point2d.withCoordinates ( 35, 15 )
-                , Point2d.withCoordinates ( 20, 30 )
+            Triangle2d.fromVertices
+                ( Point2d.fromCoordinates ( 10, 10 )
+                , Point2d.fromCoordinates ( 35, 15 )
+                , Point2d.fromCoordinates ( 20, 30 )
                 )
     in
     icon2d (triangle2d triangle)
@@ -498,10 +497,10 @@ triangle3dIcon : Svg Never
 triangle3dIcon =
     let
         triangle =
-            Triangle3d.withVertices
-                ( Point3d.withCoordinates ( 0, 15, 20 )
-                , Point3d.withCoordinates ( 0, 40, 20 )
-                , Point3d.withCoordinates ( -20, 25, 35 )
+            Triangle3d.fromVertices
+                ( Point3d.fromCoordinates ( 0, 15, 20 )
+                , Point3d.fromCoordinates ( 0, 40, 20 )
+                , Point3d.fromCoordinates ( -20, 25, 35 )
                 )
     in
     icon3d (triangle3d triangle)
@@ -514,15 +513,15 @@ boundingBox2d boundingBox =
             BoundingBox2d.extrema boundingBox
 
         vertices =
-            [ Point2d.withCoordinates ( minX, minY )
-            , Point2d.withCoordinates ( maxX, minY )
-            , Point2d.withCoordinates ( maxX, maxY )
-            , Point2d.withCoordinates ( minX, maxY )
+            [ Point2d.fromCoordinates ( minX, minY )
+            , Point2d.fromCoordinates ( maxX, minY )
+            , Point2d.fromCoordinates ( maxX, maxY )
+            , Point2d.fromCoordinates ( minX, maxY )
             ]
     in
     Svg.g []
         [ Svg.polygon2d [ Attributes.fill "none" ]
-            (Polygon2d.withVertices vertices)
+            (Polygon2d.fromVertices vertices)
         , Svg.g [] (List.map vertex2d vertices)
         ]
 
@@ -534,7 +533,7 @@ boundingBox3d boundingBox =
             BoundingBox3d.extrema boundingBox
 
         projected x y z =
-            Point3d.withCoordinates ( x, y, z )
+            Point3d.fromCoordinates ( x, y, z )
                 |> Point3d.projectInto viewPlane
 
         p0 =
@@ -565,7 +564,7 @@ boundingBox3d boundingBox =
             [ p0, p1, p2, p3, p4, p5, p6, p7 ]
 
         edges =
-            List.map LineSegment2d.withEndpoints
+            List.map LineSegment2d.fromEndpoints
                 [ ( p0, p1 )
                 , ( p1, p2 )
                 , ( p2, p3 )
@@ -665,7 +664,7 @@ circle2dIcon : Svg Never
 circle2dIcon =
     let
         centerPoint =
-            Point2d.withCoordinates ( 30, 30 )
+            Point2d.fromCoordinates ( 30, 30 )
 
         circle =
             Circle2d.with { centerPoint = centerPoint, radius = 15 }
@@ -681,11 +680,11 @@ circle3dIcon : Svg Never
 circle3dIcon =
     let
         centerPoint =
-            Point3d.withCoordinates ( 0, 30, 30 )
+            Point3d.fromCoordinates ( 0, 30, 30 )
 
         axialDirection =
             Direction3d.on SketchPlane3d.yz <|
-                Direction2d.withPolarAngle (degrees 70)
+                Direction2d.fromAngle (degrees 70)
 
         circle =
             Circle3d.with
@@ -717,8 +716,8 @@ arc2dIcon =
     let
         arc =
             Arc2d.with
-                { startPoint = Point2d.withCoordinates ( 30, 10 )
-                , centerPoint = Point2d.withCoordinates ( 15, 15 )
+                { startPoint = Point2d.fromCoordinates ( 30, 10 )
+                , centerPoint = Point2d.fromCoordinates ( 15, 15 )
                 , sweptAngle = degrees 120
                 }
     in
@@ -729,15 +728,15 @@ arc3dIcon : Svg Never
 arc3dIcon =
     let
         startPoint =
-            Point3d.withCoordinates ( 0, 35, 10 )
+            Point3d.fromCoordinates ( 0, 35, 10 )
 
         axialDirection =
             Direction3d.on SketchPlane3d.yz <|
-                Direction2d.withPolarAngle (degrees 60)
+                Direction2d.fromAngle (degrees 60)
 
         axis =
             Axis3d.with
-                { originPoint = Point3d.withCoordinates ( 0, 20, 15 )
+                { originPoint = Point3d.fromCoordinates ( 0, 20, 15 )
                 , direction = axialDirection
                 }
 
@@ -823,12 +822,12 @@ polyline2dIcon : Svg Never
 polyline2dIcon =
     let
         polyline =
-            Polyline2d.withVertices
-                [ Point2d.withCoordinates ( 10, 10 )
-                , Point2d.withCoordinates ( 20, 25 )
-                , Point2d.withCoordinates ( 30, 20 )
-                , Point2d.withCoordinates ( 40, 35 )
-                , Point2d.withCoordinates ( 30, 40 )
+            Polyline2d.fromVertices
+                [ Point2d.fromCoordinates ( 10, 10 )
+                , Point2d.fromCoordinates ( 20, 25 )
+                , Point2d.fromCoordinates ( 30, 20 )
+                , Point2d.fromCoordinates ( 40, 35 )
+                , Point2d.fromCoordinates ( 30, 40 )
                 ]
     in
     icon2d (polyline2d polyline)
@@ -838,12 +837,12 @@ polyline3dIcon : Svg Never
 polyline3dIcon =
     let
         polyline =
-            Polyline3d.withVertices
-                [ Point3d.withCoordinates ( -15, 0, 30 )
-                , Point3d.withCoordinates ( -20, 15, 30 )
-                , Point3d.withCoordinates ( 0, 20, 30 )
-                , Point3d.withCoordinates ( 0, 30, 20 )
-                , Point3d.withCoordinates ( -20, 40, 35 )
+            Polyline3d.fromVertices
+                [ Point3d.fromCoordinates ( -15, 0, 30 )
+                , Point3d.fromCoordinates ( -20, 15, 30 )
+                , Point3d.fromCoordinates ( 0, 20, 30 )
+                , Point3d.fromCoordinates ( 0, 30, 20 )
+                , Point3d.fromCoordinates ( -20, 40, 35 )
                 ]
     in
     icon3d (polyline3d polyline)
@@ -853,15 +852,15 @@ polygon2dIcon : Svg Never
 polygon2dIcon =
     let
         displacement =
-            Vector2d.withComponents ( 25, 25 )
+            Vector2d.fromComponents ( 25, 25 )
 
         polygon =
             List.range 0 4
                 |> List.map (\n -> turns (toFloat n / 5))
                 |> List.map
-                    (\angle -> Point2d.withPolarCoordinates ( 15, angle ))
+                    (\angle -> Point2d.fromPolarCoordinates ( 15, angle ))
                 |> List.map (Point2d.translateBy displacement)
-                |> Polygon2d.withVertices
+                |> Polygon2d.fromVertices
     in
     icon2d (polygon2d polygon)
 
@@ -883,7 +882,7 @@ quadraticSpline2d spline =
             [ Attributes.fill "none"
             , Attributes.strokeDasharray "2 2"
             ]
-            (Polyline2d.withVertices points)
+            (Polyline2d.fromVertices points)
         , Svg.g [ Attributes.fill "white" ]
             (List.map (Svg.point2d { radius = 2, attributes = [] }) points)
         ]
@@ -906,7 +905,7 @@ cubicSpline2d spline =
             [ Attributes.fill "none"
             , Attributes.strokeDasharray "2 2"
             ]
-            (Polyline2d.withVertices points)
+            (Polyline2d.fromVertices points)
         , Svg.g [ Attributes.fill "white" ]
             (List.map (Svg.point2d { radius = 2, attributes = [] }) points)
         ]
@@ -933,7 +932,7 @@ quadraticSpline3d spline =
             [ Attributes.fill "none"
             , Attributes.strokeDasharray "2 2"
             ]
-            (Polyline3d.withVertices points |> Polyline3d.projectInto viewPlane)
+            (Polyline3d.fromVertices points |> Polyline3d.projectInto viewPlane)
         , Svg.g [ Attributes.fill "white" ]
             (List.map drawControlPoint points)
         ]
@@ -960,7 +959,7 @@ cubicSpline3d spline =
             [ Attributes.fill "none"
             , Attributes.strokeDasharray "2 2"
             ]
-            (Polyline3d.withVertices points |> Polyline3d.projectInto viewPlane)
+            (Polyline3d.fromVertices points |> Polyline3d.projectInto viewPlane)
         , Svg.g [ Attributes.fill "white" ]
             (List.map drawControlPoint points)
         ]
@@ -970,10 +969,10 @@ quadraticSpline2dIcon : Svg Never
 quadraticSpline2dIcon =
     let
         spline =
-            QuadraticSpline2d.withControlPoints
-                ( Point2d.withCoordinates ( 10, 10 )
-                , Point2d.withCoordinates ( 20, 30 )
-                , Point2d.withCoordinates ( 40, 20 )
+            QuadraticSpline2d.fromControlPoints
+                ( Point2d.fromCoordinates ( 10, 10 )
+                , Point2d.fromCoordinates ( 20, 30 )
+                , Point2d.fromCoordinates ( 40, 20 )
                 )
     in
     icon2d (quadraticSpline2d spline)
@@ -983,11 +982,11 @@ cubicSpline2dIcon : Svg Never
 cubicSpline2dIcon =
     let
         spline =
-            CubicSpline2d.withControlPoints
-                ( Point2d.withCoordinates ( 10, 10 )
-                , Point2d.withCoordinates ( 15, 30 )
-                , Point2d.withCoordinates ( 30, 15 )
-                , Point2d.withCoordinates ( 40, 35 )
+            CubicSpline2d.fromControlPoints
+                ( Point2d.fromCoordinates ( 10, 10 )
+                , Point2d.fromCoordinates ( 15, 30 )
+                , Point2d.fromCoordinates ( 30, 15 )
+                , Point2d.fromCoordinates ( 40, 35 )
                 )
     in
     icon2d (cubicSpline2d spline)
@@ -997,10 +996,10 @@ quadraticSpline3dIcon : Svg Never
 quadraticSpline3dIcon =
     let
         spline =
-            QuadraticSpline3d.withControlPoints
-                ( Point3d.withCoordinates ( 0, 10, 10 )
-                , Point3d.withCoordinates ( 20, 35, 55 )
-                , Point3d.withCoordinates ( 0, 40, 25 )
+            QuadraticSpline3d.fromControlPoints
+                ( Point3d.fromCoordinates ( 0, 10, 10 )
+                , Point3d.fromCoordinates ( 20, 35, 55 )
+                , Point3d.fromCoordinates ( 0, 40, 25 )
                 )
     in
     icon3d (quadraticSpline3d spline)
@@ -1010,11 +1009,11 @@ cubicSpline3dIcon : Svg Never
 cubicSpline3dIcon =
     let
         spline =
-            CubicSpline3d.withControlPoints
-                ( Point3d.withCoordinates ( 0, 15, 45 )
-                , Point3d.withCoordinates ( 0, 10, 10 )
-                , Point3d.withCoordinates ( 0, 35, 40 )
-                , Point3d.withCoordinates ( 0, 35, 15 )
+            CubicSpline3d.fromControlPoints
+                ( Point3d.fromCoordinates ( 0, 15, 45 )
+                , Point3d.fromCoordinates ( 0, 10, 10 )
+                , Point3d.fromCoordinates ( 0, 35, 40 )
+                , Point3d.fromCoordinates ( 0, 35, 15 )
                 )
     in
     icon3d (cubicSpline3d spline)
@@ -1056,7 +1055,7 @@ icons =
 
 topLeftFrame : Frame2d
 topLeftFrame =
-    Frame2d.at (Point2d.withCoordinates ( -20, 60 ))
+    Frame2d.at (Point2d.fromCoordinates ( -20, 60 ))
         |> Frame2d.flipY
 
 
@@ -1074,11 +1073,11 @@ container svg =
                 , Attributes.stroke "none"
                 , Attributes.fill "none"
                 ]
-                (Polygon2d.withVertices
-                    [ Point2d.withCoordinates ( 0, 0 )
-                    , Point2d.withCoordinates ( 80, 0 )
-                    , Point2d.withCoordinates ( 80, 80 )
-                    , Point2d.withCoordinates ( 0, 80 )
+                (Polygon2d.fromVertices
+                    [ Point2d.fromCoordinates ( 0, 0 )
+                    , Point2d.fromCoordinates ( 80, 0 )
+                    , Point2d.fromCoordinates ( 80, 80 )
+                    , Point2d.fromCoordinates ( 0, 80 )
                     ]
                 )
             ]
