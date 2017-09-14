@@ -344,7 +344,7 @@ direction2d options basePoint direction =
         , groupAttributes = options.groupAttributes
         }
         basePoint
-        (Vector2d.withLength options.length direction)
+        (Vector2d.with { length = options.length, direction = direction })
 
 
 {-| Options type used in the `point2d` function.

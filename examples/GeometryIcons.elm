@@ -74,6 +74,10 @@ direction2d =
 
 direction3d : Point3d -> Direction3d -> Svg Never
 direction3d point direction =
+    let
+        vector =
+            Vector3d.with { length = 25, direction = direction }
+    in
     Svg.vector2d
         { tipAttributes = [ Attributes.fill "white" ]
         , stemAttributes = []
@@ -82,7 +86,7 @@ direction3d point direction =
         , tipWidth = 5
         }
         (Point3d.projectInto viewPlane point)
-        (Vector3d.projectInto viewPlane (Vector3d.withLength 25 direction))
+        (Vector3d.projectInto viewPlane vector)
 
 
 originPoint2d : Point2d -> Svg Never
