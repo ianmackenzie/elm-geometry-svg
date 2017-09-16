@@ -150,8 +150,11 @@ logo model =
         p9 =
             Point3d.fromCoordinates ( 1 - model.xOffset, 1, model.height )
 
+        eyePoint =
+            Point3d.fromCoordinates ( 0.5, 0.5, model.height / 2 )
+
         viewFrame =
-            Frame3d.at (Point3d.fromCoordinates ( 0.5, 0.5, model.height / 2 ))
+            Frame3d.atPoint eyePoint
                 |> Frame3d.rotateAroundOwn Frame3d.zAxis model.azimuth
                 |> Frame3d.rotateAroundOwn Frame3d.yAxis -model.elevation
 

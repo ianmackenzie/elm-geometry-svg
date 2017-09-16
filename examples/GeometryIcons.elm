@@ -390,7 +390,7 @@ frame3dIcon : Svg Never
 frame3dIcon =
     let
         frame =
-            Frame3d.at (Point3d.fromCoordinates ( 0, 30, 30 ))
+            Frame3d.atPoint (Point3d.fromCoordinates ( 0, 30, 30 ))
                 |> Frame3d.rotateAroundOwn Frame3d.zAxis (degrees 20)
                 |> Frame3d.rotateAroundOwn Frame3d.xAxis (degrees 15)
     in
