@@ -37,6 +37,10 @@ of SVG across an arbitrary axis:
 ![translateBy](https://opensolid.github.io/images/svg/1.0/translateBy.svg)
 ![mirrorAcross](https://opensolid.github.io/images/svg/1.0/mirrorAcross.svg)
 
+Note that these functions will work on *any* `Svg msg`, value, not just ones
+that happen to have been produced with this package! So you can use them as a
+convenient way to transform SVG that you've produced using some other package.
+
 ## Coordinate conversion
 
 The `relativeTo` and `placeIn` functions allow you to take SVG defined in one
