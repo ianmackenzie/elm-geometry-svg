@@ -65,7 +65,7 @@ likely need to write your own custom helper functions (perhaps using other
 functions from this package); for example, a 'crosshair' style point might be
 formed from a combination of `circle2d` and `lineSegment2d` calls.
 
-@docs VectorOptions, vector2d, DirectionOptions, direction2d, PointOptions, point2d
+@docs vector2d, VectorOptions, direction2d, DirectionOptions, point2d, PointOptions
 
 
 # Geometry
