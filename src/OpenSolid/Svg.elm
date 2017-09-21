@@ -810,12 +810,13 @@ other SVG element!
 <iframe src="https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#text" style="width: 220px; height: 170px" scrolling=no frameborder=0></iframe>
 <https://opensolid.github.io/images/svg/1.1/DocumentationExamples.html#text>
 
-    drawText : Point2d -> String -> String -> String -> Svg Never
-    drawText point tag anchor baseline =
+    drawText : Point2d -> String -> String -> Svg Never
+    drawText point anchor baseline =
         Svg.g []
             [ Svg.point2d
                 { radius = 2
-                , attributes = [ Attributes.fill "orange" ]
+                , attributes =
+                    [ Attributes.fill "orange" ]
                 }
                 point
             , Svg.text2d
@@ -824,7 +825,7 @@ other SVG element!
                 , Attributes.fill "blue"
                 ]
                 point
-                (tag ++ ": " ++ anchor ++ "/" ++ baseline)
+                (anchor ++ "/" ++ baseline)
             ]
 
     textSvg : Svg Never
@@ -843,17 +844,17 @@ other SVG element!
                 Point2d.fromCoordinates ( 300, 250 )
         in
         Svg.g []
-            [ drawText p1 "p1" "start" "baseline"
-            , drawText p2 "p2" "end" "middle"
+            [ drawText p1 "start" "baseline"
+            , drawText p2 "end" "middle"
                 |> Svg.scaleAbout p2 1.33
-            , drawText p3 "p3" "middle" "baseline"
+            , drawText p3 "middle" "baseline"
                 |> Svg.mirrorAcross
                     (Axis2d.with
                         { originPoint = p3
                         , direction = Direction2d.x
                         }
                     )
-            , drawText p4 "p4" "end" "hanging"
+            , drawText p4 "end" "hanging"
                 |> Svg.rotateAround p4 (degrees 10)
             ]
 

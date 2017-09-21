@@ -260,8 +260,8 @@ cubicSplineSvg =
         ]
 
 
-drawText : Point2d -> String -> String -> String -> Svg Never
-drawText point tag anchor baseline =
+drawText : Point2d -> String -> String -> Svg Never
+drawText point anchor baseline =
     Svg.g []
         [ Svg.point2d
             { radius = 2
@@ -274,7 +274,7 @@ drawText point tag anchor baseline =
             , Attributes.fill "blue"
             ]
             point
-            (tag ++ ": " ++ anchor ++ "/" ++ baseline)
+            (anchor ++ "/" ++ baseline)
         ]
 
 
@@ -294,17 +294,17 @@ textSvg =
             Point2d.fromCoordinates ( 300, 250 )
     in
     Svg.g []
-        [ drawText p1 "p1" "start" "baseline"
-        , drawText p2 "p2" "end" "middle"
+        [ drawText p1 "start" "baseline"
+        , drawText p2 "end" "middle"
             |> Svg.scaleAbout p2 1.33
-        , drawText p3 "p3" "middle" "baseline"
+        , drawText p3 "middle" "baseline"
             |> Svg.mirrorAcross
                 (Axis2d.with
                     { originPoint = p3
                     , direction = Direction2d.x
                     }
                 )
-        , drawText p4 "p4" "end" "hanging"
+        , drawText p4 "end" "hanging"
             |> Svg.rotateAround p4 (degrees 10)
         ]
 
