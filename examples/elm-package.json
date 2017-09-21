@@ -5,14 +5,11 @@
     "license": "MPL-2.0",
     "source-directories": [
         ".",
-        "../src",
-        "../../geometry/src",
-        "../../parametric/src",
-        "../../mesh/src"
+        "../src"
     ],
     "exposed-modules": [],
     "dependencies": {
-        "Skinney/elm-array-exploration": "2.0.5 <= v < 3.0.0",
+        "opensolid/geometry": "2.0.0 <= v < 3.0.0",
         "elm-lang/core": "5.0.0 <= v < 6.0.0",
         "elm-lang/html": "2.0.0 <= v < 3.0.0",
         "elm-lang/navigation": "2.1.0 <= v < 3.0.0",

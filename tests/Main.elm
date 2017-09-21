@@ -2,11 +2,13 @@ module Main exposing (..)
 
 import Html exposing (Html)
 import OpenSolid.Axis2d as Axis2d
+import OpenSolid.Circle2d as Circle2d
 import OpenSolid.Frame2d as Frame2d
-import OpenSolid.Geometry.Types exposing (..)
+import OpenSolid.LineSegment2d as LineSegment2d
 import OpenSolid.Point2d as Point2d
 import OpenSolid.Svg as Svg
 import OpenSolid.Triangle2d as Triangle2d
+import OpenSolid.Vector2d as Vector2d
 import Svg as Svg exposing (Svg)
 import Svg.Attributes as Attributes
 
@@ -24,13 +26,17 @@ main =
                     (\angle -> Point2d.fromPolarCoordinates ( 300, angle ))
 
         lineSegments =
-            List.map (\point -> LineSegment2d ( Point2d.origin, point )) points
+            points
+                |> List.map
+                    (\point ->
+                        LineSegment2d.fromEndpoints ( Point2d.origin, point )
+                    )
 
         firstTriangle =
-            Triangle2d
-                ( Point2d ( 300, -10 )
-                , Point2d ( 320, 0 )
-                , Point2d ( 300, 10 )
+            Triangle2d.fromVertices
+                ( Point2d.fromCoordinates ( 300, -10 )
+                , Point2d.fromCoordinates ( 320, 0 )
+                , Point2d.fromCoordinates ( 300, 10 )
                 )
 
         rotatedTriangle angle =
@@ -42,7 +48,7 @@ main =
         -- Drawing functions
         point2d point =
             Svg.circle2d [ Attributes.fill "cornflowerblue" ]
-                (Circle2d { centerPoint = point, radius = 5 })
+                (Circle2d.with { centerPoint = point, radius = 5 })
 
         lineSegment2d =
             Svg.lineSegment2d [ Attributes.strokeWidth "0.5" ]
@@ -69,14 +75,14 @@ main =
 
         transformedGroup =
             Svg.g [] allElements
-                |> Svg.translateBy (Vector2d ( 0, 50 ))
+                |> Svg.translateBy (Vector2d.fromComponents ( 0, 50 ))
                 |> Svg.mirrorAcross Axis2d.x
                 |> Svg.rotateAround Point2d.origin (degrees 45)
 
         originElement =
             Svg.circle2d
                 [ Attributes.strokeWidth "0.5", Attributes.fill "white" ]
-                (Circle2d { centerPoint = Point2d.origin, radius = 5 })
+                (Circle2d.with { centerPoint = Point2d.origin, radius = 5 })
 
         -- Top level group
         defaultAttributes =
@@ -91,7 +97,8 @@ main =
                 ]
 
         topLeftFrame =
-            Frame2d.atPoint (Point2d ( -400, 400 )) |> Frame2d.flipY
+            Frame2d.atPoint (Point2d.fromCoordinates ( -400, 400 ))
+                |> Frame2d.flipY
     in
     Svg.svg [ Attributes.width "800", Attributes.height "800" ]
         [ Svg.relativeTo topLeftFrame topLevelGroup ]
