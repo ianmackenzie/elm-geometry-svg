@@ -66,31 +66,35 @@ elm package install opensolid/svg
 in a command prompt inside your project directory or by adding
 
 ```json
-"opensolid/svg": "1.1.0 <= v < 2.0.0"
+"opensolid/svg": "2.0.0 <= v < 3.0.0"
 ```
 
 to the `dependencies` field in your project's `elm-package.json`.
 
 ## Documentation
 
-[Full API documentation](http://package.elm-lang.org/packages/opensolid/svg/1.1.0/OpenSolid-Svg)
+[Full API documentation](http://package.elm-lang.org/packages/opensolid/svg/2.0.1/OpenSolid-Svg)
 is available.
 
 ## Questions? Comments?
 
 Please [open a new issue](https://github.com/opensolid/svg/issues) if you run
 into a bug, if any documentation is missing/incorrect/confusing, or if there's a
-new feature that you would find useful. For general questions about using this
-package, try posting on:
+new feature that you would find useful (although note that this package is not
+meant to be general-purpose full-blown SVG package, more just a convenient way
+to render OpenSolid geometry objects). For general questions about using this
+package, try:
 
-  - [Elm Slack](http://elmlang.herokuapp.com/) (mention @ianmackenzie in your
-    questions so I get a notification)
-  - [Stack Overflow](https://stackoverflow.com/questions/ask?tags=opensolid+elm)
-    (tag your question with 'opensolid' and 'elm')
-  - The [r/elm](https://reddit.com/r/elm) subreddit
-  - The [elm-discuss](https://groups.google.com/forum/#!forum/elm-discuss)
-    Google Group
+  - Sending me (@ianmackenzie) a message on the [Elm Slack](http://elmlang.herokuapp.com/) -
+    even if you don't have any particular questions right now, just come say
+    hello!
+  - Posting to the [r/elm](https://reddit.com/r/elm) subreddit
+  - Posting to the [elm-discuss](https://groups.google.com/forum/#!forum/elm-discuss)
+    Google Group (somewhat less active than Slack and Reddit, but I still follow
+    it regularly if you prefer e-mail)
   - Or if you happen to be in the New York area, come on out to the
     [Elm NYC meetup](https://www.meetup.com/Elm-NYC/) =)
 
+You can also find me on Twitter ([@ianemackenzie](https://twitter.com/ianemackenzie)),
+where I occasionally post OpenSolid-related stuff like demos or new releases.
 Have fun, and don't be afraid to ask for help!
