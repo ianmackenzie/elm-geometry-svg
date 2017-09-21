@@ -313,9 +313,11 @@ create a helper function with your preferred display options 'baked in':
             { length = 50
             , tipLength = 7
             , tipWidth = 7
-            , tipAttributes = [ Attributes.fill "orange" ]
             , stemAttributes = []
-            , groupAttributes = [ Attributes.stroke "blue" ]
+            , tipAttributes =
+                [ Attributes.fill "orange" ]
+            , groupAttributes =
+                [ Attributes.stroke "blue" ]
             }
 
     directionSvg : Svg Never
@@ -325,7 +327,8 @@ create a helper function with your preferred display options 'baked in':
                 Point2d.fromCoordinates ( 100, 100 )
 
             directions =
-                List.map degrees [ 0, 15, 30, 45, 60, 75, 90 ]
+                [ 0, 15, 30, 45, 60, 75, 90 ]
+                    |> List.map degrees
                     |> List.map Direction2d.fromAngle
         in
         Svg.g [] (List.map (drawDirection basePoint) directions)
@@ -522,8 +525,10 @@ polygon2d attributes polygon =
             , Attributes.strokeWidth "5"
             ]
             (Arc2d.with
-                { centerPoint = Point2d.fromCoordinates ( 100, 100 )
-                , startPoint = Point2d.fromCoordinates ( 150, 50 )
+                { centerPoint =
+                    Point2d.fromCoordinates ( 100, 100 )
+                , startPoint =
+                    Point2d.fromCoordinates ( 150, 50 )
                 , sweptAngle = degrees 90
                 }
             )
@@ -605,7 +610,8 @@ arc2d attributes arc =
             , Attributes.strokeWidth "2"
             ]
             (Circle2d.with
-                { centerPoint = Point2d.fromCoordinates ( 150, 150 )
+                { centerPoint =
+                    Point2d.fromCoordinates ( 150, 150 )
                 , radius = 10
                 }
             )
@@ -664,7 +670,14 @@ circle2d attributes circle =
                 ]
                 (Polyline2d.fromVertices points)
             , Svg.g [ Attributes.fill "white" ]
-                (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+                (points
+                    |> List.map
+                        (Svg.point2d
+                            { radius = 3
+                            , attributes = []
+                            }
+                        )
+                )
             ]
 
 -}
@@ -736,7 +749,14 @@ quadraticSpline2d attributes spline =
                 ]
                 (Polyline2d.fromVertices points)
             , Svg.g [ Attributes.fill "white" ]
-                (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+                (points
+                    |> List.map
+                        (Svg.point2d
+                            { radius = 3
+                            , attributes = []
+                            }
+                        )
+                )
             ]
 
 -}
@@ -897,13 +917,20 @@ text2d attributes basePoint text =
 
             referencePointSvg =
                 Svg.circle2d [ Attributes.fill "black" ]
-                    (Circle2d.with { centerPoint = referencePoint, radius = 3 })
+                    (Circle2d.with
+                        { centerPoint = referencePoint
+                        , radius = 3
+                        }
+                    )
 
             scaledCircle : Float -> Svg Never
             scaledCircle scale =
                 Svg.scaleAbout referencePoint scale circleSvg
         in
-        Svg.g [] (referencePointSvg :: List.map scaledCircle scales)
+        Svg.g []
+            (referencePointSvg
+                :: List.map scaledCircle scales
+            )
 
 Note how _everything_ is scaled, including the stroke width of the circles. This
 may or may not be what you want; if you wanted the same stroke width on all
@@ -937,20 +964,28 @@ scaleAbout point scale element =
         let
             angles =
                 List.range 0 9
-                    |> List.map (\n -> degrees 30 * toFloat n)
+                    |> List.map
+                        (\n -> degrees 30 * toFloat n)
 
             referencePoint =
                 Point2d.fromCoordinates ( 200, 150 )
 
             referencePointSvg =
                 Svg.circle2d [ Attributes.fill "black" ]
-                    (Circle2d.with { centerPoint = referencePoint, radius = 3 })
+                    (Circle2d.with
+                        { centerPoint = referencePoint
+                        , radius = 3
+                        }
+                    )
 
             rotatedCircle : Float -> Svg Never
             rotatedCircle angle =
                 Svg.rotateAround referencePoint angle circleSvg
         in
-        Svg.g [] (referencePointSvg :: List.map rotatedCircle angles)
+        Svg.g []
+            (referencePointSvg
+                :: List.map rotatedCircle angles
+            )
 
 -}
 rotateAround : Point2d -> Float -> Svg msg -> Svg msg
@@ -967,8 +1002,12 @@ rotateAround point angle =
     translatedSvg =
         Svg.g []
             [ polylineSvg
-            , Svg.translateBy (Vector2d.fromComponents ( 0, 40 )) polylineSvg
-            , Svg.translateBy (Vector2d.fromComponents ( 5, -60 )) polylineSvg
+            , polylineSvg
+                |> Svg.translateBy
+                    (Vector2d.fromComponents ( 0, 40 ))
+            , polylineSvg
+                |> Svg.translateBy
+                    (Vector2d.fromComponents ( 5, -60 ))
             ]
 
 -}
@@ -987,20 +1026,23 @@ translateBy vector =
         let
             horizontalAxis =
                 Axis2d.with
-                    { originPoint = Point2d.fromCoordinates ( 0, 220 )
+                    { originPoint =
+                        Point2d.fromCoordinates ( 0, 220 )
                     , direction = Direction2d.x
                     }
 
-            horizontalAxisSegment =
+            horizontalSegment =
                 LineSegment2d.along horizontalAxis 50 250
 
             angledAxis =
                 Axis2d.with
-                    { originPoint = Point2d.fromCoordinates ( 0, 150 )
-                    , direction = Direction2d.fromAngle (degrees -10)
+                    { originPoint =
+                        Point2d.fromCoordinates ( 0, 150 )
+                    , direction =
+                        Direction2d.fromAngle (degrees -10)
                     }
 
-            angledAxisSegment =
+            angledSegment =
                 LineSegment2d.along angledAxis 50 250
         in
         Svg.g []
@@ -1012,8 +1054,8 @@ translateBy vector =
                 , Attributes.stroke "black"
                 , Attributes.strokeDasharray "3 3"
                 ]
-                [ Svg.lineSegment2d [] horizontalAxisSegment
-                , Svg.lineSegment2d [] angledAxisSegment
+                [ Svg.lineSegment2d [] horizontalSegment
+                , Svg.lineSegment2d [] angledSegment
                 ]
             ]
 
@@ -1066,33 +1108,44 @@ positions with different orientations:
     placedSvg : Svg Never
     placedSvg =
         let
+            vertices =
+                [ Point2d.origin
+                , Point2d.fromCoordinates ( 40, 0 )
+                , Point2d.fromCoordinates ( 50, 25 )
+                , Point2d.fromCoordinates ( 10, 25 )
+                ]
+
             stampSvg =
                 Svg.polygon2d
                     [ Attributes.fill "orange"
                     , Attributes.stroke "blue"
                     , Attributes.strokeWidth "2"
                     ]
-                    (Polygon2d.fromVertices
-                        [ Point2d.origin
-                        , Point2d.fromCoordinates ( 40, 0 )
-                        , Point2d.fromCoordinates ( 50, 25 )
-                        , Point2d.fromCoordinates ( 10, 25 )
-                        ]
-                    )
+                    (Polygon2d.fromVertices vertices)
 
             frames =
-                [ Frame2d.atPoint (Point2d.fromCoordinates ( 25, 25 ))
-                , Frame2d.atPoint (Point2d.fromCoordinates ( 100, 25 ))
-                , Frame2d.atPoint (Point2d.fromCoordinates ( 175, 25 ))
+                [ Frame2d.atPoint
+                    (Point2d.fromCoordinates ( 25, 25 ))
+                , Frame2d.atPoint
+                    (Point2d.fromCoordinates ( 100, 25 ))
+                , Frame2d.atPoint
+                    (Point2d.fromCoordinates ( 175, 25 ))
                     |> Frame2d.rotateBy (degrees 20)
-                , Frame2d.atPoint (Point2d.fromCoordinates ( 25, 150 ))
-                , Frame2d.atPoint (Point2d.fromCoordinates ( 100, 100 ))
+                , Frame2d.atPoint
+                    (Point2d.fromCoordinates ( 25, 150 ))
+                , Frame2d.atPoint
+                    (Point2d.fromCoordinates ( 100, 100 ))
                     |> Frame2d.rotateBy (degrees 20)
-                , Frame2d.atPoint (Point2d.fromCoordinates ( 150, 150 ))
+                , Frame2d.atPoint
+                    (Point2d.fromCoordinates ( 150, 150 ))
                     |> Frame2d.rotateBy (degrees -30)
                 ]
         in
-        Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
+        Svg.g []
+            (frames
+                |> List.map
+                    (\frame -> Svg.placeIn frame stampSvg)
+            )
 
 -}
 placeIn : Frame2d -> Svg msg -> Svg msg
