@@ -146,7 +146,7 @@ point2d point =
             Circle2d.with { centerPoint = point, radius = 2 }
 
         localPoint coordinates =
-            Point2d.in_ (Frame2d.at point) coordinates
+            Point2d.in_ (Frame2d.atPoint point) coordinates
 
         horizontal =
             LineSegment2d.fromEndpoints
@@ -380,7 +380,7 @@ frame2dIcon : Svg Never
 frame2dIcon =
     let
         frame =
-            Frame2d.at (Point2d.fromCoordinates ( 25, 15 ))
+            Frame2d.atPoint (Point2d.fromCoordinates ( 25, 15 ))
                 |> Frame2d.rotateBy (degrees 20)
     in
     icon2d (frame2d frame)
@@ -390,7 +390,7 @@ frame3dIcon : Svg Never
 frame3dIcon =
     let
         frame =
-            Frame3d.at (Point3d.fromCoordinates ( 0, 30, 30 ))
+            Frame3d.atPoint (Point3d.fromCoordinates ( 0, 30, 30 ))
                 |> Frame3d.rotateAroundOwn Frame3d.zAxis (degrees 20)
                 |> Frame3d.rotateAroundOwn Frame3d.xAxis (degrees 15)
     in
@@ -1055,7 +1055,7 @@ icons =
 
 topLeftFrame : Frame2d
 topLeftFrame =
-    Frame2d.at (Point2d.fromCoordinates ( -20, 60 ))
+    Frame2d.atPoint (Point2d.fromCoordinates ( -20, 60 ))
         |> Frame2d.flipY
 
 

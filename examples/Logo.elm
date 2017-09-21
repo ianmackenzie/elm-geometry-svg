@@ -226,7 +226,7 @@ logo model =
             Svg.g [] [ defs, leftFace, rightFace, topFace, triangleFace ]
 
         topLeftFrame =
-            Frame2d.at (Point2d.fromCoordinates ( -250, 250 ))
+            Frame2d.atPoint (Point2d.fromCoordinates ( -250, 250 ))
                 |> Frame2d.flipY
 
         scene =

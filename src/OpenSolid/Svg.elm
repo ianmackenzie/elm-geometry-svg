@@ -170,7 +170,7 @@ render2d boundingBox svg =
             BoundingBox2d.extrema boundingBox
 
         topLeftFrame =
-            Frame2d.at (Point2d.fromCoordinates ( minX, maxY ))
+            Frame2d.atPoint (Point2d.fromCoordinates ( minX, maxY ))
                 |> Frame2d.flipY
 
         ( width, height ) =
@@ -1035,9 +1035,11 @@ each range from 0 to 300 and positive Y is up. To turn this into a 300x300 SVG
 drawing, first define the top-left SVG frame (coordinate system) in terms of
 the model coordinate system:
 
+    topLeftPoint =
+        Point2d.fromCoordinates ( 0, 300 )
+
     topLeftFrame =
-        Frame2d.at (Point2d.fromCoordinates ( 0, 300 ))
-            |> Frame2d.flipY
+        Frame2d.atPoint topLeftPoint |> Frame2d.flipY
 
 (As expressed in the model frame, the top-left SVG frame is at the point
 (0, 300) and its Y direction is equal to the global negative Y direction.) If
@@ -1080,14 +1082,14 @@ positions with different orientations:
                     )
 
             frames =
-                [ Frame2d.at (Point2d.fromCoordinates ( 25, 25 ))
-                , Frame2d.at (Point2d.fromCoordinates ( 100, 25 ))
-                , Frame2d.at (Point2d.fromCoordinates ( 175, 25 ))
+                [ Frame2d.atPoint (Point2d.fromCoordinates ( 25, 25 ))
+                , Frame2d.atPoint (Point2d.fromCoordinates ( 100, 25 ))
+                , Frame2d.atPoint (Point2d.fromCoordinates ( 175, 25 ))
                     |> Frame2d.rotateBy (degrees 20)
-                , Frame2d.at (Point2d.fromCoordinates ( 25, 150 ))
-                , Frame2d.at (Point2d.fromCoordinates ( 100, 100 ))
+                , Frame2d.atPoint (Point2d.fromCoordinates ( 25, 150 ))
+                , Frame2d.atPoint (Point2d.fromCoordinates ( 100, 100 ))
                     |> Frame2d.rotateBy (degrees 20)
-                , Frame2d.at (Point2d.fromCoordinates ( 150, 150 ))
+                , Frame2d.atPoint (Point2d.fromCoordinates ( 150, 150 ))
                     |> Frame2d.rotateBy (degrees -30)
                 ]
         in

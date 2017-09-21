@@ -413,14 +413,14 @@ placedSvg =
                 )
 
         frames =
-            [ Frame2d.at (Point2d.fromCoordinates ( 25, 25 ))
-            , Frame2d.at (Point2d.fromCoordinates ( 100, 25 ))
-            , Frame2d.at (Point2d.fromCoordinates ( 175, 25 ))
+            [ Frame2d.atPoint (Point2d.fromCoordinates ( 25, 25 ))
+            , Frame2d.atPoint (Point2d.fromCoordinates ( 100, 25 ))
+            , Frame2d.atPoint (Point2d.fromCoordinates ( 175, 25 ))
                 |> Frame2d.rotateBy (degrees 20)
-            , Frame2d.at (Point2d.fromCoordinates ( 25, 150 ))
-            , Frame2d.at (Point2d.fromCoordinates ( 100, 100 ))
+            , Frame2d.atPoint (Point2d.fromCoordinates ( 25, 150 ))
+            , Frame2d.atPoint (Point2d.fromCoordinates ( 100, 100 ))
                 |> Frame2d.rotateBy (degrees 20)
-            , Frame2d.at (Point2d.fromCoordinates ( 150, 150 ))
+            , Frame2d.atPoint (Point2d.fromCoordinates ( 150, 150 ))
                 |> Frame2d.rotateBy (degrees -30)
             ]
     in
