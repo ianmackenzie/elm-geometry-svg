@@ -12,8 +12,8 @@ geometric data types. You can:
 
 The `lineSegment2d`, `triangle2d`, `polyline2d`, `polygon2d`, `circle2d`,
 `arc2d`, `quadraticSpline2d`, `cubicSpline2d`, `point2d`, `vector2d`,
-`direction2d` and `text2d` functions all produce standard [Svg
-msg](http://package.elm-lang.org/packages/elm-lang/svg/latest/Svg#Svg) values
+`direction2d` and `text2d` functions all produce standard [`Svg
+msg`](http://package.elm-lang.org/packages/elm-lang/svg/latest/Svg#Svg) values
 that can be included in any SVG diagram:
 
 ![lineSegment2d](https://opensolid.github.io/images/svg/1.0/lineSegment2d.svg)
