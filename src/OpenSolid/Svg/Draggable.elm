@@ -21,25 +21,27 @@ import Svg.Attributes
 import Svg.Events
 
 
-type alias Transformer a =
-    Point2d -> Point2d -> a -> a
-
-
-type Draggable a
+type Draggable a t
     = Draggable
         { currentValue : a
-        , draw : a -> Svg (DragHandler a)
-        , dragState : Maybe ( Point2d, Transformer a )
+        , dragState : Maybe ( t, Point2d )
         }
 
 
-type DragHandler a
-    = DragHandler (Transformer a) ( Float, Float )
+type alias Config a t =
+    { draw : a -> Svg (DragTarget a t)
+    , transform : t -> Point2d -> Point2d -> a -> a
+    }
 
 
-dragHandler : (Point2d -> Point2d -> a -> a) -> Svg.Attribute (DragHandler a)
-dragHandler handler =
-    Svg.Events.on "mousedown" (Decode.map (DragHandler handler) decodeClientPos)
+type Target t
+    = DragStart t ( Float, Float )
+
+
+target : t -> Svg.Attribute (Target t)
+target dragTarget =
+    Svg.Events.on "mousedown" <|
+        Decode.map (DragStart dragTarget) decodeClientPos
 
 
 currentValue : Draggable a -> a
@@ -67,14 +69,14 @@ decodePoint boundingBox =
     Decode.map (toPoint boundingBox) decodeClientPos
 
 
-render : BoundingBox2d -> Draggable a -> Svg (Draggable a)
-render boundingBox (Draggable properties) =
+render : BoundingBox2d -> Config a t -> Draggable a t -> Svg (Draggable a t)
+render boundingBox { draw, transform } (Draggable properties) =
     let
-        { currentValue, draw, dragState } =
+        { currentValue, dragState } =
             properties
     in
     case dragState of
-        Just ( currentPoint, transformer ) ->
+        Just ( currentPoint, dragTarget ) ->
             let
                 dragAttributes =
                     [ Svg.Attributes.fill "transparent"
@@ -86,7 +88,8 @@ render boundingBox (Draggable properties) =
                                 (\newPoint ->
                                     let
                                         updatedValue =
-                                            transformer
+                                            transform
+                                                dragTarget
                                                 currentPoint
                                                 newPoint
                                                 currentValue
@@ -95,7 +98,7 @@ render boundingBox (Draggable properties) =
                                         { properties
                                             | currentValue = updatedValue
                                             , dragState =
-                                                Just ( newPoint, transformer )
+                                                Just ( dragTarget, newPoint )
                                         }
                                 )
                         )
@@ -107,28 +110,27 @@ render boundingBox (Draggable properties) =
                     draw currentValue
                         |> Svg.map (always (Draggable properties))
 
-                dragTarget =
+                dragCircle =
                     Svg.point2d { radius = 100, attributes = dragAttributes }
                         currentPoint
             in
-            Svg.g [] [ currentSvg, dragTarget ]
+            Svg.g [] [ currentSvg, dragCircle ]
 
         Nothing ->
             draw currentValue
                 |> Svg.map
-                    (\(DragHandler handler clientPos) ->
+                    (\(DragStart dragTarget clientPos) ->
                         Draggable
                             { properties
-                                | dragState = Just ( toPoint boundingBox clientPos, handler )
+                                | dragState = Just ( dragTarget, toPoint boundingBox clientPos )
                             }
                     )
 
 
-init : a -> (a -> Svg (DragHandler a)) -> Draggable a
-init value draw =
+init : a -> Draggable a
+init value =
     Draggable
         { currentValue = value
-        , draw = draw
         , dragState = Nothing
         }
 
