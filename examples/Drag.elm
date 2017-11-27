@@ -64,10 +64,26 @@ view model =
             , Svg.point2d (pointOptions Vertex1 model) p1
             , Svg.point2d (pointOptions Vertex2 model) p2
             , Svg.g []
-                [ Drag.triangleHandle boundingBox Triangle model.triangle 10
-                , Drag.pointHandle boundingBox Vertex0 p0 10
-                , Drag.pointHandle boundingBox Vertex1 p1 10
-                , Drag.pointHandle boundingBox Vertex2 p2 10
+                [ Drag.triangleHandle model.triangle
+                    { target = Triangle
+                    , padding = 10
+                    , renderBounds = boundingBox
+                    }
+                , Drag.pointHandle p0
+                    { target = Vertex0
+                    , radius = 10
+                    , renderBounds = boundingBox
+                    }
+                , Drag.pointHandle p1
+                    { target = Vertex1
+                    , radius = 10
+                    , renderBounds = boundingBox
+                    }
+                , Drag.pointHandle p2
+                    { target = Vertex2
+                    , radius = 10
+                    , renderBounds = boundingBox
+                    }
                 ]
                 |> Svg.map DragMsg
             ]

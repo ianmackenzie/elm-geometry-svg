@@ -245,8 +245,8 @@ decodeCoordinates =
         (Decode.field "pageY" Decode.float)
 
 
-customHandle : BoundingBox2d -> t -> Svg Never -> Svg (Event t)
-customHandle boundingBox target shape =
+customHandle : Svg Never -> { target : t, renderBounds : BoundingBox2d } -> Svg (Event t)
+customHandle shape { target, renderBounds } =
     let
         attributes =
             [ Html.Events.onWithOptions
@@ -259,10 +259,10 @@ customHandle boundingBox target shape =
                         (\{ clientX, clientY, pageX, pageY } ->
                             let
                                 x =
-                                    BoundingBox2d.minX boundingBox + clientX
+                                    BoundingBox2d.minX renderBounds + clientX
 
                                 y =
-                                    BoundingBox2d.maxY boundingBox - clientY
+                                    BoundingBox2d.maxY renderBounds - clientY
 
                                 startPoint =
                                     Point2d.fromCoordinates ( x, y )
@@ -292,14 +292,17 @@ noStroke =
     Svg.Attributes.stroke "none"
 
 
-pointHandle : BoundingBox2d -> t -> Point2d -> Float -> Svg (Event t)
-pointHandle boundingBox target point radius =
-    customHandle boundingBox target <|
-        Svg.point2d
-            { radius = radius
-            , attributes = [ noStroke, transparentFill ]
-            }
-            point
+pointHandle : Point2d -> { target : t, radius : Float, renderBounds : BoundingBox2d } -> Svg (Event t)
+pointHandle point { target, radius, renderBounds } =
+    let
+        shape =
+            Svg.point2d
+                { radius = radius
+                , attributes = [ noStroke, transparentFill ]
+                }
+                point
+    in
+    customHandle shape { target = target, renderBounds = renderBounds }
 
 
 thickened : Float -> List (Svg.Attribute msg)
@@ -312,43 +315,60 @@ thickened padding =
     ]
 
 
-lineSegmentHandle : BoundingBox2d -> t -> LineSegment2d -> Float -> Svg (Event t)
-lineSegmentHandle boundingBox target lineSegment padding =
-    customHandle boundingBox target <|
-        Svg.lineSegment2d (thickened padding) lineSegment
+lineSegmentHandle : LineSegment2d -> { target : t, padding : Float, renderBounds : BoundingBox2d } -> Svg (Event t)
+lineSegmentHandle lineSegment { target, padding, renderBounds } =
+    let
+        shape =
+            Svg.lineSegment2d (thickened padding) lineSegment
+    in
+    customHandle shape { target = target, renderBounds = renderBounds }
 
 
-triangleHandle : BoundingBox2d -> t -> Triangle2d -> Float -> Svg (Event t)
-triangleHandle boundingBox target triangle padding =
-    customHandle boundingBox target <|
-        Svg.triangle2d (thickened padding) triangle
+triangleHandle : Triangle2d -> { target : t, padding : Float, renderBounds : BoundingBox2d } -> Svg (Event t)
+triangleHandle triangle { target, padding, renderBounds } =
+    let
+        shape =
+            Svg.triangle2d (thickened padding) triangle
+    in
+    customHandle shape { target = target, renderBounds = renderBounds }
 
 
-vectorTipHandle : BoundingBox2d -> t -> Point2d -> Vector2d -> { a | tipWidth : Float, tipLength : Float } -> Float -> Svg (Event t)
-vectorTipHandle boundingBox target basePoint vector vectorOptions padding =
+vectorTipHandle : Point2d -> Vector2d -> { target : t, tipLength : Float, tipWidth : Float, padding : Float, renderBounds : BoundingBox2d } -> Svg (Event t)
+vectorTipHandle basePoint vector { target, tipLength, tipWidth, padding, renderBounds } =
     case Vector2d.lengthAndDirection vector of
         Just ( length, direction ) ->
             let
-                tip =
-                    Internal.tip vectorOptions basePoint length direction
+                shape =
+                    Svg.triangle2d (thickened padding) <|
+                        Internal.tip
+                            { tipLength = tipLength, tipWidth = tipWidth }
+                            basePoint
+                            length
+                            direction
             in
-            customHandle boundingBox target <|
-                Svg.triangle2d (thickened padding) tip
+            customHandle shape { target = target, renderBounds = renderBounds }
 
         Nothing ->
-            pointHandle boundingBox target basePoint padding
+            pointHandle basePoint
+                { target = target
+                , radius = padding
+                , renderBounds = renderBounds
+                }
 
 
-directionTipHandle : BoundingBox2d -> t -> Point2d -> Direction2d -> { a | length : Float, tipWidth : Float, tipLength : Float } -> Float -> Svg (Event t)
-directionTipHandle boundingBox target basePoint direction directionOptions padding =
+directionTipHandle : Point2d -> Direction2d -> { length : Float, tipLength : Float, tipWidth : Float, target : t, padding : Float, renderBounds : BoundingBox2d } -> Svg (Event t)
+directionTipHandle basePoint direction { length, tipLength, tipWidth, padding, target, renderBounds } =
     let
         vector =
-            Vector2d.with
-                { length = directionOptions.length
-                , direction = direction
-                }
+            Vector2d.with { length = length, direction = direction }
     in
-    vectorTipHandle boundingBox target basePoint vector directionOptions padding
+    vectorTipHandle basePoint vector <|
+        { target = target
+        , tipLength = tipLength
+        , tipWidth = tipWidth
+        , padding = padding
+        , renderBounds = renderBounds
+        }
 
 
 isHovering : t -> State t -> Bool
