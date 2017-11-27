@@ -4,6 +4,7 @@ module OpenSolid.Svg
         , PointOptions
         , VectorOptions
         , arc2d
+        , boundingBox2d
         , circle2d
         , cubicSpline2d
         , direction2d
@@ -75,7 +76,7 @@ attributes such as `points` and `transform` set appropriately. Each function
 also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
-@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d, cubicSpline2d
+@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
 
 
 # Text
@@ -806,6 +807,25 @@ cubicSpline2d attributes spline =
             Attributes.d (String.join " " pathComponents)
     in
     Svg.path (pathAttribute :: attributes) []
+
+
+{-| Draw a bounding box as an SVG `<polygon>` with the given attributes.
+-}
+boundingBox2d : List (Attribute msg) -> BoundingBox2d -> Svg msg
+boundingBox2d attributes boundingBox =
+    let
+        { minX, minY, maxX, maxY } =
+            BoundingBox2d.extrema boundingBox
+
+        polygon =
+            Polygon2d.fromVertices
+                [ Point2d.fromCoordinates ( minX, minY )
+                , Point2d.fromCoordinates ( maxX, minY )
+                , Point2d.fromCoordinates ( maxX, maxY )
+                , Point2d.fromCoordinates ( minX, maxY )
+                ]
+    in
+    polygon2d attributes polygon
 
 
 
