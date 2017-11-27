@@ -146,6 +146,7 @@ import OpenSolid.Point2d as Point2d exposing (Point2d)
 import OpenSolid.Polygon2d as Polygon2d exposing (Polygon2d)
 import OpenSolid.Polyline2d as Polyline2d exposing (Polyline2d)
 import OpenSolid.QuadraticSpline2d as QuadraticSpline2d exposing (QuadraticSpline2d)
+import OpenSolid.Svg.Internal as Internal
 import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
 import OpenSolid.Vector2d as Vector2d exposing (Vector2d)
 import Svg exposing (Attribute, Svg)
@@ -253,29 +254,14 @@ vector2d options basePoint vector =
                         , xDirection = direction
                         }
 
-                tipLength =
-                    options.tipLength
-
-                tipWidth =
-                    options.tipWidth
-
-                tipPoint =
-                    Point2d.in_ frame ( length, 0 )
-
                 tipBasePoint =
-                    Point2d.in_ frame ( length - tipLength, 0 )
-
-                leftPoint =
-                    Point2d.in_ frame ( length - tipLength, tipWidth / 2 )
-
-                rightPoint =
-                    Point2d.in_ frame ( length - tipLength, -tipWidth / 2 )
+                    Point2d.in_ frame ( length - options.tipLength, 0 )
 
                 stem =
                     LineSegment2d.from basePoint tipBasePoint
 
                 tip =
-                    Triangle2d.fromVertices ( rightPoint, tipPoint, leftPoint )
+                    Internal.tip options basePoint length direction
             in
             Svg.g options.groupAttributes
                 [ lineSegment2d options.stemAttributes stem
