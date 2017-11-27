@@ -76,9 +76,9 @@ view model =
 attributes : DragTarget -> Model -> List (Svg.Attribute Msg)
 attributes dragTarget model =
     if Drag.isHovering dragTarget model.dragState || Drag.isDragging dragTarget model.dragState then
-        [ Svg.Attributes.fill "lightgreen", Svg.Attributes.stroke "black" ]
-    else
         [ Svg.Attributes.fill "lightblue", Svg.Attributes.stroke "black" ]
+    else
+        [ Svg.Attributes.fill "white", Svg.Attributes.stroke "black" ]
 
 
 pointOptions : DragTarget -> Model -> Svg.PointOptions Msg
