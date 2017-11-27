@@ -131,7 +131,7 @@ triangleAttributes model =
     let
         fillColor =
             if isActive Triangle model then
-                "blue"
+                "rgb(63, 127, 255)"
             else
                 "white"
     in
@@ -143,7 +143,7 @@ edgeAttributes dragTarget model =
     let
         color =
             if isActive dragTarget model then
-                "blue"
+                "rgb(63, 127, 255)"
             else
                 "black"
     in
@@ -155,7 +155,7 @@ pointOptions dragTarget model =
     let
         fillColor =
             if isActive dragTarget model then
-                "blue"
+                "rgb(63, 127, 255)"
             else
                 "white"
     in
