@@ -50,8 +50,8 @@ type alias Modifiers =
 
 
 type State t
-    = Resting Modifiers
-    | Hovering t Modifiers
+    = Resting
+    | Hovering t
     | Dragging
         { target : t
         , hoverTarget : Maybe t
@@ -65,7 +65,13 @@ type State t
 type Event t
     = Entered t
     | Left t
-    | StartedDrag { target : t, startPoint : Point2d, x0 : Float, y0 : Float }
+    | StartedDrag
+        { target : t
+        , startPoint : Point2d
+        , x0 : Float
+        , y0 : Float
+        , modifiers : Modifiers
+        }
     | DraggedTo Point2d
     | EndedDrag
     | KeyDown Int
@@ -83,7 +89,7 @@ type Drag t
 
 init : State t
 init =
-    Resting { shift = False, ctrl = False, alt = False }
+    Resting
 
 
 target : Drag t -> t
@@ -171,19 +177,13 @@ process event state =
                     Debug.log "Please raise an issue at"
                         "https://github.com/opensolid/svg/issues/new"
             in
-            ( init, Nothing )
+            ( state, Nothing )
     in
     case ( state, event ) of
-        ( Resting modifiers, Entered target ) ->
-            ( Hovering target modifiers, Nothing )
+        ( Resting, Entered target ) ->
+            ( Hovering target, Nothing )
 
-        ( Resting modifiers, KeyDown code ) ->
-            ( Resting (keyDown code modifiers), Nothing )
-
-        ( Resting modifiers, KeyUp code ) ->
-            ( Resting (keyUp code modifiers), Nothing )
-
-        ( Hovering hoverTarget modifiers, StartedDrag { target, startPoint, x0, y0 } ) ->
+        ( Hovering hoverTarget, StartedDrag { target, startPoint, x0, y0, modifiers } ) ->
             if hoverTarget == target then
                 ( Dragging
                     { target = target
@@ -198,17 +198,11 @@ process event state =
             else
                 unexpected ()
 
-        ( Hovering hoverTarget modifiers, Left previousTarget ) ->
+        ( Hovering hoverTarget, Left previousTarget ) ->
             if previousTarget == hoverTarget then
-                ( Resting modifiers, Nothing )
+                ( Resting, Nothing )
             else
                 unexpected ()
-
-        ( Hovering hoverTarget modifiers, KeyDown code ) ->
-            ( Hovering hoverTarget (keyDown code modifiers), Nothing )
-
-        ( Hovering hoverTarget modifiers, KeyUp code ) ->
-            ( Hovering hoverTarget (keyUp code modifiers), Nothing )
 
         ( Dragging properties, Entered hoverTarget ) ->
             if properties.hoverTarget == Nothing then
@@ -243,10 +237,10 @@ process event state =
         ( Dragging properties, EndedDrag ) ->
             case properties.hoverTarget of
                 Nothing ->
-                    ( Resting properties.modifiers, Nothing )
+                    ( Resting, Nothing )
 
                 Just hoverTarget ->
-                    ( Hovering hoverTarget properties.modifiers, Nothing )
+                    ( Hovering hoverTarget, Nothing )
 
         ( Dragging { target, hoverTarget, lastPoint, x0, y0, modifiers }, DraggedTo endPoint ) ->
             ( Dragging
@@ -311,27 +305,34 @@ subscriptions state =
                 ]
 
         _ ->
-            Sub.batch
-                [ Keyboard.ups KeyUp
-                , Keyboard.downs KeyDown
-                ]
+            Sub.none
 
 
-type alias Coordinates =
+type alias Start =
     { clientX : Float
     , clientY : Float
     , pageX : Float
     , pageY : Float
+    , modifiers : Modifiers
     }
 
 
-decodeCoordinates : Decoder Coordinates
-decodeCoordinates =
-    Decode.map4 Coordinates
+decodeModifiers : Decoder Modifiers
+decodeModifiers =
+    Decode.map3 Modifiers
+        (Decode.field "ctrlKey" Decode.bool)
+        (Decode.field "altKey" Decode.bool)
+        (Decode.field "shiftKey" Decode.bool)
+
+
+decodeStart : Decoder Start
+decodeStart =
+    Decode.map5 Start
         (Decode.field "clientX" Decode.float)
         (Decode.field "clientY" Decode.float)
         (Decode.field "pageX" Decode.float)
         (Decode.field "pageY" Decode.float)
+        decodeModifiers
 
 
 customHandle : Svg Never -> { target : t, renderBounds : BoundingBox2d } -> Svg (Event t)
@@ -343,9 +344,9 @@ customHandle shape { target, renderBounds } =
                 { stopPropagation = True
                 , preventDefault = True
                 }
-                (decodeCoordinates
+                (decodeStart
                     |> Decode.map
-                        (\{ clientX, clientY, pageX, pageY } ->
+                        (\{ clientX, clientY, pageX, pageY, modifiers } ->
                             let
                                 x =
                                     BoundingBox2d.minX renderBounds + clientX
@@ -361,6 +362,7 @@ customHandle shape { target, renderBounds } =
                                 , startPoint = startPoint
                                 , x0 = x - pageX
                                 , y0 = y + pageY
+                                , modifiers = modifiers
                                 }
                         )
                 )
@@ -463,10 +465,10 @@ directionTipHandle basePoint direction { length, tipLength, tipWidth, padding, t
 isHovering : t -> State t -> Bool
 isHovering target state =
     case state of
-        Resting _ ->
+        Resting ->
             False
 
-        Hovering hoverTarget _ ->
+        Hovering hoverTarget ->
             target == hoverTarget
 
         Dragging _ ->
@@ -476,10 +478,10 @@ isHovering target state =
 isDragging : t -> State t -> Bool
 isDragging target state =
     case state of
-        Resting _ ->
+        Resting ->
             False
 
-        Hovering _ _ ->
+        Hovering _ ->
             False
 
         Dragging properties ->
