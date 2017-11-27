@@ -3,6 +3,7 @@ module OpenSolid.Svg.Drag
         ( Drag
         , Event
         , Model
+        , Modifiers
         , State
         , apply
         , customHandle
@@ -12,6 +13,7 @@ module OpenSolid.Svg.Drag
         , isDragging
         , isHovering
         , lineSegmentHandle
+        , modifiers
         , pointHandle
         , process
         , rotationAround
@@ -25,6 +27,7 @@ module OpenSolid.Svg.Drag
 
 import Html.Events
 import Json.Decode as Decode exposing (Decoder)
+import Keyboard
 import Mouse
 import OpenSolid.BoundingBox2d as BoundingBox2d exposing (BoundingBox2d)
 import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
@@ -39,15 +42,23 @@ import Svg.Attributes
 import Svg.Events
 
 
+type alias Modifiers =
+    { ctrl : Bool
+    , alt : Bool
+    , shift : Bool
+    }
+
+
 type State t
-    = Resting
-    | Hovering t
+    = Resting Modifiers
+    | Hovering t Modifiers
     | Dragging
         { target : t
         , hoverTarget : Maybe t
         , lastPoint : Point2d
         , x0 : Float
         , y0 : Float
+        , modifiers : Modifiers
         }
 
 
@@ -57,6 +68,8 @@ type Event t
     | StartedDrag { target : t, startPoint : Point2d, x0 : Float, y0 : Float }
     | DraggedTo Point2d
     | EndedDrag
+    | KeyDown Int
+    | KeyUp Int
 
 
 type Drag t
@@ -64,12 +77,13 @@ type Drag t
         { target : t
         , startPoint : Point2d
         , endPoint : Point2d
+        , modifiers : Modifiers
         }
 
 
-    Resting
 init : State t
 init =
+    Resting { shift = False, ctrl = False, alt = False }
 
 
 target : Drag t -> t
@@ -85,6 +99,11 @@ startPoint (Drag { startPoint }) =
 endPoint : Drag t -> Point2d
 endPoint (Drag { endPoint }) =
     endPoint
+
+
+modifiers : Drag t -> Modifiers
+modifiers (Drag { modifiers }) =
+    modifiers
 
 
 translation : Drag t -> Vector2d
@@ -107,6 +126,38 @@ rotationAround point (Drag { startPoint, endPoint }) =
         |> Maybe.withDefault 0
 
 
+keyDown : Int -> Modifiers -> Modifiers
+keyDown code modifiers =
+    case code of
+        16 ->
+            { modifiers | shift = True }
+
+        17 ->
+            { modifiers | ctrl = True }
+
+        18 ->
+            { modifiers | alt = True }
+
+        _ ->
+            modifiers
+
+
+keyUp : Int -> Modifiers -> Modifiers
+keyUp code modifiers =
+    case code of
+        16 ->
+            { modifiers | shift = False }
+
+        17 ->
+            { modifiers | ctrl = False }
+
+        18 ->
+            { modifiers | alt = False }
+
+        _ ->
+            modifiers
+
+
 process : Event t -> State t -> ( State t, Maybe (Drag t) )
 process event state =
     let
@@ -120,13 +171,19 @@ process event state =
                     Debug.log "Please raise an issue at"
                         "https://github.com/opensolid/svg/issues/new"
             in
-            ( Resting, Nothing )
+            ( init, Nothing )
     in
     case ( state, event ) of
-        ( Resting, Entered target ) ->
-            ( Hovering target, Nothing )
+        ( Resting modifiers, Entered target ) ->
+            ( Hovering target modifiers, Nothing )
 
-        ( Hovering hoverTarget, StartedDrag { target, startPoint, x0, y0 } ) ->
+        ( Resting modifiers, KeyDown code ) ->
+            ( Resting (keyDown code modifiers), Nothing )
+
+        ( Resting modifiers, KeyUp code ) ->
+            ( Resting (keyUp code modifiers), Nothing )
+
+        ( Hovering hoverTarget modifiers, StartedDrag { target, startPoint, x0, y0 } ) ->
             if hoverTarget == target then
                 ( Dragging
                     { target = target
@@ -134,17 +191,24 @@ process event state =
                     , lastPoint = startPoint
                     , x0 = x0
                     , y0 = y0
+                    , modifiers = modifiers
                     }
                 , Nothing
                 )
             else
                 unexpected ()
 
-        ( Hovering hoverTarget, Left previousTarget ) ->
+        ( Hovering hoverTarget modifiers, Left previousTarget ) ->
             if previousTarget == hoverTarget then
-                ( Resting, Nothing )
+                ( Resting modifiers, Nothing )
             else
                 unexpected ()
+
+        ( Hovering hoverTarget modifiers, KeyDown code ) ->
+            ( Hovering hoverTarget (keyDown code modifiers), Nothing )
+
+        ( Hovering hoverTarget modifiers, KeyUp code ) ->
+            ( Hovering hoverTarget (keyUp code modifiers), Nothing )
 
         ( Dragging properties, Entered hoverTarget ) ->
             if properties.hoverTarget == Nothing then
@@ -158,27 +222,47 @@ process event state =
             else
                 unexpected ()
 
+        ( Dragging properties, KeyDown code ) ->
+            let
+                updatedModifiers =
+                    keyDown code properties.modifiers
+            in
+            ( Dragging { properties | modifiers = updatedModifiers }
+            , Nothing
+            )
+
+        ( Dragging properties, KeyUp code ) ->
+            let
+                updatedModifiers =
+                    keyUp code properties.modifiers
+            in
+            ( Dragging { properties | modifiers = updatedModifiers }
+            , Nothing
+            )
+
         ( Dragging properties, EndedDrag ) ->
             case properties.hoverTarget of
                 Nothing ->
-                    ( Resting, Nothing )
+                    ( Resting properties.modifiers, Nothing )
 
                 Just hoverTarget ->
-                    ( Hovering hoverTarget, Nothing )
+                    ( Hovering hoverTarget properties.modifiers, Nothing )
 
-        ( Dragging { target, hoverTarget, lastPoint, x0, y0 }, DraggedTo endPoint ) ->
+        ( Dragging { target, hoverTarget, lastPoint, x0, y0, modifiers }, DraggedTo endPoint ) ->
             ( Dragging
                 { target = target
                 , hoverTarget = hoverTarget
                 , lastPoint = endPoint
                 , x0 = x0
                 , y0 = y0
+                , modifiers = modifiers
                 }
             , Just <|
                 Drag
                     { target = target
                     , startPoint = lastPoint
                     , endPoint = endPoint
+                    , modifiers = modifiers
                     }
             )
 
@@ -222,10 +306,15 @@ subscriptions state =
             Sub.batch
                 [ Mouse.moves toEvent
                 , Mouse.ups (always EndedDrag)
+                , Keyboard.ups KeyUp
+                , Keyboard.downs KeyDown
                 ]
 
         _ ->
-            Sub.none
+            Sub.batch
+                [ Keyboard.ups KeyUp
+                , Keyboard.downs KeyDown
+                ]
 
 
 type alias Coordinates =
@@ -374,10 +463,10 @@ directionTipHandle basePoint direction { length, tipLength, tipWidth, padding, t
 isHovering : t -> State t -> Bool
 isHovering target state =
     case state of
-        Resting ->
+        Resting _ ->
             False
 
-        Hovering hoverTarget ->
+        Hovering hoverTarget _ ->
             target == hoverTarget
 
         Dragging _ ->
@@ -387,10 +476,10 @@ isHovering target state =
 isDragging : t -> State t -> Bool
 isDragging target state =
     case state of
-        Resting ->
+        Resting _ ->
             False
 
-        Hovering _ ->
+        Hovering _ _ ->
             False
 
         Dragging properties ->

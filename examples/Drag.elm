@@ -2,11 +2,13 @@ module Drag exposing (..)
 
 import Html exposing (Html)
 import OpenSolid.BoundingBox2d as BoundingBox2d exposing (BoundingBox2d)
+import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
 import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
 import OpenSolid.Point2d as Point2d exposing (Point2d)
 import OpenSolid.Svg as Svg
 import OpenSolid.Svg.Drag as Drag exposing (Drag)
 import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
+import OpenSolid.Vector2d as Vector2d exposing (Vector2d)
 import Svg exposing (Svg)
 import Svg.Attributes
 
@@ -165,11 +167,38 @@ pointOptions dragTarget model =
     }
 
 
+constrainBy : Drag.Modifiers -> Vector2d -> Vector2d
+constrainBy modifiers displacement =
+    if modifiers.ctrl then
+        case Vector2d.lengthAndDirection displacement of
+            Just ( length, direction ) ->
+                let
+                    angle =
+                        Direction2d.angle direction
+
+                    snapIncrement =
+                        degrees 45
+
+                    snappedAngle =
+                        toFloat (round (angle / snapIncrement)) * snapIncrement
+
+                    snappedDirection =
+                        Direction2d.fromAngle snappedAngle
+                in
+                Vector2d.projectionIn snappedDirection displacement
+
+            Nothing ->
+                Vector2d.zero
+    else
+        displacement
+
+
 performDrag : Drag DragTarget -> Model -> Model
 performDrag drag model =
     let
         displacement =
             Drag.translation drag
+                |> constrainBy (Drag.modifiers drag)
 
         ( p0, p1, p2 ) =
             Triangle2d.vertices model.triangle
