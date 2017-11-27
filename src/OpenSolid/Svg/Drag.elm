@@ -56,8 +56,7 @@ type State t
         { target : t
         , hoverTarget : Maybe t
         , lastPoint : Point2d
-        , x0 : Float
-        , y0 : Float
+        , pageOrigin : Point2d
         , modifiers : Modifiers
         }
 
@@ -65,15 +64,14 @@ type State t
 type Event t
     = Entered t
     | Left t
-    | StartedDrag
+    | MouseDown
         { target : t
-        , startPoint : Point2d
-        , x0 : Float
-        , y0 : Float
+        , point : Point2d
+        , pageOrigin : Point2d
         , modifiers : Modifiers
         }
-    | DraggedTo Point2d
-    | EndedDrag
+    | DragTo Point2d
+    | MouseUp
     | KeyDown Int
     | KeyUp Int
 
@@ -183,14 +181,13 @@ process event state =
         ( Resting, Entered target ) ->
             ( Hovering target, Nothing )
 
-        ( Hovering hoverTarget, StartedDrag { target, startPoint, x0, y0, modifiers } ) ->
+        ( Hovering hoverTarget, MouseDown { target, point, pageOrigin, modifiers } ) ->
             if hoverTarget == target then
                 ( Dragging
                     { target = target
                     , hoverTarget = Just target
-                    , lastPoint = startPoint
-                    , x0 = x0
-                    , y0 = y0
+                    , lastPoint = point
+                    , pageOrigin = pageOrigin
                     , modifiers = modifiers
                     }
                 , Nothing
@@ -234,7 +231,7 @@ process event state =
             , Nothing
             )
 
-        ( Dragging properties, EndedDrag ) ->
+        ( Dragging properties, MouseUp ) ->
             case properties.hoverTarget of
                 Nothing ->
                     ( Resting, Nothing )
@@ -242,13 +239,12 @@ process event state =
                 Just hoverTarget ->
                     ( Hovering hoverTarget, Nothing )
 
-        ( Dragging { target, hoverTarget, lastPoint, x0, y0, modifiers }, DraggedTo endPoint ) ->
+        ( Dragging { target, hoverTarget, lastPoint, pageOrigin, modifiers }, DragTo endPoint ) ->
             ( Dragging
                 { target = target
                 , hoverTarget = hoverTarget
                 , lastPoint = endPoint
-                , x0 = x0
-                , y0 = y0
+                , pageOrigin = pageOrigin
                 , modifiers = modifiers
                 }
             , Just <|
@@ -288,10 +284,13 @@ apply performDrag event model =
 subscriptions : State t -> Sub (Event t)
 subscriptions state =
     case state of
-        Dragging { x0, y0 } ->
+        Dragging { pageOrigin } ->
             let
+                ( x0, y0 ) =
+                    Point2d.coordinates pageOrigin
+
                 toEvent { x, y } =
-                    DraggedTo <|
+                    DragTo <|
                         Point2d.fromCoordinates
                             ( x0 + toFloat x
                             , y0 - toFloat y
@@ -299,7 +298,7 @@ subscriptions state =
             in
             Sub.batch
                 [ Mouse.moves toEvent
-                , Mouse.ups (always EndedDrag)
+                , Mouse.ups (always MouseUp)
                 , Keyboard.ups KeyUp
                 , Keyboard.downs KeyDown
                 ]
@@ -354,14 +353,22 @@ customHandle shape { target, renderBounds } =
                                 y =
                                     BoundingBox2d.maxY renderBounds - clientY
 
-                                startPoint =
+                                point =
                                     Point2d.fromCoordinates ( x, y )
+
+                                x0 =
+                                    x - pageX
+
+                                y0 =
+                                    y + pageY
+
+                                pageOrigin =
+                                    Point2d.fromCoordinates ( x0, y0 )
                             in
-                            StartedDrag
+                            MouseDown
                                 { target = target
-                                , startPoint = startPoint
-                                , x0 = x - pageX
-                                , y0 = y + pageY
+                                , point = point
+                                , pageOrigin = pageOrigin
                                 , modifiers = modifiers
                                 }
                         )
