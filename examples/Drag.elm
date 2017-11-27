@@ -18,7 +18,7 @@ type DragTarget
 
 
 type Msg
-    = DragEvent (Drag.Event DragTarget)
+    = DragMsg (Drag.Event DragTarget)
 
 
 type alias Model =
@@ -69,7 +69,7 @@ view model =
                 , Drag.pointHandle boundingBox Vertex1 p1 10
                 , Drag.pointHandle boundingBox Vertex2 p2 10
                 ]
-                |> Svg.map DragEvent
+                |> Svg.map DragMsg
             ]
 
 
@@ -120,13 +120,13 @@ performDrag drag model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        DragEvent dragEvent ->
+        DragMsg dragEvent ->
             Drag.apply performDrag dragEvent model
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Drag.subscriptions model.dragState |> Sub.map DragEvent
+    Drag.subscriptions model.dragState |> Sub.map DragMsg
 
 
 main : Program Never Model Msg
