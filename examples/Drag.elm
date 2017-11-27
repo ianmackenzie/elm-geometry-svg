@@ -33,7 +33,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { dragState = Drag.none
+    ( { dragState = Drag.init
       , triangle =
             Triangle2d.fromVertices
                 ( Point2d.fromCoordinates ( 200, 200 )

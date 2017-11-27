@@ -8,10 +8,10 @@ module OpenSolid.Svg.Drag
         , customHandle
         , directionTipHandle
         , endPoint
+        , init
         , isDragging
         , isHovering
         , lineSegmentHandle
-        , none
         , pointHandle
         , process
         , rotationAround
@@ -67,9 +67,9 @@ type Drag t
         }
 
 
-none : State t
-none =
     Resting
+init : State t
+init =
 
 
 target : Drag t -> t
