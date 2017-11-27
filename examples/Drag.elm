@@ -4,7 +4,7 @@ import Html exposing (Html)
 import OpenSolid.BoundingBox2d as BoundingBox2d exposing (BoundingBox2d)
 import OpenSolid.Point2d as Point2d exposing (Point2d)
 import OpenSolid.Svg as Svg
-import OpenSolid.Svg.Drag as Drag
+import OpenSolid.Svg.Drag as Drag exposing (Drag)
 import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
 import Svg exposing (Svg)
 import Svg.Attributes
@@ -88,48 +88,33 @@ pointOptions dragTarget model =
     }
 
 
-performDrag : DragTarget -> Point2d -> Point2d -> Model -> Model
-performDrag target startPoint endPoint model =
+performDrag : Drag DragTarget -> Model -> Model
+performDrag drag model =
     let
+        displacement =
+            Drag.translation drag
+
         ( p0, p1, p2 ) =
             Triangle2d.vertices model.triangle
+
+        translatePoint =
+            Point2d.translateBy displacement
+
+        updatedTriangle =
+            case Drag.target drag of
+                Triangle ->
+                    Triangle2d.translateBy displacement model.triangle
+
+                Vertex0 ->
+                    Triangle2d.fromVertices ( translatePoint p0, p1, p2 )
+
+                Vertex1 ->
+                    Triangle2d.fromVertices ( p0, translatePoint p1, p2 )
+
+                Vertex2 ->
+                    Triangle2d.fromVertices ( p0, p1, translatePoint p2 )
     in
-    case target of
-        Triangle ->
-            { model
-                | triangle =
-                    Drag.triangle startPoint endPoint model.triangle
-            }
-
-        Vertex0 ->
-            { model
-                | triangle =
-                    Triangle2d.fromVertices
-                        ( Drag.point startPoint endPoint p0
-                        , p1
-                        , p2
-                        )
-            }
-
-        Vertex1 ->
-            { model
-                | triangle =
-                    Triangle2d.fromVertices
-                        ( p0
-                        , Drag.point startPoint endPoint p1
-                        , p2
-                        )
-            }
-
-        Vertex2 ->
-            { model
-                | triangle =
-                    Triangle2d.fromVertices
-                        ( p0
-                        , p1
-                        , Drag.point startPoint endPoint p2
-                        )
-            }
+    { model | triangle = updatedTriangle }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

@@ -1,23 +1,24 @@
 module OpenSolid.Svg.Drag
     exposing
-        ( Event
+        ( Drag
+        , Event
         , Model
         , State
         , apply
         , customHandle
-          --, direction
         , directionTipHandle
+        , endPoint
         , isDragging
         , isHovering
-        , lineSegment
         , lineSegmentHandle
         , none
-        , point
         , pointHandle
         , process
-          --, vector
+        , rotationAround
+        , startPoint
         , subscriptions
-        , triangle
+        , target
+        , translation
         , triangleHandle
         , vectorTipHandle
         )
@@ -58,12 +59,55 @@ type Event t
     | EndedDrag
 
 
+type Drag t
+    = Drag
+        { target : t
+        , startPoint : Point2d
+        , endPoint : Point2d
+        }
+
+
 none : State t
 none =
     Resting
 
 
-process : Event t -> State t -> ( State t, Maybe { target : t, startPoint : Point2d, endPoint : Point2d } )
+target : Drag t -> t
+target (Drag { target }) =
+    target
+
+
+startPoint : Drag t -> Point2d
+startPoint (Drag { startPoint }) =
+    startPoint
+
+
+endPoint : Drag t -> Point2d
+endPoint (Drag { endPoint }) =
+    endPoint
+
+
+translation : Drag t -> Vector2d
+translation (Drag { startPoint, endPoint }) =
+    Vector2d.from startPoint endPoint
+
+
+rotationAround : Point2d -> Drag t -> Float
+rotationAround point (Drag { startPoint, endPoint }) =
+    let
+        startDirection =
+            Direction2d.from point startPoint
+
+        endDirection =
+            Direction2d.from point endPoint
+    in
+    Maybe.map2 Direction2d.angleFrom
+        startDirection
+        endDirection
+        |> Maybe.withDefault 0
+
+
+process : Event t -> State t -> ( State t, Maybe (Drag t) )
 process event state =
     let
         unexpected () =
@@ -130,11 +174,12 @@ process event state =
                 , x0 = x0
                 , y0 = y0
                 }
-            , Just
-                { target = target
-                , startPoint = lastPoint
-                , endPoint = endPoint
-                }
+            , Just <|
+                Drag
+                    { target = target
+                    , startPoint = lastPoint
+                    , endPoint = endPoint
+                    }
             )
 
         _ ->
@@ -145,7 +190,7 @@ type alias Model m t =
     { m | dragState : State t }
 
 
-apply : (t -> Point2d -> Point2d -> Model m t -> Model m t) -> Event t -> Model m t -> ( Model m t, Cmd msg )
+apply : (Drag t -> Model m t -> Model m t) -> Event t -> Model m t -> ( Model m t, Cmd msg )
 apply performDrag event model =
     let
         ( updatedState, drag ) =
@@ -158,8 +203,8 @@ apply performDrag event model =
         Nothing ->
             ( updatedModel, Cmd.none )
 
-        Just { target, startPoint, endPoint } ->
-            ( performDrag target startPoint endPoint updatedModel, Cmd.none )
+        Just drag ->
+            ( performDrag drag updatedModel, Cmd.none )
 
 
 subscriptions : State t -> Sub (Event t)
@@ -330,38 +375,3 @@ isDragging target state =
 
         Dragging properties ->
             target == properties.target
-
-
-point : Point2d -> Point2d -> Point2d -> Point2d
-point dragStart dragEnd =
-    Point2d.translateBy (Vector2d.from dragStart dragEnd)
-
-
-lineSegment : Point2d -> Point2d -> LineSegment2d -> LineSegment2d
-lineSegment dragStart dragEnd =
-    LineSegment2d.translateBy (Vector2d.from dragStart dragEnd)
-
-
-triangle : Point2d -> Point2d -> Triangle2d -> Triangle2d
-triangle dragStart dragEnd =
-    Triangle2d.translateBy (Vector2d.from dragStart dragEnd)
-
-
-
---vector : Point2d -> Point2d -> Vector2d -> Vector2d
---vector dragStart dragEnd =
---    Vector2d.sum (Vector2d.from dragStart dragEnd)
---direction : Point2d -> Point2d -> Point2d -> Direction2d -> Direction2d
---direction dragStart dragEnd basePoint =
---    let
---        startDirection =
---            Direction2d.from basePoint dragStart
---        endDirection =
---            Direction2d.from basePoint dragEnd
---        angle =
---            Maybe.map2 Direction2d.angleFrom
---                startDirection
---                endDirection
---                |> Maybe.withDefault 0
---    in
---    Direction2d.rotateBy angle
