@@ -2,6 +2,7 @@ module Drag exposing (..)
 
 import Html exposing (Html)
 import OpenSolid.BoundingBox2d as BoundingBox2d exposing (BoundingBox2d)
+import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
 import OpenSolid.Point2d as Point2d exposing (Point2d)
 import OpenSolid.Svg as Svg
 import OpenSolid.Svg.Drag as Drag exposing (Drag)
@@ -15,6 +16,9 @@ type DragTarget
     | Vertex0
     | Vertex1
     | Vertex2
+    | Edge0
+    | Edge1
+    | Edge2
 
 
 type Msg
@@ -56,16 +60,43 @@ view model =
     let
         ( p0, p1, p2 ) =
             Triangle2d.vertices model.triangle
+
+        edge0 =
+            LineSegment2d.from p0 p1
+
+        edge1 =
+            LineSegment2d.from p1 p2
+
+        edge2 =
+            LineSegment2d.from p2 p0
     in
     Svg.render2d boundingBox <|
         Svg.g []
-            [ Svg.triangle2d (attributes Triangle model) model.triangle
+            [ Svg.triangle2d (triangleAttributes model) model.triangle
+            , Svg.lineSegment2d (edgeAttributes Edge0 model) edge0
+            , Svg.lineSegment2d (edgeAttributes Edge1 model) edge1
+            , Svg.lineSegment2d (edgeAttributes Edge2 model) edge2
             , Svg.point2d (pointOptions Vertex0 model) p0
             , Svg.point2d (pointOptions Vertex1 model) p1
             , Svg.point2d (pointOptions Vertex2 model) p2
             , Svg.g []
                 [ Drag.triangleHandle model.triangle
                     { target = Triangle
+                    , padding = 10
+                    , renderBounds = boundingBox
+                    }
+                , Drag.lineSegmentHandle edge0
+                    { target = Edge0
+                    , padding = 10
+                    , renderBounds = boundingBox
+                    }
+                , Drag.lineSegmentHandle edge1
+                    { target = Edge1
+                    , padding = 10
+                    , renderBounds = boundingBox
+                    }
+                , Drag.lineSegmentHandle edge2
+                    { target = Edge2
                     , padding = 10
                     , renderBounds = boundingBox
                     }
@@ -89,18 +120,48 @@ view model =
             ]
 
 
-attributes : DragTarget -> Model -> List (Svg.Attribute Msg)
-attributes dragTarget model =
-    if Drag.isHovering dragTarget model.dragState || Drag.isDragging dragTarget model.dragState then
-        [ Svg.Attributes.fill "lightblue", Svg.Attributes.stroke "black" ]
-    else
-        [ Svg.Attributes.fill "white", Svg.Attributes.stroke "black" ]
+isActive : DragTarget -> Model -> Bool
+isActive dragTarget model =
+    Drag.isHovering dragTarget model.dragState
+        || Drag.isDragging dragTarget model.dragState
+
+
+triangleAttributes : Model -> List (Svg.Attribute Msg)
+triangleAttributes model =
+    let
+        fillColor =
+            if isActive Triangle model then
+                "blue"
+            else
+                "white"
+    in
+    [ Svg.Attributes.fill fillColor, Svg.Attributes.stroke "none" ]
+
+
+edgeAttributes : DragTarget -> Model -> List (Svg.Attribute Msg)
+edgeAttributes dragTarget model =
+    let
+        color =
+            if isActive dragTarget model then
+                "blue"
+            else
+                "black"
+    in
+    [ Svg.Attributes.stroke color ]
 
 
 pointOptions : DragTarget -> Model -> Svg.PointOptions Msg
 pointOptions dragTarget model =
+    let
+        fillColor =
+            if isActive dragTarget model then
+                "blue"
+            else
+                "white"
+    in
     { radius = 5
-    , attributes = attributes dragTarget model
+    , attributes =
+        [ Svg.Attributes.fill fillColor, Svg.Attributes.stroke "black" ]
     }
 
 
@@ -129,6 +190,27 @@ performDrag drag model =
 
                 Vertex2 ->
                     Triangle2d.fromVertices ( p0, p1, translatePoint p2 )
+
+                Edge0 ->
+                    Triangle2d.fromVertices
+                        ( translatePoint p0
+                        , translatePoint p1
+                        , p2
+                        )
+
+                Edge1 ->
+                    Triangle2d.fromVertices
+                        ( p0
+                        , translatePoint p1
+                        , translatePoint p2
+                        )
+
+                Edge2 ->
+                    Triangle2d.fromVertices
+                        ( translatePoint p0
+                        , p1
+                        , translatePoint p2
+                        )
     in
     { model | triangle = updatedTriangle }
 
