@@ -6,14 +6,14 @@ import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
 import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
 import OpenSolid.Point2d as Point2d exposing (Point2d)
 import OpenSolid.Svg as Svg
-import OpenSolid.Svg.Drag as Drag exposing (Drag)
+import OpenSolid.Svg.Interaction as Interaction exposing (Interaction)
 import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
 import OpenSolid.Vector2d as Vector2d exposing (Vector2d)
 import Svg exposing (Svg)
 import Svg.Attributes
 
 
-type DragTarget
+type Target
     = Triangle
     | Vertex0
     | Vertex1
@@ -24,18 +24,18 @@ type DragTarget
 
 
 type Msg
-    = DragMsg (Drag.Event DragTarget)
+    = InteractionMsg (Interaction.Msg Target)
 
 
 type alias Model =
-    { dragState : Drag.State DragTarget
+    { interactionModel : Interaction.Model Target
     , triangle : Triangle2d
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { dragState = Drag.init
+    ( { interactionModel = Interaction.init
       , triangle =
             Triangle2d.fromVertices
                 ( Point2d.fromCoordinates ( 200, 200 )
@@ -73,7 +73,7 @@ view model =
             LineSegment2d.from p2 p0
     in
     Svg.render2d boundingBox <|
-        Svg.g []
+        Interaction.container InteractionMsg boundingBox <|
             [ Svg.triangle2d (triangleAttributes model) model.triangle
             , Svg.lineSegment2d (edgeAttributes Edge0 model) edge0
             , Svg.lineSegment2d (edgeAttributes Edge1 model) edge1
@@ -81,51 +81,61 @@ view model =
             , Svg.point2d (pointOptions Vertex0 model) p0
             , Svg.point2d (pointOptions Vertex1 model) p1
             , Svg.point2d (pointOptions Vertex2 model) p2
+            , case Interaction.selectionBox model.interactionModel of
+                Just ( startPoint, endPoint, modifiers ) ->
+                    Svg.boundingBox2d
+                        [ Svg.Attributes.fill "none"
+                        , Svg.Attributes.stroke "black"
+                        ]
+                        (Point2d.hull startPoint endPoint)
+
+                Nothing ->
+                    Svg.text ""
             , Svg.g []
-                [ Drag.triangleHandle model.triangle
+                [ Interaction.triangleHandle model.triangle
                     { target = Triangle
                     , padding = 10
                     , renderBounds = boundingBox
                     }
-                , Drag.lineSegmentHandle edge0
+                , Interaction.lineSegmentHandle edge0
                     { target = Edge0
                     , padding = 10
                     , renderBounds = boundingBox
                     }
-                , Drag.lineSegmentHandle edge1
+                , Interaction.lineSegmentHandle edge1
                     { target = Edge1
                     , padding = 10
                     , renderBounds = boundingBox
                     }
-                , Drag.lineSegmentHandle edge2
+                , Interaction.lineSegmentHandle edge2
                     { target = Edge2
                     , padding = 10
                     , renderBounds = boundingBox
                     }
-                , Drag.pointHandle p0
+                , Interaction.pointHandle p0
                     { target = Vertex0
                     , radius = 10
                     , renderBounds = boundingBox
                     }
-                , Drag.pointHandle p1
+                , Interaction.pointHandle p1
                     { target = Vertex1
                     , radius = 10
                     , renderBounds = boundingBox
                     }
-                , Drag.pointHandle p2
+                , Interaction.pointHandle p2
                     { target = Vertex2
                     , radius = 10
                     , renderBounds = boundingBox
                     }
                 ]
-                |> Svg.map DragMsg
+                |> Svg.map InteractionMsg
             ]
 
 
-isActive : DragTarget -> Model -> Bool
+isActive : Target -> Model -> Bool
 isActive dragTarget model =
-    Drag.isHovering dragTarget model.dragState
-        || Drag.isDragging dragTarget model.dragState
+    Interaction.isHovering dragTarget model.interactionModel
+        || Interaction.isDragging dragTarget model.interactionModel
 
 
 triangleAttributes : Model -> List (Svg.Attribute Msg)
@@ -140,7 +150,7 @@ triangleAttributes model =
     [ Svg.Attributes.fill fillColor, Svg.Attributes.stroke "none" ]
 
 
-edgeAttributes : DragTarget -> Model -> List (Svg.Attribute Msg)
+edgeAttributes : Target -> Model -> List (Svg.Attribute Msg)
 edgeAttributes dragTarget model =
     let
         color =
@@ -152,7 +162,7 @@ edgeAttributes dragTarget model =
     [ Svg.Attributes.stroke color ]
 
 
-pointOptions : DragTarget -> Model -> Svg.PointOptions Msg
+pointOptions : Target -> Model -> Svg.PointOptions Msg
 pointOptions dragTarget model =
     let
         fillColor =
@@ -167,7 +177,7 @@ pointOptions dragTarget model =
     }
 
 
-constrainBy : Drag.Modifiers -> Vector2d -> Vector2d
+constrainBy : Interaction.Modifiers -> Vector2d -> Vector2d
 constrainBy modifiers displacement =
     if modifiers.ctrl then
         case Vector2d.lengthAndDirection displacement of
@@ -193,12 +203,47 @@ constrainBy modifiers displacement =
         displacement
 
 
-performDrag : Drag DragTarget -> Model -> Model
-performDrag drag model =
+setInteractionModel : Interaction.Model Target -> Model -> Model
+setInteractionModel updatedInteractionModel model =
+    { model | interactionModel = updatedInteractionModel }
+
+
+handleInteraction : Maybe (Interaction Target) -> Model -> Model
+handleInteraction interaction model =
+    case interaction of
+        Nothing ->
+            model
+
+        Just (Interaction.Drag target startPoint endPoint modifiers) ->
+            performDrag target startPoint endPoint modifiers model
+
+        Just (Interaction.Click target modifiers) ->
+            let
+                _ =
+                    Debug.log "Clicked" target
+            in
+            model
+
+        Just (Interaction.Release target) ->
+            let
+                _ =
+                    Debug.log "Released" target
+            in
+            model
+
+        Just (Interaction.BoxSelect startPoint endPoint modifiers) ->
+            let
+                _ =
+                    Debug.log "Box select" modifiers
+            in
+            model
+
+
+performDrag : Target -> Point2d -> Point2d -> Interaction.Modifiers -> Model -> Model
+performDrag target startPoint endPoint modifiers model =
     let
         displacement =
-            Drag.translation drag
-                |> constrainBy (Drag.modifiers drag)
+            Vector2d.from startPoint endPoint |> constrainBy modifiers
 
         ( p0, p1, p2 ) =
             Triangle2d.vertices model.triangle
@@ -207,7 +252,7 @@ performDrag drag model =
             Point2d.translateBy displacement
 
         updatedTriangle =
-            case Drag.target drag of
+            case target of
                 Triangle ->
                     Triangle2d.translateBy displacement model.triangle
 
@@ -244,16 +289,29 @@ performDrag drag model =
     { model | triangle = updatedTriangle }
 
 
+noCmd : Model -> ( Model, Cmd Msg )
+noCmd model =
+    ( model, Cmd.none )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        DragMsg dragEvent ->
-            Drag.apply performDrag dragEvent model
+        InteractionMsg interactionMsg ->
+            let
+                ( updatedInteractionModel, maybeInteraction ) =
+                    Interaction.update interactionMsg model.interactionModel
+            in
+            model
+                |> setInteractionModel updatedInteractionModel
+                |> handleInteraction maybeInteraction
+                |> noCmd
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Drag.subscriptions model.dragState |> Sub.map DragMsg
+    Interaction.subscriptions model.interactionModel
+        |> Sub.map InteractionMsg
 
 
 main : Program Never Model Msg
