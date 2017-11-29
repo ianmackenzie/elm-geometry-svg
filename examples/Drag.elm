@@ -13,7 +13,7 @@ import Svg exposing (Svg)
 import Svg.Attributes
 
 
-type Target
+type TriangleTarget
     = Triangle
     | Vertex0
     | Vertex1
@@ -23,24 +23,36 @@ type Target
     | Edge2
 
 
+type Target
+    = Triangle1 TriangleTarget
+    | Triangle2 TriangleTarget
+
+
 type Msg
     = InteractionMsg (Interaction.Msg Target)
 
 
 type alias Model =
     { interactionModel : Interaction.Model Target
-    , triangle : Triangle2d
+    , triangle1 : Triangle2d
+    , triangle2 : Triangle2d
     }
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { interactionModel = Interaction.initWith [ Interaction.dragThreshold 5 ]
-      , triangle =
+      , triangle1 =
             Triangle2d.fromVertices
-                ( Point2d.fromCoordinates ( 200, 200 )
-                , Point2d.fromCoordinates ( 400, 200 )
-                , Point2d.fromCoordinates ( 200, 400 )
+                ( Point2d.fromCoordinates ( 100, 200 )
+                , Point2d.fromCoordinates ( 300, 200 )
+                , Point2d.fromCoordinates ( 100, 400 )
+                )
+      , triangle2 =
+            Triangle2d.fromVertices
+                ( Point2d.fromCoordinates ( 500, 400 )
+                , Point2d.fromCoordinates ( 300, 400 )
+                , Point2d.fromCoordinates ( 500, 200 )
                 )
       }
     , Cmd.none
@@ -60,27 +72,74 @@ boundingBox =
 view : Model -> Html Msg
 view model =
     let
-        ( p0, p1, p2 ) =
-            Triangle2d.vertices model.triangle
+        drawTriangle tag triangle =
+            let
+                ( p0, p1, p2 ) =
+                    Triangle2d.vertices triangle
 
-        edge0 =
-            LineSegment2d.from p0 p1
+                edge0 =
+                    LineSegment2d.from p0 p1
 
-        edge1 =
-            LineSegment2d.from p1 p2
+                edge1 =
+                    LineSegment2d.from p1 p2
 
-        edge2 =
-            LineSegment2d.from p2 p0
+                edge2 =
+                    LineSegment2d.from p2 p0
+            in
+            Svg.g []
+                [ Svg.triangle2d
+                    (triangleAttributes (tag Triangle) model)
+                    triangle
+                , Svg.lineSegment2d (edgeAttributes (tag Edge0) model) edge0
+                , Svg.lineSegment2d (edgeAttributes (tag Edge1) model) edge1
+                , Svg.lineSegment2d (edgeAttributes (tag Edge2) model) edge2
+                , Svg.point2d (pointOptions (tag Vertex0) model) p0
+                , Svg.point2d (pointOptions (tag Vertex1) model) p1
+                , Svg.point2d (pointOptions (tag Vertex2) model) p2
+                , Svg.g []
+                    [ Interaction.triangleHandle triangle
+                        { target = tag Triangle
+                        , padding = 10
+                        , renderBounds = boundingBox
+                        }
+                    , Interaction.lineSegmentHandle edge0
+                        { target = tag Edge0
+                        , padding = 10
+                        , renderBounds = boundingBox
+                        }
+                    , Interaction.lineSegmentHandle edge1
+                        { target = tag Edge1
+                        , padding = 10
+                        , renderBounds = boundingBox
+                        }
+                    , Interaction.lineSegmentHandle edge2
+                        { target = tag Edge2
+                        , padding = 10
+                        , renderBounds = boundingBox
+                        }
+                    , Interaction.pointHandle p0
+                        { target = tag Vertex0
+                        , radius = 10
+                        , renderBounds = boundingBox
+                        }
+                    , Interaction.pointHandle p1
+                        { target = tag Vertex1
+                        , radius = 10
+                        , renderBounds = boundingBox
+                        }
+                    , Interaction.pointHandle p2
+                        { target = tag Vertex2
+                        , radius = 10
+                        , renderBounds = boundingBox
+                        }
+                    ]
+                    |> Svg.map InteractionMsg
+                ]
     in
     Svg.render2d boundingBox <|
         Interaction.container InteractionMsg boundingBox <|
-            [ Svg.triangle2d (triangleAttributes model) model.triangle
-            , Svg.lineSegment2d (edgeAttributes Edge0 model) edge0
-            , Svg.lineSegment2d (edgeAttributes Edge1 model) edge1
-            , Svg.lineSegment2d (edgeAttributes Edge2 model) edge2
-            , Svg.point2d (pointOptions Vertex0 model) p0
-            , Svg.point2d (pointOptions Vertex1 model) p1
-            , Svg.point2d (pointOptions Vertex2 model) p2
+            [ drawTriangle Triangle1 model.triangle1
+            , drawTriangle Triangle2 model.triangle2
             , case Interaction.selectionBox model.interactionModel of
                 Just ( startPoint, endPoint, modifiers ) ->
                     Svg.boundingBox2d
@@ -91,44 +150,6 @@ view model =
 
                 Nothing ->
                     Svg.text ""
-            , Svg.g []
-                [ Interaction.triangleHandle model.triangle
-                    { target = Triangle
-                    , padding = 10
-                    , renderBounds = boundingBox
-                    }
-                , Interaction.lineSegmentHandle edge0
-                    { target = Edge0
-                    , padding = 10
-                    , renderBounds = boundingBox
-                    }
-                , Interaction.lineSegmentHandle edge1
-                    { target = Edge1
-                    , padding = 10
-                    , renderBounds = boundingBox
-                    }
-                , Interaction.lineSegmentHandle edge2
-                    { target = Edge2
-                    , padding = 10
-                    , renderBounds = boundingBox
-                    }
-                , Interaction.pointHandle p0
-                    { target = Vertex0
-                    , radius = 10
-                    , renderBounds = boundingBox
-                    }
-                , Interaction.pointHandle p1
-                    { target = Vertex1
-                    , radius = 10
-                    , renderBounds = boundingBox
-                    }
-                , Interaction.pointHandle p2
-                    { target = Vertex2
-                    , radius = 10
-                    , renderBounds = boundingBox
-                    }
-                ]
-                |> Svg.map InteractionMsg
             ]
 
 
@@ -138,11 +159,11 @@ isActive dragTarget model =
         || Interaction.isDragging dragTarget model.interactionModel
 
 
-triangleAttributes : Model -> List (Svg.Attribute Msg)
-triangleAttributes model =
+triangleAttributes : Target -> Model -> List (Svg.Attribute Msg)
+triangleAttributes dragTarget model =
     let
         fillColor =
-            if isActive Triangle model then
+            if isActive dragTarget model then
                 "rgb(63, 127, 255)"
             else
                 "white"
@@ -241,16 +262,17 @@ performDrag target startPoint endPoint modifiers model =
         displacement =
             Vector2d.from startPoint endPoint |> constrainBy modifiers
 
-        ( p0, p1, p2 ) =
-            Triangle2d.vertices model.triangle
-
         translatePoint =
             Point2d.translateBy displacement
 
-        updatedTriangle =
-            case target of
+        updateTriangle triangleTarget triangle =
+            let
+                ( p0, p1, p2 ) =
+                    Triangle2d.vertices triangle
+            in
+            case triangleTarget of
                 Triangle ->
-                    Triangle2d.translateBy displacement model.triangle
+                    Triangle2d.translateBy displacement triangle
 
                 Vertex0 ->
                     Triangle2d.fromVertices ( translatePoint p0, p1, p2 )
@@ -282,7 +304,16 @@ performDrag target startPoint endPoint modifiers model =
                         , translatePoint p2
                         )
     in
-    { model | triangle = updatedTriangle }
+    case target of
+        Triangle1 triangleTarget ->
+            { model
+                | triangle1 = updateTriangle triangleTarget model.triangle1
+            }
+
+        Triangle2 triangleTarget ->
+            { model
+                | triangle2 = updateTriangle triangleTarget model.triangle2
+            }
 
 
 noCmd : Model -> ( Model, Cmd Msg )
