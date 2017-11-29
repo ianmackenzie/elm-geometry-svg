@@ -40,7 +40,6 @@ import Svg.Events
 
 type alias Modifiers =
     { ctrl : Bool
-    , alt : Bool
     , shift : Bool
     }
 
@@ -123,9 +122,6 @@ keyDown code modifiers =
         17 ->
             { modifiers | ctrl = True }
 
-        18 ->
-            { modifiers | alt = True }
-
         _ ->
             modifiers
 
@@ -138,9 +134,6 @@ keyUp code modifiers =
 
         17 ->
             { modifiers | ctrl = False }
-
-        18 ->
-            { modifiers | alt = False }
 
         _ ->
             modifiers
@@ -398,9 +391,8 @@ type alias Start =
 
 decodeModifiers : Decoder Modifiers
 decodeModifiers =
-    Decode.map3 Modifiers
+    Decode.map2 Modifiers
         (Decode.field "ctrlKey" Decode.bool)
-        (Decode.field "altKey" Decode.bool)
         (Decode.field "shiftKey" Decode.bool)
 
 
