@@ -346,8 +346,8 @@ subscriptions (Model { state, justFinishedDrag }) =
                 toDragEvent { x, y } =
                     DraggedTo <|
                         Point2d.fromCoordinates
-                            ( x0 + toFloat x
-                            , y0 - toFloat y
+                            ( x0 + toFloat x + 0.5
+                            , y0 - toFloat y - 0.5
                             )
             in
             Sub.batch
@@ -412,20 +412,23 @@ decodeMouseDown target renderBounds =
         |> Decode.map
             (\{ clientX, clientY, pageX, pageY, modifiers } ->
                 let
+                    { minX, maxY } =
+                        BoundingBox2d.extrema renderBounds
+
                     x =
-                        BoundingBox2d.minX renderBounds + clientX
+                        minX + clientX + 0.5
 
                     y =
-                        BoundingBox2d.maxY renderBounds - clientY
+                        maxY - clientY - 0.5
 
                     point =
                         Point2d.fromCoordinates ( x, y )
 
                     x0 =
-                        x - pageX
+                        minX + clientX - pageX
 
                     y0 =
-                        y + pageY
+                        maxY - clientY + pageY
 
                     pageOrigin =
                         Point2d.fromCoordinates ( x0, y0 )
