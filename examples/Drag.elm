@@ -36,6 +36,7 @@ type alias Model =
     { interactionModel : Interaction.Model Target
     , triangle1 : Triangle2d
     , triangle2 : Triangle2d
+    , selectedVertices : List Target
     }
 
 
@@ -54,6 +55,7 @@ init =
                 , Point2d.fromCoordinates ( 300, 400 )
                 , Point2d.fromCoordinates ( 500, 200 )
                 )
+      , selectedVertices = []
       }
     , Cmd.none
     )
@@ -157,6 +159,7 @@ isActive : Target -> Model -> Bool
 isActive dragTarget model =
     Interaction.isHovering dragTarget model.interactionModel
         || Interaction.isDragging dragTarget model.interactionModel
+        || List.member dragTarget model.selectedVertices
 
 
 triangleAttributes : Target -> Model -> List (Svg.Attribute Msg)
@@ -229,30 +232,106 @@ setInteractionModel updatedInteractionModel model =
     { model | interactionModel = updatedInteractionModel }
 
 
+setSelectedVertices : List Target -> Model -> Model
+setSelectedVertices updatedSelectedVertices model =
+    { model | selectedVertices = updatedSelectedVertices }
+
+
+isVertex : Target -> Bool
+isVertex target =
+    let
+        isTriangleVertex t =
+            t == Vertex0 || t == Vertex1 || t == Vertex2
+    in
+    case target of
+        Triangle1 target ->
+            isTriangleVertex target
+
+        Triangle2 target ->
+            isTriangleVertex target
+
+
+verticesIn : BoundingBox2d -> (TriangleTarget -> Target) -> Triangle2d -> List Target
+verticesIn boundingBox tag triangle =
+    let
+        ( p0, p1, p2 ) =
+            Triangle2d.vertices triangle
+
+        vertexTarget triangleTarget point =
+            if BoundingBox2d.contains point boundingBox then
+                Just triangleTarget
+            else
+                Nothing
+    in
+    List.filterMap identity
+        [ vertexTarget (tag Vertex0) p0
+        , vertexTarget (tag Vertex1) p1
+        , vertexTarget (tag Vertex2) p2
+        ]
+
+
 handleInteraction : Maybe (Interaction Target) -> Model -> Model
 handleInteraction interaction model =
     case interaction of
         Nothing ->
             model
 
-        Just (Interaction.Drag Nothing _ _) ->
-            model
+        Just (Interaction.Drag Nothing { startPoint, currentPoint } modifiers) ->
+            let
+                boundingBox =
+                    Point2d.hull startPoint currentPoint
+
+                targets =
+                    verticesIn boundingBox Triangle1 model.triangle1
+                        ++ verticesIn boundingBox Triangle2 model.triangle2
+            in
+            setSelectedVertices targets model
 
         Just (Interaction.Drag (Just target) { previousPoint, currentPoint } modifiers) ->
-            performDrag target previousPoint currentPoint modifiers model
+            if List.member target model.selectedVertices then
+                let
+                    applyDrag selectedVertex model =
+                        performDrag selectedVertex
+                            previousPoint
+                            currentPoint
+                            modifiers
+                            model
+                in
+                List.foldl applyDrag model model.selectedVertices
+            else
+                performDrag target previousPoint currentPoint modifiers model
+                    |> setSelectedVertices []
 
-        Just (Interaction.Click target modifiers) ->
+        Just (Interaction.Click Nothing modifiers) ->
+            if modifiers.ctrl || modifiers.shift then
+                model
+            else
+                { model | selectedVertices = [] }
+
+        Just (Interaction.Click (Just target) modifiers) ->
             let
-                _ =
-                    Debug.log "Clicked" target
+                newSelectedVertices =
+                    if isVertex target then
+                        if modifiers.shift then
+                            if List.member target model.selectedVertices then
+                                model.selectedVertices
+                            else
+                                target :: model.selectedVertices
+                        else if modifiers.ctrl then
+                            if List.member target model.selectedVertices then
+                                List.filter ((/=) target) model.selectedVertices
+                            else
+                                target :: model.selectedVertices
+                        else
+                            [ target ]
+                    else if modifiers.ctrl || modifiers.shift then
+                        model.selectedVertices
+                    else
+                        []
             in
-            model
+            { model | selectedVertices = newSelectedVertices }
 
         Just (Interaction.Release target _ modifiers) ->
-            let
-                _ =
-                    Debug.log "Released" target
-            in
             model
 
 
