@@ -35,7 +35,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { interactionModel = Interaction.init
+    ( { interactionModel = Interaction.initWith [ Interaction.dragThreshold 5 ]
       , triangle =
             Triangle2d.fromVertices
                 ( Point2d.fromCoordinates ( 200, 200 )
