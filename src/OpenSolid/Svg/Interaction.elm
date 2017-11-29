@@ -7,6 +7,8 @@ module OpenSolid.Svg.Interaction
         , container
         , customHandle
         , directionTipHandle
+        , dragTarget
+        , hoverTarget
         , init
         , isDragging
         , isHovering
@@ -548,29 +550,39 @@ directionTipHandle basePoint direction { length, tipLength, tipWidth, padding, t
 
 
 isHovering : t -> Model t -> Bool
-isHovering target (Model { state }) =
-    case state of
-        Resting ->
-            False
-
-        Hovering hoverTarget ->
-            target == hoverTarget
-
-        Dragging _ ->
-            False
+isHovering target model =
+    hoverTarget model == Just target
 
 
 isDragging : t -> Model t -> Bool
-isDragging target (Model { state }) =
+isDragging target model =
+    dragTarget model == Just target
+
+
+hoverTarget : Model t -> Maybe t
+hoverTarget (Model { state }) =
     case state of
         Resting ->
-            False
+            Nothing
+
+        Hovering target ->
+            Just target
+
+        Dragging _ ->
+            Nothing
+
+
+dragTarget : Model t -> Maybe t
+dragTarget (Model { state }) =
+    case state of
+        Resting ->
+            Nothing
 
         Hovering _ ->
-            False
+            Nothing
 
-        Dragging properties ->
-            properties.target == Just target
+        Dragging { target } ->
+            target
 
 
 selectionBox : Model t -> Maybe ( Point2d, Point2d, Modifiers )
