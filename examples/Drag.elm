@@ -214,8 +214,11 @@ handleInteraction interaction model =
         Nothing ->
             model
 
-        Just (Interaction.Drag target startPoint endPoint modifiers) ->
-            performDrag target startPoint endPoint modifiers model
+        Just (Interaction.Drag Nothing _ _) ->
+            model
+
+        Just (Interaction.Drag (Just target) { previousPoint, currentPoint } modifiers) ->
+            performDrag target previousPoint currentPoint modifiers model
 
         Just (Interaction.Click target modifiers) ->
             let
@@ -224,17 +227,10 @@ handleInteraction interaction model =
             in
             model
 
-        Just (Interaction.Release target) ->
+        Just (Interaction.Release target _ modifiers) ->
             let
                 _ =
                     Debug.log "Released" target
-            in
-            model
-
-        Just (Interaction.BoxSelect startPoint endPoint modifiers) ->
-            let
-                _ =
-                    Debug.log "Box select" modifiers
             in
             model
 
