@@ -4,12 +4,15 @@ module OpenSolid.Svg.Interaction
         , Model
         , Modifiers
         , Msg
+        , Option
         , container
         , customHandle
         , directionTipHandle
         , dragTarget
+        , dragThreshold
         , hoverTarget
         , init
+        , initWith
         , isDragging
         , isHovering
         , lineSegmentHandle
@@ -68,6 +71,10 @@ type Model t
         }
 
 
+type Option
+    = DragThreshold Float
+
+
 type alias DragState t =
     { target : Maybe t
     , startPoint : Point2d
@@ -100,8 +107,31 @@ type Interaction t
 
 init : Model t
 init =
+    initWith []
+
+
+dragThreshold : Float -> Option
+dragThreshold =
+    DragThreshold
+
+
+initWith : List Option -> Model t
+initWith options =
+    let
+        defaultConfig =
+            { dragThreshold = 0
+            }
+
+        setOption option config =
+            case option of
+                DragThreshold value ->
+                    { config | dragThreshold = value }
+
+        config =
+            List.foldl setOption defaultConfig options
+    in
     Model
-        { config = { dragThreshold = 0 }
+        { config = config
         , state = Resting
         , justFinishedDrag = False
         }
