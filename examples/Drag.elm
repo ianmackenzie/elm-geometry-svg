@@ -84,8 +84,8 @@ view model =
             , case Interaction.selectionBox model.interactionModel of
                 Just ( startPoint, endPoint, modifiers ) ->
                     Svg.boundingBox2d
-                        [ Svg.Attributes.fill "none"
-                        , Svg.Attributes.stroke "black"
+                        [ Svg.Attributes.fill "rgba(0, 63, 255, 0.1)"
+                        , Svg.Attributes.stroke "blue"
                         ]
                         (Point2d.hull startPoint endPoint)
 
