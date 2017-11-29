@@ -86,12 +86,13 @@ type alias DragState t =
 type Msg t
     = Entered t
     | Left t
-    | MouseDown
+    | PrimaryMouseDown
         { target : Maybe t
         , point : Point2d
         , pageOrigin : Point2d
         , modifiers : Modifiers
         }
+    | OtherMouseDown Point2d
     | DraggedTo Point2d
     | MouseUp Point2d
     | KeyDown Int
@@ -211,7 +212,7 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
         ( Resting, Entered target ) ->
             ( setState (Hovering target), Nothing )
 
-        ( Resting, MouseDown { target, point, pageOrigin, modifiers } ) ->
+        ( Resting, PrimaryMouseDown { target, point, pageOrigin, modifiers } ) ->
             case target of
                 Nothing ->
                     ( setState <|
@@ -230,6 +231,9 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                 Just dragTarget ->
                     unexpected ()
 
+        ( Resting, OtherMouseDown _ ) ->
+            ( model, Nothing )
+
         ( Resting, DraggedTo _ ) ->
             if justFinishedDrag then
                 ( Model
@@ -242,7 +246,7 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
             else
                 unexpected ()
 
-        ( Hovering hoverTarget, MouseDown { target, point, pageOrigin, modifiers } ) ->
+        ( Hovering hoverTarget, PrimaryMouseDown { target, point, pageOrigin, modifiers } ) ->
             if target == Just hoverTarget then
                 ( setState <|
                     Dragging
@@ -258,6 +262,9 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                 )
             else
                 unexpected ()
+
+        ( Hovering _, OtherMouseDown _ ) ->
+            ( model, Nothing )
 
         ( Hovering hoverTarget, Left previousTarget ) ->
             if previousTarget == hoverTarget then
@@ -322,19 +329,50 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                     interaction =
                         if dragStarted then
                             Release target
-                                { startPoint = startPoint
-                                , endPoint = point
-                                }
+                                { startPoint = startPoint, endPoint = point }
                                 modifiers
                         else
                             Click target modifiers
-                in
-                case hoverTarget of
-                    Nothing ->
-                        ( finishDrag Resting, Just interaction )
 
-                    Just hoverTarget ->
-                        ( finishDrag (Hovering hoverTarget), Just interaction )
+                    updatedState =
+                        case hoverTarget of
+                            Nothing ->
+                                Resting
+
+                            Just hoverTarget ->
+                                Hovering hoverTarget
+                in
+                ( finishDrag updatedState, Just interaction )
+            else
+                unexpected ()
+
+        ( Dragging properties, OtherMouseDown point ) ->
+            let
+                { target, hoverTarget, startPoint, currentPoint, modifiers, dragStarted } =
+                    properties
+            in
+            if point == currentPoint || not dragStarted then
+                let
+                    interaction =
+                        if dragStarted then
+                            Just <|
+                                Release target
+                                    { startPoint = startPoint
+                                    , endPoint = point
+                                    }
+                                    modifiers
+                        else
+                            Nothing
+
+                    updatedState =
+                        case hoverTarget of
+                            Nothing ->
+                                Resting
+
+                            Just hoverTarget ->
+                                Hovering hoverTarget
+                in
+                ( finishDrag updatedState, interaction )
             else
                 unexpected ()
 
@@ -397,6 +435,13 @@ subscriptions (Model { state, justFinishedDrag }) =
             Sub.batch
                 [ Mouse.moves (toPoint >> DraggedTo)
                 , Mouse.ups (toPoint >> MouseUp)
+
+                -- We should only be in a dragging state if the primary button
+                -- is down, so any further mouse downs must be non-primary
+                -- buttons
+                , Mouse.downs (toPoint >> OtherMouseDown)
+
+                -- Track key ups/downs to keep track of modifier state
                 , Keyboard.ups KeyUp
                 , Keyboard.downs KeyDown
                 ]
@@ -429,6 +474,7 @@ type alias EventProperties =
     , clientY : Float
     , pageX : Float
     , pageY : Float
+    , button : Int
     , modifiers : Modifiers
     }
 
@@ -442,11 +488,12 @@ decodeModifiers =
 
 decodeEventProperties : Decoder EventProperties
 decodeEventProperties =
-    Decode.map5 EventProperties
+    Decode.map6 EventProperties
         (Decode.field "clientX" Decode.float)
         (Decode.field "clientY" Decode.float)
         (Decode.field "pageX" Decode.float)
         (Decode.field "pageY" Decode.float)
+        (Decode.field "button" Decode.int)
         decodeModifiers
 
 
@@ -454,7 +501,7 @@ decodeMouseDown : Maybe t -> BoundingBox2d -> Decoder (Msg t)
 decodeMouseDown target renderBounds =
     decodeEventProperties
         |> Decode.map
-            (\{ clientX, clientY, pageX, pageY, modifiers } ->
+            (\{ clientX, clientY, pageX, pageY, button, modifiers } ->
                 let
                     { minX, maxY } =
                         BoundingBox2d.extrema renderBounds
@@ -477,12 +524,15 @@ decodeMouseDown target renderBounds =
                     pageOrigin =
                         Point2d.fromCoordinates ( x0, y0 )
                 in
-                MouseDown
-                    { target = target
-                    , point = point
-                    , pageOrigin = pageOrigin
-                    , modifiers = modifiers
-                    }
+                if button == 0 then
+                    PrimaryMouseDown
+                        { target = target
+                        , point = point
+                        , pageOrigin = pageOrigin
+                        , modifiers = modifiers
+                        }
+                else
+                    OtherMouseDown point
             )
 
 
