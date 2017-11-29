@@ -424,7 +424,7 @@ container tagger renderBounds children =
     Svg.g [ onMouseDown ] (background :: children)
 
 
-type alias Start =
+type alias EventProperties =
     { clientX : Float
     , clientY : Float
     , pageX : Float
@@ -440,9 +440,9 @@ decodeModifiers =
         (Decode.field "shiftKey" Decode.bool)
 
 
-decodeStart : Decoder Start
-decodeStart =
-    Decode.map5 Start
+decodeEventProperties : Decoder EventProperties
+decodeEventProperties =
+    Decode.map5 EventProperties
         (Decode.field "clientX" Decode.float)
         (Decode.field "clientY" Decode.float)
         (Decode.field "pageX" Decode.float)
@@ -452,7 +452,7 @@ decodeStart =
 
 decodeMouseDown : Maybe t -> BoundingBox2d -> Decoder (Msg t)
 decodeMouseDown target renderBounds =
-    decodeStart
+    decodeEventProperties
         |> Decode.map
             (\{ clientX, clientY, pageX, pageY, modifiers } ->
                 let
