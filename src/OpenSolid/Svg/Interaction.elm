@@ -54,7 +54,7 @@ type State t
         , hoverTarget : Maybe t
         , startPoint : Point2d
         , dragStarted : Bool
-        , lastPoint : Point2d
+        , currentPoint : Point2d
         , pageOrigin : Point2d
         , modifiers : Modifiers
         }
@@ -68,6 +68,14 @@ type Model t
         }
 
 
+type alias DragState t =
+    { target : Maybe t
+    , startPoint : Point2d
+    , currentPoint : Point2d
+    , modifiers : Modifiers
+    }
+
+
 type Msg t
     = Entered t
     | Left t
@@ -78,7 +86,7 @@ type Msg t
         , modifiers : Modifiers
         }
     | DraggedTo Point2d
-    | MouseUp
+    | MouseUp Point2d
     | KeyDown Int
     | KeyUp Int
     | Tick
@@ -86,9 +94,8 @@ type Msg t
 
 type Interaction t
     = Click (Maybe t) Modifiers
-    | Drag t Point2d Point2d Modifiers
-    | Release t
-    | BoxSelect Point2d Point2d Modifiers
+    | Drag (Maybe t) { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d } Modifiers
+    | Release (Maybe t) { startPoint : Point2d, endPoint : Point2d } Modifiers
 
 
 init : Model t
@@ -182,7 +189,7 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                             { target = Nothing
                             , hoverTarget = Nothing
                             , startPoint = point
-                            , lastPoint = point
+                            , currentPoint = point
                             , dragStarted = False
                             , pageOrigin = pageOrigin
                             , modifiers = modifiers
@@ -212,7 +219,7 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                         { target = target
                         , hoverTarget = target
                         , startPoint = point
-                        , lastPoint = point
+                        , currentPoint = point
                         , dragStarted = False
                         , pageOrigin = pageOrigin
                         , modifiers = modifiers
@@ -275,52 +282,58 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
             , Nothing
             )
 
-        ( Dragging properties, MouseUp ) ->
+        ( Dragging properties, MouseUp point ) ->
             let
-                { target, hoverTarget, startPoint, lastPoint, modifiers, dragStarted } =
+                { target, hoverTarget, startPoint, currentPoint, modifiers, dragStarted } =
                     properties
-
-                interaction =
-                    if dragStarted then
-                        case target of
-                            Just dragTarget ->
-                                Release dragTarget
-
-                            Nothing ->
-                                BoxSelect startPoint lastPoint modifiers
-                    else
-                        Click target modifiers
             in
-            case hoverTarget of
-                Nothing ->
-                    ( finishDrag Resting, Just interaction )
-
-                Just hoverTarget ->
-                    ( finishDrag (Hovering hoverTarget), Just interaction )
-
-        ( Dragging properties, DraggedTo point ) ->
-            let
-                { target, modifiers, startPoint, lastPoint } =
-                    properties
-
-                dragDistance =
-                    Point2d.distanceFrom startPoint point
-            in
-            if dragDistance > config.dragThreshold then
-                case target of
-                    Just dragTarget ->
-                        ( setState <|
-                            Dragging
-                                { properties | lastPoint = point, dragStarted = True }
-                        , Just (Drag dragTarget lastPoint point modifiers)
-                        )
-
+            if point == currentPoint || not dragStarted then
+                let
+                    interaction =
+                        if dragStarted then
+                            Release target
+                                { startPoint = startPoint
+                                , endPoint = point
+                                }
+                                modifiers
+                        else
+                            Click target modifiers
+                in
+                case hoverTarget of
                     Nothing ->
-                        ( setState <|
-                            Dragging
-                                { properties | lastPoint = point, dragStarted = True }
-                        , Just (BoxSelect lastPoint point modifiers)
-                        )
+                        ( finishDrag Resting, Just interaction )
+
+                    Just hoverTarget ->
+                        ( finishDrag (Hovering hoverTarget), Just interaction )
+            else
+                unexpected ()
+
+        ( Dragging properties, DraggedTo newPoint ) ->
+            let
+                { target, modifiers, startPoint } =
+                    properties
+
+                dragStarted =
+                    properties.dragStarted
+                        || (Point2d.distanceFrom startPoint newPoint
+                                > config.dragThreshold
+                           )
+            in
+            if dragStarted then
+                ( setState <|
+                    Dragging
+                        { properties
+                            | currentPoint = newPoint
+                            , dragStarted = True
+                        }
+                , Just <|
+                    Drag target
+                        { startPoint = startPoint
+                        , previousPoint = properties.currentPoint
+                        , currentPoint = newPoint
+                        }
+                        modifiers
+                )
             else
                 ( model, Nothing )
 
@@ -345,16 +358,15 @@ subscriptions (Model { state, justFinishedDrag }) =
                 ( x0, y0 ) =
                     Point2d.coordinates pageOrigin
 
-                toDragEvent { x, y } =
-                    DraggedTo <|
-                        Point2d.fromCoordinates
-                            ( x0 + toFloat x + 0.5
-                            , y0 - toFloat y - 0.5
-                            )
+                toPoint { x, y } =
+                    Point2d.fromCoordinates
+                        ( x0 + toFloat x + 0.5
+                        , y0 - toFloat y - 0.5
+                        )
             in
             Sub.batch
-                [ Mouse.moves toDragEvent
-                , Mouse.ups (always MouseUp)
+                [ Mouse.moves (toPoint >> DraggedTo)
+                , Mouse.ups (toPoint >> MouseUp)
                 , Keyboard.ups KeyUp
                 , Keyboard.downs KeyDown
                 ]
@@ -594,13 +606,34 @@ selectionBox (Model { state }) =
         Hovering _ ->
             Nothing
 
-        Dragging { target, dragStarted, startPoint, lastPoint, modifiers } ->
+        Dragging { target, dragStarted, startPoint, currentPoint, modifiers } ->
             case target of
                 Just dragTarget ->
                     Nothing
 
                 Nothing ->
                     if dragStarted then
-                        Just ( startPoint, lastPoint, modifiers )
+                        Just ( startPoint, currentPoint, modifiers )
                     else
                         Nothing
+
+
+dragState : Model t -> Maybe (DragState t)
+dragState (Model { state }) =
+    case state of
+        Resting ->
+            Nothing
+
+        Hovering _ ->
+            Nothing
+
+        Dragging { target, dragStarted, startPoint, currentPoint, modifiers } ->
+            if dragStarted then
+                Just <|
+                    { target = target
+                    , startPoint = startPoint
+                    , currentPoint = currentPoint
+                    , modifiers = modifiers
+                    }
+            else
+                Nothing
