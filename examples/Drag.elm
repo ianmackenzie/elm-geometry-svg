@@ -276,7 +276,7 @@ handleInteraction interaction model =
         Nothing ->
             model
 
-        Just (Interaction.Drag Nothing { startPoint, currentPoint } modifiers) ->
+        Just (Interaction.Drag Nothing modifiers { startPoint, currentPoint }) ->
             let
                 boundingBox =
                     Point2d.hull startPoint currentPoint
@@ -287,7 +287,7 @@ handleInteraction interaction model =
             in
             setSelectedVertices targets model
 
-        Just (Interaction.Drag (Just target) { previousPoint, currentPoint } modifiers) ->
+        Just (Interaction.Drag (Just target) modifiers { previousPoint, currentPoint }) ->
             if List.member target model.selectedVertices then
                 let
                     applyDrag selectedVertex model =

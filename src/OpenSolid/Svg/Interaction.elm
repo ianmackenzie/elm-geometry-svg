@@ -102,8 +102,8 @@ type Msg t
 
 type Interaction t
     = Click (Maybe t) Modifiers
-    | Drag (Maybe t) { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d } Modifiers
-    | Release (Maybe t) { startPoint : Point2d, endPoint : Point2d } Modifiers
+    | Drag (Maybe t) Modifiers { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
+    | Release (Maybe t) Modifiers { startPoint : Point2d, endPoint : Point2d }
 
 
 init : Model t
@@ -328,9 +328,10 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                 let
                     interaction =
                         if dragStarted then
-                            Release target
-                                { startPoint = startPoint, endPoint = point }
-                                modifiers
+                            Release target modifiers <|
+                                { startPoint = startPoint
+                                , endPoint = point
+                                }
                         else
                             Click target modifiers
 
@@ -356,11 +357,10 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                     interaction =
                         if dragStarted then
                             Just <|
-                                Release target
+                                Release target modifiers <|
                                     { startPoint = startPoint
                                     , endPoint = point
                                     }
-                                    modifiers
                         else
                             Nothing
 
@@ -395,12 +395,11 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                             , dragStarted = True
                         }
                 , Just <|
-                    Drag target
+                    Drag target modifiers <|
                         { startPoint = startPoint
                         , previousPoint = properties.currentPoint
                         , currentPoint = newPoint
                         }
-                        modifiers
                 )
             else
                 ( model, Nothing )
