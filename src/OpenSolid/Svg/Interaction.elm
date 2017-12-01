@@ -49,7 +49,7 @@ type alias Modifiers =
     }
 
 
-type State t
+type MouseState t
     = Resting
     | Hovering t
     | Dragging
@@ -66,7 +66,7 @@ type State t
 type Model t
     = Model
         { config : { dragThreshold : Float }
-        , state : State t
+        , mouseState : MouseState t
         , justFinishedDrag : Bool
         }
 
@@ -100,10 +100,17 @@ type Msg t
     | Tick
 
 
+type Touch t
+    = Touch Int (Maybe t) { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
+
+
 type Interaction t
     = Click (Maybe t) Modifiers
     | Drag (Maybe t) Modifiers { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
     | Release (Maybe t) Modifiers { startPoint : Point2d, endPoint : Point2d }
+    | Tap (List (Maybe t))
+    | Press (List (Maybe t))
+    | Gesture (List (Touch t))
 
 
 init : Model t
@@ -133,7 +140,7 @@ initWith options =
     in
     Model
         { config = config
-        , state = Resting
+        , mouseState = Resting
         , justFinishedDrag = False
         }
 
@@ -180,13 +187,13 @@ keyUp code modifiers =
 
 
 update : Msg t -> Model t -> ( Model t, Maybe (Interaction t) )
-update message ((Model { config, state, justFinishedDrag }) as model) =
+update message ((Model { config, mouseState, justFinishedDrag }) as model) =
     let
-        unexpected () =
+        unexpectedMouseEvent () =
             let
                 _ =
-                    Debug.log "Unexpected state/message combination"
-                        ( state, message )
+                    Debug.log "Unexpected mouse state/message combination"
+                        ( mouseState, message )
 
                 _ =
                     Debug.log "Please raise an issue at"
@@ -194,28 +201,28 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
             in
             ( model, Nothing )
 
-        setState updatedState =
+        setMouseState updatedMouseState =
             Model
                 { config = config
-                , state = updatedState
+                , mouseState = updatedMouseState
                 , justFinishedDrag = justFinishedDrag
                 }
 
-        finishDrag updatedState =
+        finishDrag updatedMouseState =
             Model
                 { config = config
-                , state = updatedState
+                , mouseState = updatedMouseState
                 , justFinishedDrag = True
                 }
     in
-    case ( state, message ) of
+    case ( mouseState, message ) of
         ( Resting, Entered target ) ->
-            ( setState (Hovering target), Nothing )
+            ( setMouseState (Hovering target), Nothing )
 
         ( Resting, PrimaryMouseDown { target, point, pageOrigin, modifiers } ) ->
             case target of
                 Nothing ->
-                    ( setState <|
+                    ( setMouseState <|
                         Dragging
                             { target = Nothing
                             , hoverTarget = Nothing
@@ -229,7 +236,7 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                     )
 
                 Just dragTarget ->
-                    unexpected ()
+                    unexpectedMouseEvent ()
 
         ( Resting, OtherMouseDown _ ) ->
             ( model, Nothing )
@@ -238,17 +245,17 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
             if justFinishedDrag then
                 ( Model
                     { config = config
-                    , state = state
+                    , mouseState = mouseState
                     , justFinishedDrag = False
                     }
                 , Nothing
                 )
             else
-                unexpected ()
+                unexpectedMouseEvent ()
 
         ( Hovering hoverTarget, PrimaryMouseDown { target, point, pageOrigin, modifiers } ) ->
             if target == Just hoverTarget then
-                ( setState <|
+                ( setMouseState <|
                     Dragging
                         { target = target
                         , hoverTarget = target
@@ -261,52 +268,54 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                 , Nothing
                 )
             else
-                unexpected ()
+                unexpectedMouseEvent ()
 
         ( Hovering _, OtherMouseDown _ ) ->
             ( model, Nothing )
 
         ( Hovering hoverTarget, Left previousTarget ) ->
             if previousTarget == hoverTarget then
-                ( setState Resting, Nothing )
+                ( setMouseState Resting, Nothing )
             else
-                unexpected ()
+                unexpectedMouseEvent ()
 
         ( Hovering _, DraggedTo _ ) ->
             if justFinishedDrag then
                 ( Model
                     { config = config
-                    , state = state
+                    , mouseState = mouseState
                     , justFinishedDrag = False
                     }
                 , Nothing
                 )
             else
-                unexpected ()
+                unexpectedMouseEvent ()
 
         ( Dragging properties, Entered hoverTarget ) ->
             if properties.hoverTarget == Nothing then
-                ( setState <|
+                ( setMouseState <|
                     Dragging { properties | hoverTarget = Just hoverTarget }
                 , Nothing
                 )
             else
-                unexpected ()
+                unexpectedMouseEvent ()
 
         ( Dragging properties, Left hoverTarget ) ->
             if properties.hoverTarget == Just hoverTarget then
-                ( setState (Dragging { properties | hoverTarget = Nothing })
+                ( setMouseState <|
+                    Dragging { properties | hoverTarget = Nothing }
                 , Nothing
                 )
             else
-                unexpected ()
+                unexpectedMouseEvent ()
 
         ( Dragging properties, KeyDown code ) ->
             let
                 updatedModifiers =
                     keyDown code properties.modifiers
             in
-            ( setState (Dragging { properties | modifiers = updatedModifiers })
+            ( setMouseState <|
+                Dragging { properties | modifiers = updatedModifiers }
             , Nothing
             )
 
@@ -315,7 +324,8 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                 updatedModifiers =
                     keyUp code properties.modifiers
             in
-            ( setState (Dragging { properties | modifiers = updatedModifiers })
+            ( setMouseState <|
+                Dragging { properties | modifiers = updatedModifiers }
             , Nothing
             )
 
@@ -345,7 +355,7 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                 in
                 ( finishDrag updatedState, Just interaction )
             else
-                unexpected ()
+                unexpectedMouseEvent ()
 
         ( Dragging properties, OtherMouseDown point ) ->
             let
@@ -374,7 +384,7 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                 in
                 ( finishDrag updatedState, interaction )
             else
-                unexpected ()
+                unexpectedMouseEvent ()
 
         ( Dragging properties, DraggedTo newPoint ) ->
             let
@@ -388,7 +398,7 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
                            )
             in
             if dragStarted then
-                ( setState <|
+                ( setMouseState <|
                     Dragging
                         { properties
                             | currentPoint = newPoint
@@ -407,19 +417,19 @@ update message ((Model { config, state, justFinishedDrag }) as model) =
         ( _, Tick ) ->
             ( Model
                 { config = config
-                , state = state
+                , mouseState = mouseState
                 , justFinishedDrag = False
                 }
             , Nothing
             )
 
         _ ->
-            unexpected ()
+            unexpectedMouseEvent ()
 
 
 subscriptions : Model t -> Sub (Msg t)
-subscriptions (Model { state, justFinishedDrag }) =
-    case state of
+subscriptions (Model { mouseState, justFinishedDrag }) =
+    case mouseState of
         Dragging { pageOrigin } ->
             let
                 ( x0, y0 ) =
@@ -468,7 +478,7 @@ container tagger renderBounds children =
     Svg.g [ onMouseDown ] (background :: children)
 
 
-type alias EventProperties =
+type alias MouseDownEvent =
     { clientX : Float
     , clientY : Float
     , pageX : Float
@@ -485,9 +495,9 @@ decodeModifiers =
         (Decode.field "shiftKey" Decode.bool)
 
 
-decodeEventProperties : Decoder EventProperties
-decodeEventProperties =
-    Decode.map6 EventProperties
+decodeMouseDownEvent : Decoder MouseDownEvent
+decodeMouseDownEvent =
+    Decode.map6 MouseDownEvent
         (Decode.field "clientX" Decode.float)
         (Decode.field "clientY" Decode.float)
         (Decode.field "pageX" Decode.float)
@@ -498,7 +508,7 @@ decodeEventProperties =
 
 decodeMouseDown : Maybe t -> BoundingBox2d -> Decoder (Msg t)
 decodeMouseDown target renderBounds =
-    decodeEventProperties
+    decodeMouseDownEvent
         |> Decode.map
             (\{ clientX, clientY, pageX, pageY, button, modifiers } ->
                 let
@@ -651,8 +661,8 @@ isDragging target model =
 
 
 hoverTarget : Model t -> Maybe t
-hoverTarget (Model { state }) =
-    case state of
+hoverTarget (Model { mouseState }) =
+    case mouseState of
         Resting ->
             Nothing
 
@@ -664,8 +674,8 @@ hoverTarget (Model { state }) =
 
 
 dragTarget : Model t -> Maybe t
-dragTarget (Model { state }) =
-    case state of
+dragTarget (Model { mouseState }) =
+    case mouseState of
         Resting ->
             Nothing
 
@@ -677,8 +687,8 @@ dragTarget (Model { state }) =
 
 
 selectionBox : Model t -> Maybe ( Point2d, Point2d, Modifiers )
-selectionBox (Model { state }) =
-    case state of
+selectionBox (Model { mouseState }) =
+    case mouseState of
         Resting ->
             Nothing
 
@@ -698,8 +708,8 @@ selectionBox (Model { state }) =
 
 
 dragState : Model t -> Maybe (DragState t)
-dragState (Model { state }) =
-    case state of
+dragState (Model { mouseState }) =
+    case mouseState of
         Resting ->
             Nothing
 

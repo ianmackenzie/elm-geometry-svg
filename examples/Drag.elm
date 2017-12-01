@@ -346,6 +346,27 @@ handleInteraction interaction model =
         Just (Interaction.Release target _ modifiers) ->
             model
 
+        Just (Interaction.Tap targets) ->
+            let
+                _ =
+                    Debug.log "Tapped" targets
+            in
+            model
+
+        Just (Interaction.Press targets) ->
+            let
+                _ =
+                    Debug.log "Pressed" targets
+            in
+            model
+
+        Just (Interaction.Gesture touches) ->
+            let
+                _ =
+                    Debug.log "Gesture" touches
+            in
+            model
+
 
 performDrag : Target -> Point2d -> Point2d -> Interaction.Modifiers -> Model -> Model
 performDrag (TriangleTarget { triangleIndex, component }) startPoint endPoint modifiers model =
