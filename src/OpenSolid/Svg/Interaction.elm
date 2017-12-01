@@ -65,6 +65,21 @@ type MouseState t
         }
 
 
+type TouchProgress
+    = Tapping Float
+    | LongPressed
+    | Gesturing
+
+
+type alias ActiveTouch t =
+    { identifier : Int
+    , target : Maybe t
+    , startPoint : Point2d
+    , currentPoint : Point2d
+    , progress : TouchProgress
+    }
+
+
 type Model t
     = Model
         { config :
@@ -73,6 +88,7 @@ type Model t
             }
         , mouseState : MouseState t
         , justFinishedDrag : Bool
+        , touchState : List (ActiveTouch t)
         }
 
 
@@ -89,7 +105,7 @@ type alias DragState t =
     }
 
 
-type Msg t
+type MouseMsg t
     = Entered t
     | Left t
     | PrimaryMouseDown
@@ -103,11 +119,16 @@ type Msg t
     | MouseUp Point2d
     | KeyDown Int
     | KeyUp Int
-    | Tick
+    | FinalizeDrag
+
+
+type Msg t
+    = MouseMsg (MouseMsg t)
+    | Tick Time
 
 
 type Touch t
-    = Touch Int (Maybe t) { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
+    = Touch (Maybe t) { identifier : Int, startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
 
 
 type Interaction t
@@ -157,6 +178,7 @@ modelWith options =
         { config = config
         , mouseState = Resting
         , justFinishedDrag = False
+        , touchState = []
         }
 
 
@@ -201,9 +223,12 @@ keyUp code modifiers =
             modifiers
 
 
-update : Msg t -> Model t -> ( Model t, Maybe (Interaction t) )
-update message ((Model { config, mouseState, justFinishedDrag }) as model) =
+handleMouseMessage : MouseMsg t -> Model t -> ( Model t, Maybe (Interaction t) )
+handleMouseMessage message ((Model modelProperties) as model) =
     let
+        { config, mouseState, justFinishedDrag, touchState } =
+            modelProperties
+
         unexpectedMouseEvent () =
             let
                 _ =
@@ -221,6 +246,7 @@ update message ((Model { config, mouseState, justFinishedDrag }) as model) =
                 { config = config
                 , mouseState = updatedMouseState
                 , justFinishedDrag = justFinishedDrag
+                , touchState = touchState
                 }
 
         finishDrag updatedMouseState =
@@ -228,6 +254,7 @@ update message ((Model { config, mouseState, justFinishedDrag }) as model) =
                 { config = config
                 , mouseState = updatedMouseState
                 , justFinishedDrag = True
+                , touchState = touchState
                 }
     in
     case ( mouseState, message ) of
@@ -262,6 +289,7 @@ update message ((Model { config, mouseState, justFinishedDrag }) as model) =
                     { config = config
                     , mouseState = mouseState
                     , justFinishedDrag = False
+                    , touchState = touchState
                     }
                 , Nothing
                 )
@@ -300,6 +328,7 @@ update message ((Model { config, mouseState, justFinishedDrag }) as model) =
                     { config = config
                     , mouseState = mouseState
                     , justFinishedDrag = False
+                    , touchState = touchState
                     }
                 , Nothing
                 )
@@ -429,17 +458,28 @@ update message ((Model { config, mouseState, justFinishedDrag }) as model) =
             else
                 ( model, Nothing )
 
-        ( _, Tick ) ->
+        ( _, FinalizeDrag ) ->
             ( Model
                 { config = config
                 , mouseState = mouseState
                 , justFinishedDrag = False
+                , touchState = touchState
                 }
             , Nothing
             )
 
         _ ->
             unexpectedMouseEvent ()
+
+
+update : Msg t -> Model t -> ( Model t, Maybe (Interaction t) )
+update message model =
+    case message of
+        MouseMsg mouseMessage ->
+            model |> handleMouseMessage mouseMessage
+
+        Tick delta ->
+            model |> handleMouseMessage FinalizeDrag
 
 
 subscriptions : Model t -> Sub (Msg t)
@@ -457,22 +497,22 @@ subscriptions (Model { mouseState, justFinishedDrag }) =
                         )
             in
             Sub.batch
-                [ Mouse.moves (toPoint >> DraggedTo)
-                , Mouse.ups (toPoint >> MouseUp)
+                [ Mouse.moves (toPoint >> DraggedTo >> MouseMsg)
+                , Mouse.ups (toPoint >> MouseUp >> MouseMsg)
 
                 -- We should only be in a dragging state if the primary button
                 -- is down, so any further mouse downs must be non-primary
                 -- buttons
-                , Mouse.downs (toPoint >> OtherMouseDown)
+                , Mouse.downs (toPoint >> OtherMouseDown >> MouseMsg)
 
                 -- Track key ups/downs to keep track of modifier state
-                , Keyboard.ups KeyUp
-                , Keyboard.downs KeyDown
+                , Keyboard.ups (KeyUp >> MouseMsg)
+                , Keyboard.downs (KeyDown >> MouseMsg)
                 ]
 
         _ ->
             if justFinishedDrag then
-                AnimationFrame.times (always Tick)
+                AnimationFrame.diffs Tick
             else
                 Sub.none
 
@@ -564,14 +604,15 @@ decodeMouseDown target renderBounds =
                         Point2d.fromCoordinates ( x0, y0 )
                 in
                 if button == 0 then
-                    PrimaryMouseDown
-                        { target = target
-                        , point = point
-                        , pageOrigin = pageOrigin
-                        , modifiers = modifiers
-                        }
+                    MouseMsg <|
+                        PrimaryMouseDown
+                            { target = target
+                            , point = point
+                            , pageOrigin = pageOrigin
+                            , modifiers = modifiers
+                            }
                 else
-                    OtherMouseDown point
+                    MouseMsg (OtherMouseDown point)
             )
 
 
@@ -584,8 +625,8 @@ customHandle shape { target, renderBounds } =
                 , preventDefault = True
                 }
                 (decodeMouseDown (Just target) renderBounds)
-            , Svg.Events.onMouseOver (Entered target)
-            , Svg.Events.onMouseOut (Left target)
+            , Svg.Events.onMouseOver (MouseMsg (Entered target))
+            , Svg.Events.onMouseOut (MouseMsg (Left target))
             ]
     in
     Svg.g attributes [ shape |> Svg.map never ]
