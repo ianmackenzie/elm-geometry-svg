@@ -136,7 +136,7 @@ type Interaction t
     | Drag (Maybe t) Modifiers { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
     | Release (Maybe t) Modifiers { startPoint : Point2d, endPoint : Point2d }
     | Tap (List (Maybe t))
-    | Press (List (Maybe t))
+    | LongPress (List (Maybe t))
     | Gesture (List (Touch t))
 
 

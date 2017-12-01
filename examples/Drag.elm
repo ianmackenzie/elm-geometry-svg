@@ -358,7 +358,7 @@ handleInteraction interaction model =
             in
             model
 
-        Just (Interaction.Press targets) ->
+        Just (Interaction.LongPress targets) ->
             let
                 _ =
                     Debug.log "Pressed" targets
