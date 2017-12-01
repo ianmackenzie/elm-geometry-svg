@@ -506,6 +506,21 @@ decodeMouseDownEvent =
         decodeModifiers
 
 
+type alias TouchEvent =
+    { clientX : Float
+    , clientY : Float
+    , identifier : Int
+    }
+
+
+decodeTouchEvent : Decoder TouchEvent
+decodeTouchEvent =
+    Decode.map3 TouchEvent
+        (Decode.field "clientX" Decode.float)
+        (Decode.field "clientY" Decode.float)
+        (Decode.field "identifier" Decode.int)
+
+
 decodeMouseDown : Maybe t -> BoundingBox2d -> Decoder (Msg t)
 decodeMouseDown target renderBounds =
     decodeMouseDownEvent
