@@ -12,6 +12,7 @@ import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
 import OpenSolid.Vector2d as Vector2d exposing (Vector2d)
 import Svg exposing (Svg)
 import Svg.Attributes
+import Time exposing (Time)
 
 
 type TriangleComponent
@@ -41,7 +42,11 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { interactionModel = Interaction.initWith [ Interaction.dragThreshold 5 ]
+    ( { interactionModel =
+            Interaction.modelWith
+                [ Interaction.dragThresholdDistance 5
+                , Interaction.longPressThresholdTime (1 * Time.second)
+                ]
       , triangles =
             [ Triangle2d.fromVertices
                 ( Point2d.fromCoordinates ( 200, 150 )

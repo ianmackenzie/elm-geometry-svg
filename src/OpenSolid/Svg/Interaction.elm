@@ -9,13 +9,14 @@ module OpenSolid.Svg.Interaction
         , customHandle
         , directionTipHandle
         , dragTarget
-        , dragThreshold
+        , dragThresholdDistance
         , hoverTarget
-        , init
-        , initWith
         , isDragging
         , isHovering
         , lineSegmentHandle
+        , longPressThresholdTime
+        , model
+        , modelWith
         , pointHandle
         , rotationAround
         , selectionBox
@@ -41,6 +42,7 @@ import OpenSolid.Vector2d as Vector2d exposing (Vector2d)
 import Svg exposing (Svg)
 import Svg.Attributes
 import Svg.Events
+import Time exposing (Time)
 
 
 type alias Modifiers =
@@ -65,14 +67,18 @@ type MouseState t
 
 type Model t
     = Model
-        { config : { dragThreshold : Float }
+        { config :
+            { dragThresholdDistance : Float
+            , longPressThresholdTime : Time
+            }
         , mouseState : MouseState t
         , justFinishedDrag : Bool
         }
 
 
 type Option
-    = DragThreshold Float
+    = DragThresholdDistance Float
+    | LongPressThresholdTime Time
 
 
 type alias DragState t =
@@ -113,27 +119,36 @@ type Interaction t
     | Gesture (List (Touch t))
 
 
-init : Model t
-init =
-    initWith []
+model : Model t
+model =
+    modelWith []
 
 
-dragThreshold : Float -> Option
-dragThreshold =
-    DragThreshold
+dragThresholdDistance : Float -> Option
+dragThresholdDistance =
+    DragThresholdDistance
 
 
-initWith : List Option -> Model t
-initWith options =
+longPressThresholdTime : Time -> Option
+longPressThresholdTime =
+    LongPressThresholdTime
+
+
+modelWith : List Option -> Model t
+modelWith options =
     let
         defaultConfig =
-            { dragThreshold = 0
+            { dragThresholdDistance = 0
+            , longPressThresholdTime = 500 * Time.millisecond
             }
 
         setOption option config =
             case option of
-                DragThreshold value ->
-                    { config | dragThreshold = value }
+                DragThresholdDistance value ->
+                    { config | dragThresholdDistance = value }
+
+                LongPressThresholdTime value ->
+                    { config | longPressThresholdTime = value }
 
         config =
             List.foldl setOption defaultConfig options
@@ -394,7 +409,7 @@ update message ((Model { config, mouseState, justFinishedDrag }) as model) =
                 dragStarted =
                     properties.dragStarted
                         || (Point2d.distanceFrom startPoint newPoint
-                                > config.dragThreshold
+                                > config.dragThresholdDistance
                            )
             in
             if dragStarted then
