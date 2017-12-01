@@ -8,6 +8,7 @@ module OpenSolid.Svg.Interaction
         , container
         , customHandle
         , directionTipHandle
+        , dragState
         , dragTarget
         , dragThresholdDistance
         , hoverTarget
@@ -19,7 +20,6 @@ module OpenSolid.Svg.Interaction
         , modelWith
         , pointHandle
         , rotationAround
-        , selectionBox
         , subscriptions
         , triangleHandle
         , update
@@ -41,7 +41,6 @@ import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
 import OpenSolid.Vector2d as Vector2d exposing (Vector2d)
 import Svg exposing (Svg)
 import Svg.Attributes
-import Svg.Events
 import Time exposing (Time)
 
 
@@ -51,12 +50,17 @@ type alias Modifiers =
     }
 
 
+type alias HoverState t =
+    { target : Maybe t
+    , container : Maybe t
+    }
+
+
 type MouseState t
-    = Resting
-    | Hovering t
+    = Resting (HoverState t)
     | Dragging
-        { target : Maybe t
-        , hoverTarget : Maybe t
+        { target : t
+        , hoverState : HoverState t
         , startPoint : Point2d
         , dragStarted : Bool
         , currentPoint : Point2d
@@ -73,7 +77,7 @@ type TouchProgress
 
 type alias ActiveTouch t =
     { identifier : Int
-    , target : Maybe t
+    , target : t
     , startPoint : Point2d
     , currentPoint : Point2d
     , progress : TouchProgress
@@ -97,19 +101,13 @@ type Option
     | LongPressThresholdTime Time
 
 
-type alias DragState t =
-    { target : Maybe t
-    , startPoint : Point2d
-    , currentPoint : Point2d
-    , modifiers : Modifiers
-    }
-
-
 type MouseMsg t
-    = Entered t
-    | Left t
+    = EnteredTarget t
+    | LeftTarget t
+    | EnteredContainer t
+    | LeftContainer t
     | PrimaryMouseDown
-        { target : Maybe t
+        { target : t
         , point : Point2d
         , pageOrigin : Point2d
         , modifiers : Modifiers
@@ -119,24 +117,38 @@ type MouseMsg t
     | MouseUp Point2d
     | KeyDown Int
     | KeyUp Int
-    | FinalizeDrag
+
+
+type alias TouchEvent t =
+    { target : t
+    , identifier : Int
+    , point : Point2d
+    }
+
+
+type TouchMsg t
+    = TouchStart (List (TouchEvent t))
+    | TouchMove (List (TouchEvent t))
+    | TouchEnd (List (TouchEvent t))
+    | UpdateTouchProgress Time
 
 
 type Msg t
     = MouseMsg (MouseMsg t)
+    | TouchMsg (TouchMsg t)
     | Tick Time
 
 
 type Touch t
-    = Touch (Maybe t) { identifier : Int, startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
+    = Touch t { identifier : Int, startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
 
 
 type Interaction t
-    = Click (Maybe t) Modifiers
-    | Drag (Maybe t) Modifiers { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
-    | Release (Maybe t) Modifiers { startPoint : Point2d, endPoint : Point2d }
-    | Tap (List (Maybe t))
-    | LongPress (List (Maybe t))
+    = Click t Modifiers
+    | Drag t Modifiers { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
+    | Release t Modifiers { startPoint : Point2d, endPoint : Point2d }
+    | Tap (List t)
+    | LongPress (List t)
     | Gesture (List (Touch t))
 
 
@@ -176,7 +188,7 @@ modelWith options =
     in
     Model
         { config = config
-        , mouseState = Resting
+        , mouseState = Resting { target = Nothing, container = Nothing }
         , justFinishedDrag = False
         , touchState = []
         }
@@ -195,6 +207,18 @@ rotationAround point start end =
         startDirection
         endDirection
         |> Maybe.withDefault 0
+
+
+eventOptions : { preventDefault : Bool, stopPropagation : Bool }
+eventOptions =
+    { preventDefault = True
+    , stopPropagation = True
+    }
+
+
+on : String -> Decoder msg -> Svg.Attribute msg
+on eventName decoder =
+    Html.Events.onWithOptions eventName eventOptions decoder
 
 
 keyDown : Int -> Modifiers -> Modifiers
@@ -221,6 +245,118 @@ keyUp code modifiers =
 
         _ ->
             modifiers
+
+
+issueMessage : String
+issueMessage =
+    "Please raise an issue at https://github.com/opensolid/svg/issues/new"
+
+
+logError : x -> a -> a
+logError error returnValue =
+    let
+        _ =
+            Debug.log issueMessage error
+    in
+    returnValue
+
+
+enterContainer : t -> HoverState t -> HoverState t
+enterContainer container hoverState =
+    case hoverState.container of
+        Nothing ->
+            { hoverState | container = Just container }
+
+        Just currentContainer ->
+            if container == currentContainer then
+                hoverState
+            else
+                { hoverState | container = Just container }
+                    |> logError
+                        ("Entered container "
+                            ++ toString container
+                            ++ " while already in container "
+                            ++ toString currentContainer
+                        )
+
+
+leaveContainer : t -> HoverState t -> HoverState t
+leaveContainer container hoverState =
+    case hoverState.container of
+        Just currentContainer ->
+            if container == currentContainer then
+                case hoverState.target of
+                    Nothing ->
+                        { hoverState | container = Nothing }
+
+                    Just currentTarget ->
+                        { hoverState | container = Nothing }
+                            |> logError
+                                ("Left container "
+                                    ++ toString container
+                                    ++ " while still over target "
+                                    ++ toString currentTarget
+                                )
+            else
+                hoverState
+                    |> logError
+                        ("Left container "
+                            ++ toString container
+                            ++ " while in container "
+                            ++ toString currentContainer
+                        )
+
+        Nothing ->
+            hoverState
+                |> logError
+                    ("Left container "
+                        ++ toString container
+                        ++ " while already outside container"
+                    )
+
+
+enterTarget : t -> HoverState t -> HoverState t
+enterTarget target hoverState =
+    case hoverState.target of
+        Nothing ->
+            { hoverState | target = Just target }
+
+        Just currentTarget ->
+            if currentTarget == target then
+                hoverState
+                    |> logError ("Re-entered target " ++ toString currentTarget)
+            else
+                { hoverState | target = Just target }
+                    |> logError
+                        ("Entered target "
+                            ++ toString target
+                            ++ " while still over target "
+                            ++ toString currentTarget
+                        )
+
+
+leaveTarget : t -> HoverState t -> HoverState t
+leaveTarget target hoverState =
+    case hoverState.target of
+        Just currentTarget ->
+            if currentTarget == target then
+                { hoverState | target = Nothing }
+            else
+                hoverState
+                    |> Debug.log
+                        ("Left target"
+                            ++ toString target
+                            ++ " while over target "
+                            ++ toString currentTarget
+                        )
+
+        Nothing ->
+            hoverState
+                |> Debug.log
+                    ("Left target "
+                        ++ toString target
+                        ++ " while not over any target"
+                    )
 
 
 handleMouseMessage : MouseMsg t -> Model t -> ( Model t, Maybe (Interaction t) )
@@ -258,32 +394,100 @@ handleMouseMessage message ((Model modelProperties) as model) =
                 }
     in
     case ( mouseState, message ) of
-        ( Resting, Entered target ) ->
-            ( setMouseState (Hovering target), Nothing )
+        ( Resting hoverState, EnteredTarget target ) ->
+            ( setMouseState (Resting (enterTarget target hoverState))
+            , Nothing
+            )
 
-        ( Resting, PrimaryMouseDown { target, point, pageOrigin, modifiers } ) ->
-            case target of
-                Nothing ->
+        ( Resting hoverState, LeftTarget target ) ->
+            ( setMouseState (Resting (leaveTarget target hoverState))
+            , Nothing
+            )
+
+        ( Resting hoverState, EnteredContainer container ) ->
+            ( setMouseState (Resting (enterContainer container hoverState))
+            , Nothing
+            )
+
+        ( Resting hoverState, LeftContainer container ) ->
+            ( setMouseState (Resting (leaveContainer container hoverState))
+            , Nothing
+            )
+
+        ( Dragging properties, EnteredTarget target ) ->
+            ( setMouseState <|
+                Dragging
+                    { properties
+                        | hoverState = enterTarget target properties.hoverState
+                    }
+            , Nothing
+            )
+
+        ( Dragging properties, LeftTarget target ) ->
+            ( setMouseState <|
+                Dragging
+                    { properties
+                        | hoverState = leaveTarget target properties.hoverState
+                    }
+            , Nothing
+            )
+
+        ( Dragging properties, EnteredContainer container ) ->
+            ( setMouseState <|
+                Dragging
+                    { properties
+                        | hoverState =
+                            enterContainer container properties.hoverState
+                    }
+            , Nothing
+            )
+
+        ( Dragging properties, LeftContainer container ) ->
+            ( setMouseState <|
+                Dragging
+                    { properties
+                        | hoverState =
+                            leaveContainer container properties.hoverState
+                    }
+            , Nothing
+            )
+
+        ( Resting hoverState, PrimaryMouseDown mouseDown ) ->
+            let
+                startDrag () =
                     ( setMouseState <|
                         Dragging
-                            { target = Nothing
-                            , hoverTarget = Nothing
-                            , startPoint = point
-                            , currentPoint = point
+                            { target = mouseDown.target
+                            , hoverState = hoverState
+                            , startPoint = mouseDown.point
+                            , currentPoint = mouseDown.point
                             , dragStarted = False
-                            , pageOrigin = pageOrigin
-                            , modifiers = modifiers
+                            , pageOrigin = mouseDown.pageOrigin
+                            , modifiers = mouseDown.modifiers
                             }
                     , Nothing
                     )
+            in
+            case ( hoverState.target, hoverState.container ) of
+                ( Just hoverTarget, _ ) ->
+                    if mouseDown.target == hoverTarget then
+                        startDrag ()
+                    else
+                        unexpectedMouseEvent ()
 
-                Just dragTarget ->
+                ( Nothing, Just hoverContainer ) ->
+                    if mouseDown.target == hoverContainer then
+                        startDrag ()
+                    else
+                        unexpectedMouseEvent ()
+
+                ( Nothing, Nothing ) ->
                     unexpectedMouseEvent ()
 
-        ( Resting, OtherMouseDown _ ) ->
+        ( Resting _, OtherMouseDown _ ) ->
             ( model, Nothing )
 
-        ( Resting, DraggedTo _ ) ->
+        ( Resting _, DraggedTo _ ) ->
             if justFinishedDrag then
                 ( Model
                     { config = config
@@ -291,63 +495,6 @@ handleMouseMessage message ((Model modelProperties) as model) =
                     , justFinishedDrag = False
                     , touchState = touchState
                     }
-                , Nothing
-                )
-            else
-                unexpectedMouseEvent ()
-
-        ( Hovering hoverTarget, PrimaryMouseDown { target, point, pageOrigin, modifiers } ) ->
-            if target == Just hoverTarget then
-                ( setMouseState <|
-                    Dragging
-                        { target = target
-                        , hoverTarget = target
-                        , startPoint = point
-                        , currentPoint = point
-                        , dragStarted = False
-                        , pageOrigin = pageOrigin
-                        , modifiers = modifiers
-                        }
-                , Nothing
-                )
-            else
-                unexpectedMouseEvent ()
-
-        ( Hovering _, OtherMouseDown _ ) ->
-            ( model, Nothing )
-
-        ( Hovering hoverTarget, Left previousTarget ) ->
-            if previousTarget == hoverTarget then
-                ( setMouseState Resting, Nothing )
-            else
-                unexpectedMouseEvent ()
-
-        ( Hovering _, DraggedTo _ ) ->
-            if justFinishedDrag then
-                ( Model
-                    { config = config
-                    , mouseState = mouseState
-                    , justFinishedDrag = False
-                    , touchState = touchState
-                    }
-                , Nothing
-                )
-            else
-                unexpectedMouseEvent ()
-
-        ( Dragging properties, Entered hoverTarget ) ->
-            if properties.hoverTarget == Nothing then
-                ( setMouseState <|
-                    Dragging { properties | hoverTarget = Just hoverTarget }
-                , Nothing
-                )
-            else
-                unexpectedMouseEvent ()
-
-        ( Dragging properties, Left hoverTarget ) ->
-            if properties.hoverTarget == Just hoverTarget then
-                ( setMouseState <|
-                    Dragging { properties | hoverTarget = Nothing }
                 , Nothing
                 )
             else
@@ -375,7 +522,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
 
         ( Dragging properties, MouseUp point ) ->
             let
-                { target, hoverTarget, startPoint, currentPoint, modifiers, dragStarted } =
+                { target, hoverState, startPoint, currentPoint, modifiers, dragStarted } =
                     properties
             in
             if point == currentPoint || not dragStarted then
@@ -388,22 +535,14 @@ handleMouseMessage message ((Model modelProperties) as model) =
                                 }
                         else
                             Click target modifiers
-
-                    updatedState =
-                        case hoverTarget of
-                            Nothing ->
-                                Resting
-
-                            Just hoverTarget ->
-                                Hovering hoverTarget
                 in
-                ( finishDrag updatedState, Just interaction )
+                ( finishDrag (Resting hoverState), Just interaction )
             else
                 unexpectedMouseEvent ()
 
         ( Dragging properties, OtherMouseDown point ) ->
             let
-                { target, hoverTarget, startPoint, currentPoint, modifiers, dragStarted } =
+                { target, hoverState, startPoint, currentPoint, modifiers, dragStarted } =
                     properties
             in
             if point == currentPoint || not dragStarted then
@@ -417,16 +556,8 @@ handleMouseMessage message ((Model modelProperties) as model) =
                                     }
                         else
                             Nothing
-
-                    updatedState =
-                        case hoverTarget of
-                            Nothing ->
-                                Resting
-
-                            Just hoverTarget ->
-                                Hovering hoverTarget
                 in
-                ( finishDrag updatedState, interaction )
+                ( finishDrag (Resting hoverState), interaction )
             else
                 unexpectedMouseEvent ()
 
@@ -458,18 +589,29 @@ handleMouseMessage message ((Model modelProperties) as model) =
             else
                 ( model, Nothing )
 
-        ( _, FinalizeDrag ) ->
-            ( Model
-                { config = config
-                , mouseState = mouseState
-                , justFinishedDrag = False
-                , touchState = touchState
-                }
-            , Nothing
-            )
-
         _ ->
             unexpectedMouseEvent ()
+
+
+finalizeDrag : Model t -> Model t
+finalizeDrag (Model properties) =
+    Model { properties | justFinishedDrag = False }
+
+
+handleTouchMessage : TouchMsg t -> Model t -> ( Model t, Maybe (Interaction t) )
+handleTouchMessage touchMessage model =
+    case touchMessage of
+        TouchStart touchEvents ->
+            ( model, Nothing )
+
+        TouchMove touchEvents ->
+            ( model, Nothing )
+
+        TouchEnd touchEvents ->
+            ( model, Nothing )
+
+        UpdateTouchProgress delta ->
+            ( model, Nothing )
 
 
 update : Msg t -> Model t -> ( Model t, Maybe (Interaction t) )
@@ -478,8 +620,13 @@ update message model =
         MouseMsg mouseMessage ->
             model |> handleMouseMessage mouseMessage
 
+        TouchMsg touchMessage ->
+            model |> handleTouchMessage touchMessage
+
         Tick delta ->
-            model |> handleMouseMessage FinalizeDrag
+            model
+                |> finalizeDrag
+                |> handleTouchMessage (UpdateTouchProgress delta)
 
 
 subscriptions : Model t -> Sub (Msg t)
@@ -517,23 +664,25 @@ subscriptions (Model { mouseState, justFinishedDrag }) =
                 Sub.none
 
 
-container : (Msg t -> msg) -> BoundingBox2d -> List (Svg msg) -> Svg msg
-container tagger renderBounds children =
+container : (Msg t -> msg) -> { target : t, renderBounds : BoundingBox2d } -> List (Svg msg) -> Svg msg
+container tagger { target, renderBounds } children =
     let
-        onMouseDown =
-            Html.Events.onWithOptions "mousedown"
-                { stopPropagation = True
-                , preventDefault = True
-                }
-                (decodeMouseDown Nothing renderBounds |> Decode.map tagger)
+        attributes =
+            [ on "mousedown"
+                (decodeMouseDown target renderBounds |> Decode.map tagger)
+            , on "mouseenter"
+                (Decode.succeed (tagger (MouseMsg (EnteredContainer target))))
+            , on "mouseleave"
+                (Decode.succeed (tagger (MouseMsg (LeftContainer target))))
+            ]
 
         background =
             Svg.boundingBox2d [ transparentFill, noStroke ] renderBounds
     in
-    Svg.g [ onMouseDown ] (background :: children)
+    Svg.g attributes (background :: children)
 
 
-type alias MouseDownEvent =
+type alias MouseDownProperties =
     { clientX : Float
     , clientY : Float
     , pageX : Float
@@ -550,9 +699,9 @@ decodeModifiers =
         (Decode.field "shiftKey" Decode.bool)
 
 
-decodeMouseDownEvent : Decoder MouseDownEvent
-decodeMouseDownEvent =
-    Decode.map6 MouseDownEvent
+decodeMouseDownProperties : Decoder MouseDownProperties
+decodeMouseDownProperties =
+    Decode.map6 MouseDownProperties
         (Decode.field "clientX" Decode.float)
         (Decode.field "clientY" Decode.float)
         (Decode.field "pageX" Decode.float)
@@ -561,24 +710,26 @@ decodeMouseDownEvent =
         decodeModifiers
 
 
-type alias TouchEvent =
+type alias TouchProperties =
     { clientX : Float
     , clientY : Float
     , identifier : Int
     }
 
 
-decodeTouchEvent : Decoder TouchEvent
-decodeTouchEvent =
-    Decode.map3 TouchEvent
-        (Decode.field "clientX" Decode.float)
-        (Decode.field "clientY" Decode.float)
-        (Decode.field "identifier" Decode.int)
+decodeTouchProperties : Decoder (List TouchProperties)
+decodeTouchProperties =
+    Decode.field "touches" <|
+        Decode.list <|
+            Decode.map3 TouchProperties
+                (Decode.field "clientX" Decode.float)
+                (Decode.field "clientY" Decode.float)
+                (Decode.field "identifier" Decode.int)
 
 
-decodeMouseDown : Maybe t -> BoundingBox2d -> Decoder (Msg t)
+decodeMouseDown : t -> BoundingBox2d -> Decoder (Msg t)
 decodeMouseDown target renderBounds =
-    decodeMouseDownEvent
+    decodeMouseDownProperties
         |> Decode.map
             (\{ clientX, clientY, pageX, pageY, button, modifiers } ->
                 let
@@ -616,17 +767,40 @@ decodeMouseDown target renderBounds =
             )
 
 
+decodeTouchEvents : t -> BoundingBox2d -> Decoder (List (TouchEvent t))
+decodeTouchEvents target renderBounds =
+    decodeTouchProperties
+        |> Decode.map
+            (List.map
+                (\{ identifier, clientX, clientY } ->
+                    let
+                        { minX, maxY } =
+                            BoundingBox2d.extrema renderBounds
+
+                        x =
+                            minX + clientX + 0.5
+
+                        y =
+                            maxY - clientY - 0.5
+
+                        point =
+                            Point2d.fromCoordinates ( x, y )
+                    in
+                    { target = target
+                    , identifier = identifier
+                    , point = point
+                    }
+                )
+            )
+
+
 customHandle : Svg Never -> { target : t, renderBounds : BoundingBox2d } -> Svg (Msg t)
 customHandle shape { target, renderBounds } =
     let
         attributes =
-            [ Html.Events.onWithOptions "mousedown"
-                { stopPropagation = True
-                , preventDefault = True
-                }
-                (decodeMouseDown (Just target) renderBounds)
-            , Svg.Events.onMouseOver (MouseMsg (Entered target))
-            , Svg.Events.onMouseOut (MouseMsg (Left target))
+            [ on "mousedown" (decodeMouseDown target renderBounds)
+            , on "mouseenter" (Decode.succeed (MouseMsg (EnteredTarget target)))
+            , on "mouseleave" (Decode.succeed (MouseMsg (LeftTarget target)))
             ]
     in
     Svg.g attributes [ shape |> Svg.map never ]
@@ -734,11 +908,8 @@ isDragging target model =
 hoverTarget : Model t -> Maybe t
 hoverTarget (Model { mouseState }) =
     case mouseState of
-        Resting ->
-            Nothing
-
-        Hovering target ->
-            Just target
+        Resting hoverState ->
+            hoverState.target
 
         Dragging _ ->
             Nothing
@@ -747,44 +918,17 @@ hoverTarget (Model { mouseState }) =
 dragTarget : Model t -> Maybe t
 dragTarget (Model { mouseState }) =
     case mouseState of
-        Resting ->
-            Nothing
-
-        Hovering _ ->
+        Resting _ ->
             Nothing
 
         Dragging { target } ->
-            target
+            Just target
 
 
-selectionBox : Model t -> Maybe ( Point2d, Point2d, Modifiers )
-selectionBox (Model { mouseState }) =
-    case mouseState of
-        Resting ->
-            Nothing
-
-        Hovering _ ->
-            Nothing
-
-        Dragging { target, dragStarted, startPoint, currentPoint, modifiers } ->
-            case target of
-                Just dragTarget ->
-                    Nothing
-
-                Nothing ->
-                    if dragStarted then
-                        Just ( startPoint, currentPoint, modifiers )
-                    else
-                        Nothing
-
-
-dragState : Model t -> Maybe (DragState t)
+dragState : Model t -> Maybe { target : t, startPoint : Point2d, currentPoint : Point2d, modifiers : Modifiers }
 dragState (Model { mouseState }) =
     case mouseState of
-        Resting ->
-            Nothing
-
-        Hovering _ ->
+        Resting _ ->
             Nothing
 
         Dragging { target, dragStarted, startPoint, currentPoint, modifiers } ->

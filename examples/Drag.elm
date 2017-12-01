@@ -27,6 +27,7 @@ type TriangleComponent
 
 type Target
     = TriangleTarget { triangleIndex : Int, component : TriangleComponent }
+    | Elsewhere
 
 
 type Msg
@@ -161,18 +162,25 @@ view model =
             ]
         ]
         [ Svg.render2d boundingBox <|
-            Interaction.container InteractionMsg boundingBox <|
+            Interaction.container InteractionMsg
+                { target = Elsewhere
+                , renderBounds = boundingBox
+                }
                 [ Svg.g [] (List.indexedMap drawTriangle model.triangles)
-                , case Interaction.selectionBox model.interactionModel of
-                    Just ( startPoint, endPoint, modifiers ) ->
-                        Svg.boundingBox2d
-                            [ Svg.Attributes.fill "rgba(0, 63, 255, 0.1)"
-                            , Svg.Attributes.stroke "blue"
-                            ]
-                            (Point2d.hull startPoint endPoint)
-
+                , case Interaction.dragState model.interactionModel of
                     Nothing ->
                         Svg.text ""
+
+                    Just { target, startPoint, currentPoint, modifiers } ->
+                        if target == Elsewhere then
+                            Svg.boundingBox2d
+                                [ Svg.Attributes.fill "rgba(0, 63, 255, 0.1)"
+                                , Svg.Attributes.stroke "blue"
+                                , Svg.Attributes.pointerEvents "none"
+                                ]
+                                (Point2d.hull startPoint currentPoint)
+                        else
+                            Svg.text ""
                 ]
         ]
 
@@ -259,8 +267,8 @@ setSelectedVertices updatedSelectedVertices model =
     { model | selectedVertices = updatedSelectedVertices }
 
 
-isVertex : Target -> Bool
-isVertex (TriangleTarget { component }) =
+isVertex : TriangleComponent -> Bool
+isVertex component =
     component == Vertex0 || component == Vertex1 || component == Vertex2
 
 
@@ -293,7 +301,28 @@ handleInteraction interaction model =
         Nothing ->
             model
 
-        Just (Interaction.Drag Nothing modifiers { startPoint, currentPoint }) ->
+        Just (Interaction.Drag ((TriangleTarget _) as target) modifiers { previousPoint, currentPoint }) ->
+            if List.member target model.selectedVertices then
+                let
+                    applyDrag selectedVertex model =
+                        performDrag
+                            selectedVertex
+                            previousPoint
+                            currentPoint
+                            modifiers
+                            model
+                in
+                List.foldl applyDrag model model.selectedVertices
+            else
+                performDrag
+                    target
+                    previousPoint
+                    currentPoint
+                    modifiers
+                    model
+                    |> setSelectedVertices []
+
+        Just (Interaction.Drag Elsewhere modifiers { startPoint, currentPoint }) ->
             let
                 boundingBox =
                     Point2d.hull startPoint currentPoint
@@ -304,31 +333,16 @@ handleInteraction interaction model =
             in
             setSelectedVertices targets model
 
-        Just (Interaction.Drag (Just target) modifiers { previousPoint, currentPoint }) ->
-            if List.member target model.selectedVertices then
-                let
-                    applyDrag selectedVertex model =
-                        performDrag selectedVertex
-                            previousPoint
-                            currentPoint
-                            modifiers
-                            model
-                in
-                List.foldl applyDrag model model.selectedVertices
-            else
-                performDrag target previousPoint currentPoint modifiers model
-                    |> setSelectedVertices []
-
-        Just (Interaction.Click Nothing modifiers) ->
+        Just (Interaction.Click Elsewhere modifiers) ->
             if modifiers.ctrl || modifiers.shift then
                 model
             else
                 { model | selectedVertices = [] }
 
-        Just (Interaction.Click (Just target) modifiers) ->
+        Just (Interaction.Click ((TriangleTarget { triangleIndex, component }) as target) modifiers) ->
             let
                 newSelectedVertices =
-                    if isVertex target then
+                    if isVertex component then
                         if modifiers.shift then
                             if List.member target model.selectedVertices then
                                 model.selectedVertices
@@ -374,57 +388,65 @@ handleInteraction interaction model =
 
 
 performDrag : Target -> Point2d -> Point2d -> Interaction.Modifiers -> Model -> Model
-performDrag (TriangleTarget { triangleIndex, component }) startPoint endPoint modifiers model =
-    let
-        displacement =
-            Vector2d.from startPoint endPoint |> constrainBy modifiers
+performDrag target startPoint endPoint modifiers model =
+    case target of
+        TriangleTarget { triangleIndex, component } ->
+            let
+                displacement =
+                    Vector2d.from startPoint endPoint |> constrainBy modifiers
 
-        translatePoint =
-            Point2d.translateBy displacement
+                translatePoint =
+                    Point2d.translateBy displacement
 
-        updateTriangle index triangle =
-            if index == triangleIndex then
-                let
-                    ( p0, p1, p2 ) =
-                        Triangle2d.vertices triangle
-                in
-                case component of
-                    Interior ->
-                        Triangle2d.translateBy displacement triangle
+                updateTriangle index triangle =
+                    if index == triangleIndex then
+                        let
+                            ( p0, p1, p2 ) =
+                                Triangle2d.vertices triangle
+                        in
+                        case component of
+                            Interior ->
+                                Triangle2d.translateBy displacement triangle
 
-                    Vertex0 ->
-                        Triangle2d.fromVertices ( translatePoint p0, p1, p2 )
+                            Vertex0 ->
+                                Triangle2d.fromVertices ( translatePoint p0, p1, p2 )
 
-                    Vertex1 ->
-                        Triangle2d.fromVertices ( p0, translatePoint p1, p2 )
+                            Vertex1 ->
+                                Triangle2d.fromVertices ( p0, translatePoint p1, p2 )
 
-                    Vertex2 ->
-                        Triangle2d.fromVertices ( p0, p1, translatePoint p2 )
+                            Vertex2 ->
+                                Triangle2d.fromVertices ( p0, p1, translatePoint p2 )
 
-                    Edge0 ->
-                        Triangle2d.fromVertices
-                            ( translatePoint p0
-                            , translatePoint p1
-                            , p2
-                            )
+                            Edge0 ->
+                                Triangle2d.fromVertices
+                                    ( translatePoint p0
+                                    , translatePoint p1
+                                    , p2
+                                    )
 
-                    Edge1 ->
-                        Triangle2d.fromVertices
-                            ( p0
-                            , translatePoint p1
-                            , translatePoint p2
-                            )
+                            Edge1 ->
+                                Triangle2d.fromVertices
+                                    ( p0
+                                    , translatePoint p1
+                                    , translatePoint p2
+                                    )
 
-                    Edge2 ->
-                        Triangle2d.fromVertices
-                            ( translatePoint p0
-                            , p1
-                            , translatePoint p2
-                            )
-            else
-                triangle
-    in
-    { model | triangles = List.indexedMap updateTriangle model.triangles }
+                            Edge2 ->
+                                Triangle2d.fromVertices
+                                    ( translatePoint p0
+                                    , p1
+                                    , translatePoint p2
+                                    )
+                    else
+                        triangle
+
+                updatedTriangles =
+                    List.indexedMap updateTriangle model.triangles
+            in
+            { model | triangles = updatedTriangles }
+
+        Elsewhere ->
+            model
 
 
 noCmd : Model -> ( Model, Cmd Msg )
