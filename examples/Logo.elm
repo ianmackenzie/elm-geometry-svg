@@ -3,7 +3,6 @@ module Logo exposing (..)
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events as Events
-import OpenSolid.Direction2d as Direction2d
 import OpenSolid.Frame2d as Frame2d
 import OpenSolid.Frame3d as Frame3d
 import OpenSolid.Point2d as Point2d
