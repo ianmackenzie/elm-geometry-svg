@@ -9,6 +9,7 @@ module OpenSolid.Svg
         , cubicSpline2d
         , curve2d
         , direction2d
+        , ellipticalArc2d
         , lineSegment2d
         , mirrorAcross
         , placeIn
@@ -77,7 +78,7 @@ attributes such as `points` and `transform` set appropriately. Each function
 also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
-@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, circle2d, quadraticSpline2d, cubicSpline2d, boundingBox2d, curve2d
+@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, ellipticalArc2d, circle2d, quadraticSpline2d, cubicSpline2d, boundingBox2d, curve2d
 
 
 # Text
@@ -142,6 +143,7 @@ import OpenSolid.Circle2d as Circle2d exposing (Circle2d)
 import OpenSolid.CubicSpline2d as CubicSpline2d exposing (CubicSpline2d)
 import OpenSolid.Curve2d as Curve2d exposing (Curve2d)
 import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
+import OpenSolid.EllipticalArc2d as EllipticalArc2d exposing (EllipticalArc2d)
 import OpenSolid.Frame2d as Frame2d exposing (Frame2d)
 import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
 import OpenSolid.Point2d as Point2d exposing (Point2d)
@@ -576,6 +578,83 @@ arc2d attributes arc =
             , radiusString
             , radiusString
             , "0"
+            , "0"
+            , sweepFlag
+            , toString x
+            , toString y
+            ]
+
+        arcSegments =
+            List.map arcSegment (List.range 1 numSegments)
+
+        pathComponents =
+            moveCommand ++ List.concat arcSegments
+
+        pathAttribute =
+            Attributes.d (String.join " " pathComponents)
+    in
+    Svg.path (pathAttribute :: attributes) []
+
+
+{-| Draw an `EllipticalArc2d` as an SVG `<path>` with the given attributes.
+-}
+ellipticalArc2d : List (Attribute msg) -> EllipticalArc2d -> Svg msg
+ellipticalArc2d attributes arc =
+    let
+        sweptAngle =
+            EllipticalArc2d.sweptAngle arc
+
+        maxSegmentAngle =
+            2 * pi / 3
+
+        numSegments =
+            1 + floor (abs sweptAngle / maxSegmentAngle)
+
+        sweepFlag =
+            if sweptAngle >= 0 then
+                "1"
+            else
+                "0"
+
+        ( x0, y0 ) =
+            Point2d.coordinates (EllipticalArc2d.startPoint arc)
+
+        xRadius =
+            EllipticalArc2d.xRadius arc
+
+        yRadius =
+            EllipticalArc2d.yRadius arc
+
+        xRadiusString =
+            toString xRadius
+
+        yRadiusString =
+            toString yRadius
+
+        xAngle =
+            Direction2d.angle (EllipticalArc2d.xDirection arc)
+
+        angleString =
+            toString (xAngle / degrees 1)
+
+        moveCommand =
+            [ "M"
+            , toString x0
+            , toString y0
+            ]
+
+        arcSegment index =
+            let
+                t =
+                    toFloat index / toFloat numSegments
+
+                ( x, y ) =
+                    Point2d.coordinates (EllipticalArc2d.pointOn arc t)
+            in
+            [ "A"
+            , xRadiusString
+            , yRadiusString
+            , angleString
             , "0"
             , sweepFlag
             , toString x
