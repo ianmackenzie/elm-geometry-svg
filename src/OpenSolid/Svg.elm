@@ -795,7 +795,7 @@ cubicSpline2d attributes spline =
     Svg.path (pathAttribute :: attributes) []
 
 
-{-| Draw a bounding box as an SVG `<polygon>` with the given attributes.
+{-| Draw a bounding box as an SVG `<rect>` with the given attributes.
 -}
 boundingBox2d : List (Attribute msg) -> BoundingBox2d -> Svg msg
 boundingBox2d attributes boundingBox =
@@ -803,15 +803,19 @@ boundingBox2d attributes boundingBox =
         { minX, minY, maxX, maxY } =
             BoundingBox2d.extrema boundingBox
 
-        polygon =
-            Polygon2d.fromVertices
-                [ Point2d.fromCoordinates ( minX, minY )
-                , Point2d.fromCoordinates ( maxX, minY )
-                , Point2d.fromCoordinates ( maxX, maxY )
-                , Point2d.fromCoordinates ( minX, maxY )
-                ]
+        x =
+            Attributes.x (toString minX)
+
+        y =
+            Attributes.y (toString minY)
+
+        width =
+            Attributes.width (toString (maxX - minX))
+
+        height =
+            Attributes.height (toString (maxY - minY))
     in
-    polygon2d attributes polygon
+    Svg.rect (x :: y :: width :: height :: attributes) []
 
 
 
