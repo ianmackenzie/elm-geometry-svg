@@ -721,9 +721,36 @@ handleTouchMove touchEvents (Model properties) =
 
 
 handleTouchEnd : List (TouchEvent t) -> Model t -> ( Model t, Maybe (Interaction t) )
-handleTouchEnd touchEvents model =
-    -- TODO
-    ( model, Nothing )
+handleTouchEnd touchEvents (Model properties) =
+    let
+        processEvent touchEvent =
+            Dict.update touchEvent.identifier
+                (\entry ->
+                    case entry of
+                        Just activeTouch ->
+                            if touchEvent.target == activeTouch.target then
+                                Nothing
+                            else
+                                entry
+                                    |> logError
+                                        ("Touch move event "
+                                            ++ toString touchEvent
+                                            ++ " does not match active touch "
+                                            ++ toString activeTouch
+                                        )
+
+                        Nothing ->
+                            entry
+                                |> logError
+                                    ("No active touch found for touch end event "
+                                        ++ toString touchEvent
+                                    )
+                )
+
+        updatedTouchState =
+            List.foldl processEvent properties.touchState touchEvents
+    in
+    ( Model { properties | touchState = updatedTouchState }, Nothing )
 
 
 updateTouchProgress : Float -> Model t -> ( Model t, Maybe (Interaction t) )
