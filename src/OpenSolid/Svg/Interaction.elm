@@ -27,6 +27,7 @@ module OpenSolid.Svg.Interaction
         )
 
 import AnimationFrame
+import Dict exposing (Dict)
 import Html.Events
 import Json.Decode as Decode exposing (Decoder)
 import Keyboard
@@ -76,23 +77,26 @@ type TouchProgress
 
 
 type alias ActiveTouch t =
-    { identifier : Int
-    , target : t
+    { target : t
+    , elapsedTime : Time
     , startPoint : Point2d
     , currentPoint : Point2d
     , progress : TouchProgress
     }
 
 
+type alias Config =
+    { dragThresholdDistance : Float
+    , longPressThresholdTime : Time
+    }
+
+
 type Model t
     = Model
-        { config :
-            { dragThresholdDistance : Float
-            , longPressThresholdTime : Time
-            }
+        { config : Config
         , mouseState : MouseState t
         , justFinishedDrag : Bool
-        , touchState : List (ActiveTouch t)
+        , touchState : Dict Int (ActiveTouch t)
         }
 
 
@@ -190,7 +194,7 @@ modelWith options =
         { config = config
         , mouseState = Resting { target = Nothing, container = Nothing }
         , justFinishedDrag = False
-        , touchState = []
+        , touchState = Dict.empty
         }
 
 
@@ -598,20 +602,148 @@ finalizeDrag (Model properties) =
     Model { properties | justFinishedDrag = False }
 
 
+handleTouchStart : List (TouchEvent t) -> Model t -> ( Model t, Maybe (Interaction t) )
+handleTouchStart touchEvents (Model properties) =
+    let
+        startTouch touchEvent =
+            Dict.update touchEvent.identifier
+                (\currentEntry ->
+                    case currentEntry of
+                        Nothing ->
+                            Just
+                                { target = touchEvent.target
+                                , elapsedTime = 0
+                                , startPoint = touchEvent.point
+                                , currentPoint = touchEvent.point
+                                , progress = Tapping 0
+                                }
+
+                        Just activeTouch ->
+                            currentEntry
+                                |> logError
+                                    ("Started touch for already-active touch "
+                                        ++ toString activeTouch
+                                    )
+                )
+
+        updatedTouchState =
+            List.foldl startTouch properties.touchState touchEvents
+    in
+    ( Model { properties | touchState = updatedTouchState }, Nothing )
+
+
+moveTouch : Config -> TouchEvent t -> ActiveTouch t -> ( ActiveTouch t, List (Touch t) )
+moveTouch { dragThresholdDistance } touchEvent activeTouch =
+    let
+        updatedTouch =
+            { activeTouch | currentPoint = touchEvent.point }
+
+        checkForGestureStart () =
+            let
+                distanceFromStart =
+                    Point2d.distanceFrom activeTouch.startPoint touchEvent.point
+            in
+            if distanceFromStart > dragThresholdDistance then
+                ( { updatedTouch | progress = Gesturing }
+                , [ Touch touchEvent.target
+                        { identifier = touchEvent.identifier
+                        , startPoint = activeTouch.startPoint
+                        , previousPoint = activeTouch.startPoint
+                        , currentPoint = touchEvent.point
+                        }
+                  ]
+                )
+            else
+                ( updatedTouch, [] )
+    in
+    case activeTouch.progress of
+        Gesturing ->
+            ( updatedTouch
+            , [ Touch touchEvent.target
+                    { identifier = touchEvent.identifier
+                    , startPoint = activeTouch.startPoint
+                    , previousPoint = activeTouch.currentPoint
+                    , currentPoint = touchEvent.point
+                    }
+              ]
+            )
+
+        Tapping elapsedTime ->
+            checkForGestureStart ()
+
+        LongPressed ->
+            checkForGestureStart ()
+
+
+handleTouchMove : List (TouchEvent t) -> Model t -> ( Model t, Maybe (Interaction t) )
+handleTouchMove touchEvents (Model properties) =
+    let
+        processEvent touchEvent ( touchState, accumulatedMoves ) =
+            case Dict.get touchEvent.identifier touchState of
+                Just activeTouch ->
+                    if touchEvent.target == activeTouch.target then
+                        let
+                            ( updatedTouch, newMoves ) =
+                                moveTouch properties.config
+                                    touchEvent
+                                    activeTouch
+
+                            updatedTouchState =
+                                touchState
+                                    |> Dict.insert touchEvent.identifier
+                                        updatedTouch
+                        in
+                        ( updatedTouchState
+                        , accumulatedMoves ++ newMoves
+                        )
+                    else
+                        ( touchState, accumulatedMoves )
+                            |> logError
+                                ("Touch move event "
+                                    ++ toString touchEvent
+                                    ++ " does not match active touch "
+                                    ++ toString activeTouch
+                                )
+
+                Nothing ->
+                    ( touchState, accumulatedMoves )
+                        |> logError
+                            ("No active touch found for touch move event "
+                                ++ toString touchEvent
+                            )
+
+        ( updatedTouchState, moves ) =
+            List.foldl processEvent ( properties.touchState, [] ) touchEvents
+    in
+    ( Model { properties | touchState = updatedTouchState }, Nothing )
+
+
+handleTouchEnd : List (TouchEvent t) -> Model t -> ( Model t, Maybe (Interaction t) )
+handleTouchEnd touchEvents model =
+    -- TODO
+    ( model, Nothing )
+
+
+updateTouchProgress : Float -> Model t -> ( Model t, Maybe (Interaction t) )
+updateTouchProgress delta model =
+    -- TODO
+    ( model, Nothing )
+
+
 handleTouchMessage : TouchMsg t -> Model t -> ( Model t, Maybe (Interaction t) )
 handleTouchMessage touchMessage model =
     case touchMessage of
         TouchStart touchEvents ->
-            ( model, Nothing )
+            handleTouchStart touchEvents model
 
         TouchMove touchEvents ->
-            ( model, Nothing )
+            handleTouchMove touchEvents model
 
         TouchEnd touchEvents ->
-            ( model, Nothing )
+            handleTouchEnd touchEvents model
 
         UpdateTouchProgress delta ->
-            ( model, Nothing )
+            updateTouchProgress delta model
 
 
 update : Msg t -> Model t -> ( Model t, Maybe (Interaction t) )
