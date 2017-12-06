@@ -140,6 +140,7 @@ type TouchMsg t
 type Msg t
     = MouseMsg (MouseMsg t)
     | TouchMsg (TouchMsg t)
+    | LostFocus
     | Tick Time
 
 
@@ -746,6 +747,16 @@ handleTouchMessage touchMessage model =
             updateTouchProgress delta model
 
 
+loseFocus : Model t -> Model t
+loseFocus (Model properties) =
+    Model
+        { properties
+            | mouseState = Resting { target = Nothing, container = Nothing }
+            , touchState = Dict.empty
+            , justFinishedDrag = False
+        }
+
+
 update : Msg t -> Model t -> ( Model t, Maybe (Interaction t) )
 update message model =
     case message of
@@ -759,6 +770,9 @@ update message model =
             model
                 |> finalizeDrag
                 |> handleTouchMessage (UpdateTouchProgress delta)
+
+        LostFocus ->
+            ( loseFocus model, Nothing )
 
 
 subscriptions : Model t -> Sub (Msg t)
@@ -806,6 +820,8 @@ container tagger { target, renderBounds } children =
                 (Decode.succeed (tagger (MouseMsg (EnteredContainer target))))
             , on "mouseleave"
                 (Decode.succeed (tagger (MouseMsg (LeftContainer target))))
+            , on "focusout"
+                (Decode.succeed (tagger LostFocus))
             ]
 
         background =
