@@ -767,9 +767,47 @@ handleTouchEnd touchEvents (Model properties) =
 
 
 updateTouchProgress : Float -> Model t -> ( Model t, Maybe (Interaction t) )
-updateTouchProgress delta model =
-    -- TODO
-    ( model, Nothing )
+updateTouchProgress delta (Model properties) =
+    let
+        { longPressThresholdTime } =
+            properties.config
+
+        processActiveTouch identifier activeTouch ( touchState, targets ) =
+            case activeTouch.progress of
+                Tapping elapsedTime ->
+                    let
+                        updatedTime =
+                            elapsedTime + delta
+
+                        ( updatedProgress, pressedTargets ) =
+                            if updatedTime > longPressThresholdTime then
+                                ( LongPressed, [ activeTouch.target ] )
+                            else
+                                ( Tapping updatedTime, [] )
+
+                        updatedTouch =
+                            { activeTouch | progress = updatedProgress }
+
+                        updatedTouchState =
+                            touchState
+                                |> Dict.insert identifier updatedTouch
+                    in
+                    ( touchState |> Dict.insert identifier updatedTouch
+                    , targets ++ pressedTargets
+                    )
+
+                _ ->
+                    ( touchState |> Dict.insert identifier activeTouch
+                    , targets
+                    )
+
+        ( updatedTouchState, targets ) =
+            properties.touchState
+                |> Dict.foldl processActiveTouch ( Dict.empty, [] )
+    in
+    ( Model { properties | touchState = updatedTouchState }
+    , Just (LongPress targets)
+    )
 
 
 handleTouchMessage : TouchMsg t -> Model t -> ( Model t, Maybe (Interaction t) )
