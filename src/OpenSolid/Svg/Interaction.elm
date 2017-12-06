@@ -715,7 +715,9 @@ handleTouchMove touchEvents (Model properties) =
         ( updatedTouchState, moves ) =
             List.foldl processEvent ( properties.touchState, [] ) touchEvents
     in
-    ( Model { properties | touchState = updatedTouchState }, Nothing )
+    ( Model { properties | touchState = updatedTouchState }
+    , Just (Gesture moves)
+    )
 
 
 handleTouchEnd : List (TouchEvent t) -> Model t -> ( Model t, Maybe (Interaction t) )
