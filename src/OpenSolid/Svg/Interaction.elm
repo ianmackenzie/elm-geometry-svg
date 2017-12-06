@@ -723,34 +723,47 @@ handleTouchMove touchEvents (Model properties) =
 handleTouchEnd : List (TouchEvent t) -> Model t -> ( Model t, Maybe (Interaction t) )
 handleTouchEnd touchEvents (Model properties) =
     let
-        processEvent touchEvent =
-            Dict.update touchEvent.identifier
-                (\entry ->
-                    case entry of
-                        Just activeTouch ->
-                            if touchEvent.target == activeTouch.target then
-                                Nothing
-                            else
-                                entry
-                                    |> logError
-                                        ("Touch move event "
-                                            ++ toString touchEvent
-                                            ++ " does not match active touch "
-                                            ++ toString activeTouch
-                                        )
+        processEvent touchEvent ( touchState, accumulatedTargets ) =
+            case Dict.get touchEvent.identifier touchState of
+                Just activeTouch ->
+                    if touchEvent.target == activeTouch.target then
+                        let
+                            updatedTouchState =
+                                touchState |> Dict.remove touchEvent.identifier
 
-                        Nothing ->
-                            entry
-                                |> logError
-                                    ("No active touch found for touch end event "
-                                        ++ toString touchEvent
-                                    )
-                )
+                            tappedTargets =
+                                case activeTouch.progress of
+                                    Tapping _ ->
+                                        [ activeTouch.target ]
 
-        updatedTouchState =
-            List.foldl processEvent properties.touchState touchEvents
+                                    _ ->
+                                        []
+                        in
+                        ( updatedTouchState
+                        , accumulatedTargets ++ tappedTargets
+                        )
+                    else
+                        ( touchState, accumulatedTargets )
+                            |> logError
+                                ("Touch end event "
+                                    ++ toString touchEvent
+                                    ++ " does not match active touch "
+                                    ++ toString activeTouch
+                                )
+
+                Nothing ->
+                    ( touchState, accumulatedTargets )
+                        |> logError
+                            ("No active touch found for touch end event "
+                                ++ toString touchEvent
+                            )
+
+        ( updatedTouchState, targets ) =
+            List.foldl processEvent ( properties.touchState, [] ) touchEvents
     in
-    ( Model { properties | touchState = updatedTouchState }, Nothing )
+    ( Model { properties | touchState = updatedTouchState }
+    , Just (Tap targets)
+    )
 
 
 updateTouchProgress : Float -> Model t -> ( Model t, Maybe (Interaction t) )
