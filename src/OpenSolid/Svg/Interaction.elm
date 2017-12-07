@@ -937,12 +937,27 @@ type alias TouchProperties =
 
 decodeTouchProperties : Decoder (List TouchProperties)
 decodeTouchProperties =
-    Decode.field "touches" <|
-        Decode.list <|
+    let
+        decodeSingle : Decoder TouchProperties
+        decodeSingle =
             Decode.map3 TouchProperties
                 (Decode.field "clientX" Decode.float)
                 (Decode.field "clientY" Decode.float)
                 (Decode.field "identifier" Decode.int)
+
+        collect : List TouchProperties -> Int -> Decoder (List TouchProperties)
+        collect accumulated count =
+            if count > 0 then
+                Decode.index (count - 1) decodeSingle
+                    |> Decode.andThen
+                        (\decoded ->
+                            collect (decoded :: accumulated) (count - 1)
+                        )
+            else
+                Decode.succeed accumulated
+    in
+    Decode.field "touches"
+        (Decode.field "length" Decode.int |> Decode.andThen (collect []))
 
 
 decodeMouseDown : t -> BoundingBox2d -> Decoder (Msg t)
