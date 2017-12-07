@@ -886,6 +886,12 @@ container tagger { target, renderBounds } children =
                 (Decode.succeed (tagger (MouseMsg (EnteredContainer target))))
             , on "mouseleave"
                 (Decode.succeed (tagger (MouseMsg (LeftContainer target))))
+            , on "touchstart"
+                (Decode.map (TouchStart >> TouchMsg >> tagger) (decodeTouchEvents target renderBounds))
+            , on "touchmove"
+                (Decode.map (TouchMove >> TouchMsg >> tagger) (decodeTouchEvents target renderBounds))
+            , on "touchend"
+                (Decode.map (TouchEnd >> TouchMsg >> tagger) (decodeTouchEvents target renderBounds))
             ]
 
         background =
@@ -1013,6 +1019,9 @@ customHandle shape { target, renderBounds } =
             [ on "mousedown" (decodeMouseDown target renderBounds)
             , on "mouseenter" (Decode.succeed (MouseMsg (EnteredTarget target)))
             , on "mouseleave" (Decode.succeed (MouseMsg (LeftTarget target)))
+            , on "touchstart" (Decode.map (TouchStart >> TouchMsg) (decodeTouchEvents target renderBounds))
+            , on "touchmove" (Decode.map (TouchMove >> TouchMsg) (decodeTouchEvents target renderBounds))
+            , on "touchend" (Decode.map (TouchEnd >> TouchMsg) (decodeTouchEvents target renderBounds))
             ]
     in
     Svg.g attributes [ shape |> Svg.map never ]
