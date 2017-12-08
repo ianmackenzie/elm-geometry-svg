@@ -37,6 +37,7 @@ import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
 import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
 import OpenSolid.Point2d as Point2d exposing (Point2d)
 import OpenSolid.Svg as Svg
+import OpenSolid.Svg.Interaction.ScrollAmount as ScrollAmount exposing (ScrollAmount)
 import OpenSolid.Svg.Internal as Internal
 import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
 import OpenSolid.Vector2d as Vector2d exposing (Vector2d)
@@ -119,6 +120,7 @@ type MouseMsg t
     | OtherMouseDown Point2d
     | DraggedTo Point2d
     | MouseUp Point2d
+    | Scrolled t Modifiers ScrollAmount
     | KeyDown Int
     | KeyUp Int
 
@@ -151,6 +153,7 @@ type Interaction t
     = Click t Modifiers
     | Drag t Modifiers { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
     | Release t Modifiers { startPoint : Point2d, endPoint : Point2d }
+    | Scroll t Modifiers ScrollAmount
     | Tap (List t)
     | LongPress (List t)
     | Gesture (List (Touch t))
@@ -593,6 +596,9 @@ handleMouseMessage message ((Model modelProperties) as model) =
             else
                 ( model, Nothing )
 
+        ( _, Scrolled target modifiers scrollAmount ) ->
+            ( model, Just (Scroll target modifiers scrollAmount) )
+
         _ ->
             unexpectedMouseEvent ()
 
@@ -892,6 +898,8 @@ container tagger { target, renderBounds } children =
                 (Decode.map (TouchMove >> TouchMsg >> tagger) (decodeTouchEvents target renderBounds))
             , on "touchend"
                 (Decode.map (TouchEnd >> TouchMsg >> tagger) (decodeTouchEvents target renderBounds))
+            , on "wheel"
+                (decodeWheel target |> Decode.map tagger)
             ]
 
         background =
@@ -1000,6 +1008,36 @@ decodeMouseDown target renderBounds =
             )
 
 
+decodeScrollAmount : Decoder ScrollAmount
+decodeScrollAmount =
+    Decode.map2 (,)
+        (Decode.field "deltaMode" Decode.int)
+        (Decode.field "deltaY" Decode.float)
+        |> Decode.andThen
+            (\( deltaMode, value ) ->
+                case deltaMode of
+                    0 ->
+                        Decode.succeed (ScrollAmount.Pixels value)
+
+                    1 ->
+                        Decode.succeed (ScrollAmount.Lines value)
+
+                    2 ->
+                        Decode.succeed (ScrollAmount.Pages value)
+
+                    _ ->
+                        Decode.fail "Unrecognized delta mode"
+            )
+
+
+decodeWheel : t -> Decoder (Msg t)
+decodeWheel target =
+    Decode.map2 (Scrolled target)
+        decodeModifiers
+        decodeScrollAmount
+        |> Decode.map MouseMsg
+
+
 decodeTouchEvents : t -> BoundingBox2d -> Decoder (List (TouchEvent t))
 decodeTouchEvents target renderBounds =
     decodeTouchProperties
@@ -1037,6 +1075,7 @@ customHandle shape { target, renderBounds } =
             , on "touchstart" (Decode.map (TouchStart >> TouchMsg) (decodeTouchEvents target renderBounds))
             , on "touchmove" (Decode.map (TouchMove >> TouchMsg) (decodeTouchEvents target renderBounds))
             , on "touchend" (Decode.map (TouchEnd >> TouchMsg) (decodeTouchEvents target renderBounds))
+            , on "wheel" (decodeWheel target)
             ]
     in
     Svg.g attributes [ shape |> Svg.map never ]
