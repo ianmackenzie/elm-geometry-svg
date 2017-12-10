@@ -46,7 +46,7 @@ init =
     ( { interactionModel =
             Interaction.modelWith
                 [ Interaction.dragThresholdDistance 5
-                , Interaction.longPressThresholdTime (1 * Time.second)
+                , Interaction.longPressThresholdTime (0.5 * Time.second)
                 ]
       , triangles =
             [ Triangle2d.fromVertices
