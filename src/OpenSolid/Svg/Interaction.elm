@@ -847,8 +847,8 @@ update message model =
                 |> handleTouchMessage (UpdateTouchProgress delta)
 
 
-subscriptions : Model t -> Sub (Msg t)
-subscriptions (Model { mouseState, justFinishedDrag }) =
+mouseSubscriptions : Model t -> Sub (Msg t)
+mouseSubscriptions (Model { mouseState, justFinishedDrag }) =
     case mouseState of
         Dragging { pageOrigin } ->
             let
@@ -880,6 +880,33 @@ subscriptions (Model { mouseState, justFinishedDrag }) =
                 AnimationFrame.diffs Tick
             else
                 Sub.none
+
+
+isTapping : ActiveTouch t -> Bool
+isTapping activeTouch =
+    case activeTouch.progress of
+        Tapping _ ->
+            True
+
+        _ ->
+            False
+
+
+touchSubscriptions : Model t -> Sub (Msg t)
+touchSubscriptions (Model { touchState }) =
+    let
+        activeTouches =
+            Dict.values touchState
+    in
+    if List.any isTapping activeTouches then
+        AnimationFrame.diffs Tick
+    else
+        Sub.none
+
+
+subscriptions : Model t -> Sub (Msg t)
+subscriptions model =
+    Sub.batch [ mouseSubscriptions model, touchSubscriptions model ]
 
 
 container : (Msg t -> msg) -> { target : t, renderBounds : BoundingBox2d } -> List (Svg msg) -> Svg msg
