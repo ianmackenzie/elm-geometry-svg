@@ -720,9 +720,15 @@ handleTouchMove touchEvents (Model properties) =
 
         ( updatedTouchState, moves ) =
             List.foldl processEvent ( properties.touchState, [] ) touchEvents
+
+        interaction =
+            if List.isEmpty moves then
+                Nothing
+            else
+                Just (Gesture moves)
     in
     ( Model { properties | touchState = updatedTouchState }
-    , Just (Gesture moves)
+    , interaction
     )
 
 
@@ -766,9 +772,15 @@ handleTouchEnd touchEvents (Model properties) =
 
         ( updatedTouchState, targets ) =
             List.foldl processEvent ( properties.touchState, [] ) touchEvents
+
+        interaction =
+            if List.isEmpty targets then
+                Nothing
+            else
+                Just (Tap targets)
     in
     ( Model { properties | touchState = updatedTouchState }
-    , Just (Tap targets)
+    , interaction
     )
 
 
@@ -810,9 +822,15 @@ updateTouchProgress delta (Model properties) =
         ( updatedTouchState, targets ) =
             properties.touchState
                 |> Dict.foldl processActiveTouch ( Dict.empty, [] )
+
+        interaction =
+            if List.isEmpty targets then
+                Nothing
+            else
+                Just (LongPress targets)
     in
     ( Model { properties | touchState = updatedTouchState }
-    , Just (LongPress targets)
+    , interaction
     )
 
 
