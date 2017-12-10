@@ -1009,7 +1009,7 @@ decodeTouchProperties =
             else
                 Decode.succeed accumulated
     in
-    Decode.field "touches"
+    Decode.field "changedTouches"
         (Decode.field "length" Decode.int |> Decode.andThen (collect []))
 
 
