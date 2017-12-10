@@ -956,7 +956,7 @@ decodeTouchProperties =
         collect : List TouchProperties -> Int -> Decoder (List TouchProperties)
         collect accumulated count =
             if count > 0 then
-                Decode.index (count - 1) decodeSingle
+                Decode.field (toString (count - 1)) decodeSingle
                     |> Decode.andThen
                         (\decoded ->
                             collect (decoded :: accumulated) (count - 1)
