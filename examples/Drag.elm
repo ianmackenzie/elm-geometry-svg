@@ -386,6 +386,13 @@ handleInteraction interaction model =
             in
             model
 
+        Just (Interaction.Scroll target modifiers amount) ->
+            let
+                _ =
+                    Debug.log "Scroll" amount
+            in
+            model
+
 
 performDrag : Target -> Point2d -> Point2d -> Interaction.Modifiers -> Model -> Model
 performDrag target startPoint endPoint modifiers model =
