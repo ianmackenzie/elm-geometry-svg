@@ -5,6 +5,7 @@ module OpenSolid.Svg.Interaction
         , Modifiers
         , Msg
         , Option
+        , Touch(Touch)
         , container
         , customHandle
         , directionTipHandle
@@ -27,6 +28,7 @@ module OpenSolid.Svg.Interaction
         )
 
 import AnimationFrame
+import DOM
 import Dict exposing (Dict)
 import Html.Events
 import Json.Decode as Decode exposing (Decoder)
@@ -932,17 +934,17 @@ container tagger { target, renderBounds } children =
     let
         attributes =
             [ on "mousedown"
-                (decodeMouseDown target renderBounds |> Decode.map tagger)
+                (decodeMouseDown target |> Decode.map tagger)
             , on "mouseenter"
                 (Decode.succeed (tagger (MouseMsg (EnteredContainer target))))
             , on "mouseleave"
                 (Decode.succeed (tagger (MouseMsg (LeftContainer target))))
             , on "touchstart"
-                (Decode.map (TouchStart >> TouchMsg >> tagger) (decodeTouchEvents target renderBounds))
+                (Decode.map (TouchStart >> TouchMsg >> tagger) (decodeTouchEvents target))
             , on "touchmove"
-                (Decode.map (TouchMove >> TouchMsg >> tagger) (decodeTouchEvents target renderBounds))
+                (Decode.map (TouchMove >> TouchMsg >> tagger) (decodeTouchEvents target))
             , on "touchend"
-                (Decode.map (TouchEnd >> TouchMsg >> tagger) (decodeTouchEvents target renderBounds))
+                (Decode.map (TouchEnd >> TouchMsg >> tagger) (decodeTouchEvents target))
             , on "wheel"
                 (decodeWheel target |> Decode.map tagger)
             ]
@@ -970,6 +972,12 @@ decodeModifiers =
         (Decode.field "shiftKey" Decode.bool)
 
 
+decodeBoundingClientRect : Decoder DOM.Rectangle
+decodeBoundingClientRect =
+    Decode.at [ "target", "ownerSVGElement", "parentNode" ]
+        DOM.boundingClientRect
+
+
 decodeMouseDownProperties : Decoder MouseDownProperties
 decodeMouseDownProperties =
     Decode.map6 MouseDownProperties
@@ -985,6 +993,7 @@ type alias TouchProperties =
     { clientX : Float
     , clientY : Float
     , identifier : Int
+    , boundingClientRect : DOM.Rectangle
     }
 
 
@@ -993,10 +1002,11 @@ decodeTouchProperties =
     let
         decodeSingle : Decoder TouchProperties
         decodeSingle =
-            Decode.map3 TouchProperties
+            Decode.map4 TouchProperties
                 (Decode.field "clientX" Decode.float)
                 (Decode.field "clientY" Decode.float)
                 (Decode.field "identifier" Decode.int)
+                decodeBoundingClientRect
 
         collect : List TouchProperties -> Int -> Decoder (List TouchProperties)
         collect accumulated count =
@@ -1013,44 +1023,48 @@ decodeTouchProperties =
         (Decode.field "length" Decode.int |> Decode.andThen (collect []))
 
 
-decodeMouseDown : t -> BoundingBox2d -> Decoder (Msg t)
-decodeMouseDown target renderBounds =
-    decodeMouseDownProperties
-        |> Decode.map
-            (\{ clientX, clientY, pageX, pageY, button, modifiers } ->
-                let
-                    { minX, maxY } =
-                        BoundingBox2d.extrema renderBounds
+decodeMouseDown : t -> Decoder (Msg t)
+decodeMouseDown target =
+    Decode.map2
+        (\mouseDownProperties boundingClientRect ->
+            let
+                { clientX, clientY, pageX, pageY, button, modifiers } =
+                    mouseDownProperties
 
-                    x =
-                        minX + clientX + 0.5
+                { left, top, height } =
+                    boundingClientRect
 
-                    y =
-                        maxY - clientY - 0.5
+                x =
+                    clientX - left + 0.5
 
-                    point =
-                        Point2d.fromCoordinates ( x, y )
+                y =
+                    top + height - clientY - 0.5
 
-                    x0 =
-                        minX + clientX - pageX
+                point =
+                    Point2d.fromCoordinates ( x, y )
 
-                    y0 =
-                        maxY - clientY + pageY
+                x0 =
+                    -left
 
-                    pageOrigin =
-                        Point2d.fromCoordinates ( x0, y0 )
-                in
-                if button == 0 then
-                    MouseMsg <|
-                        PrimaryMouseDown
-                            { target = target
-                            , point = point
-                            , pageOrigin = pageOrigin
-                            , modifiers = modifiers
-                            }
-                else
-                    MouseMsg (OtherMouseDown point)
-            )
+                y0 =
+                    top + height
+
+                pageOrigin =
+                    Point2d.fromCoordinates ( x0, y0 )
+            in
+            if button == 0 then
+                MouseMsg <|
+                    PrimaryMouseDown
+                        { target = target
+                        , point = point
+                        , pageOrigin = pageOrigin
+                        , modifiers = modifiers
+                        }
+            else
+                MouseMsg (OtherMouseDown point)
+        )
+        decodeMouseDownProperties
+        decodeBoundingClientRect
 
 
 decodeScrollAmount : Decoder ScrollAmount
@@ -1083,21 +1097,21 @@ decodeWheel target =
         |> Decode.map MouseMsg
 
 
-decodeTouchEvents : t -> BoundingBox2d -> Decoder (List (TouchEvent t))
-decodeTouchEvents target renderBounds =
+decodeTouchEvents : t -> Decoder (List (TouchEvent t))
+decodeTouchEvents target =
     decodeTouchProperties
         |> Decode.map
             (List.map
-                (\{ identifier, clientX, clientY } ->
+                (\{ identifier, clientX, clientY, boundingClientRect } ->
                     let
-                        { minX, maxY } =
-                            BoundingBox2d.extrema renderBounds
+                        { left, top, height } =
+                            boundingClientRect
 
                         x =
-                            minX + clientX + 0.5
+                            clientX - left + 0.5
 
                         y =
-                            maxY - clientY - 0.5
+                            top + height - clientY - 0.5
 
                         point =
                             Point2d.fromCoordinates ( x, y )
@@ -1110,16 +1124,16 @@ decodeTouchEvents target renderBounds =
             )
 
 
-customHandle : Svg Never -> { target : t, renderBounds : BoundingBox2d } -> Svg (Msg t)
-customHandle shape { target, renderBounds } =
+customHandle : Svg Never -> t -> Svg (Msg t)
+customHandle shape target =
     let
         attributes =
-            [ on "mousedown" (decodeMouseDown target renderBounds)
+            [ on "mousedown" (decodeMouseDown target)
             , on "mouseenter" (Decode.succeed (MouseMsg (EnteredTarget target)))
             , on "mouseleave" (Decode.succeed (MouseMsg (LeftTarget target)))
-            , on "touchstart" (Decode.map (TouchStart >> TouchMsg) (decodeTouchEvents target renderBounds))
-            , on "touchmove" (Decode.map (TouchMove >> TouchMsg) (decodeTouchEvents target renderBounds))
-            , on "touchend" (Decode.map (TouchEnd >> TouchMsg) (decodeTouchEvents target renderBounds))
+            , on "touchstart" (Decode.map (TouchStart >> TouchMsg) (decodeTouchEvents target))
+            , on "touchmove" (Decode.map (TouchMove >> TouchMsg) (decodeTouchEvents target))
+            , on "touchend" (Decode.map (TouchEnd >> TouchMsg) (decodeTouchEvents target))
             , on "wheel" (decodeWheel target)
             ]
     in
@@ -1136,8 +1150,8 @@ noStroke =
     Svg.Attributes.stroke "none"
 
 
-pointHandle : Point2d -> { target : t, radius : Float, renderBounds : BoundingBox2d } -> Svg (Msg t)
-pointHandle point { target, radius, renderBounds } =
+pointHandle : Point2d -> { target : t, radius : Float } -> Svg (Msg t)
+pointHandle point { target, radius } =
     let
         shape =
             Svg.point2d
@@ -1146,7 +1160,7 @@ pointHandle point { target, radius, renderBounds } =
                 }
                 point
     in
-    customHandle shape { target = target, renderBounds = renderBounds }
+    customHandle shape target
 
 
 thickened : Float -> List (Svg.Attribute msg)
@@ -1159,26 +1173,26 @@ thickened padding =
     ]
 
 
-lineSegmentHandle : LineSegment2d -> { target : t, padding : Float, renderBounds : BoundingBox2d } -> Svg (Msg t)
-lineSegmentHandle lineSegment { target, padding, renderBounds } =
+lineSegmentHandle : LineSegment2d -> { target : t, padding : Float } -> Svg (Msg t)
+lineSegmentHandle lineSegment { target, padding } =
     let
         shape =
             Svg.lineSegment2d (thickened padding) lineSegment
     in
-    customHandle shape { target = target, renderBounds = renderBounds }
+    customHandle shape target
 
 
-triangleHandle : Triangle2d -> { target : t, padding : Float, renderBounds : BoundingBox2d } -> Svg (Msg t)
-triangleHandle triangle { target, padding, renderBounds } =
+triangleHandle : Triangle2d -> { target : t, padding : Float } -> Svg (Msg t)
+triangleHandle triangle { target, padding } =
     let
         shape =
             Svg.triangle2d (thickened padding) triangle
     in
-    customHandle shape { target = target, renderBounds = renderBounds }
+    customHandle shape target
 
 
-vectorTipHandle : Point2d -> Vector2d -> { target : t, tipLength : Float, tipWidth : Float, padding : Float, renderBounds : BoundingBox2d } -> Svg (Msg t)
-vectorTipHandle basePoint vector { target, tipLength, tipWidth, padding, renderBounds } =
+vectorTipHandle : Point2d -> Vector2d -> { target : t, tipLength : Float, tipWidth : Float, padding : Float } -> Svg (Msg t)
+vectorTipHandle basePoint vector { target, tipLength, tipWidth, padding } =
     case Vector2d.lengthAndDirection vector of
         Just ( length, direction ) ->
             let
@@ -1190,18 +1204,17 @@ vectorTipHandle basePoint vector { target, tipLength, tipWidth, padding, renderB
                             length
                             direction
             in
-            customHandle shape { target = target, renderBounds = renderBounds }
+            customHandle shape target
 
         Nothing ->
             pointHandle basePoint
                 { target = target
                 , radius = padding
-                , renderBounds = renderBounds
                 }
 
 
-directionTipHandle : Point2d -> Direction2d -> { length : Float, tipLength : Float, tipWidth : Float, target : t, padding : Float, renderBounds : BoundingBox2d } -> Svg (Msg t)
-directionTipHandle basePoint direction { length, tipLength, tipWidth, padding, target, renderBounds } =
+directionTipHandle : Point2d -> Direction2d -> { length : Float, tipLength : Float, tipWidth : Float, target : t, padding : Float } -> Svg (Msg t)
+directionTipHandle basePoint direction { length, tipLength, tipWidth, padding, target } =
     let
         vector =
             Vector2d.with { length = length, direction = direction }
@@ -1211,7 +1224,6 @@ directionTipHandle basePoint direction { length, tipLength, tipWidth, padding, t
         , tipLength = tipLength
         , tipWidth = tipWidth
         , padding = padding
-        , renderBounds = renderBounds
         }
 
 

@@ -136,6 +136,7 @@ conversion transformations to be applied to arbitrary SVG elements.
 -}
 
 import Html exposing (Html)
+import Html.Attributes
 import OpenSolid.Arc2d as Arc2d exposing (Arc2d)
 import OpenSolid.Axis2d as Axis2d exposing (Axis2d)
 import OpenSolid.BoundingBox2d as BoundingBox2d exposing (BoundingBox2d)
@@ -179,11 +180,21 @@ render2d boundingBox svg =
         ( width, height ) =
             BoundingBox2d.dimensions boundingBox
     in
-    Svg.svg
-        [ Attributes.width (toString width)
-        , Attributes.height (toString height)
+    Html.div
+        [ Html.Attributes.style
+            [ ( "border", "0" )
+            , ( "padding", "0" )
+            , ( "margin", "0" )
+            , ( "display", "inline-block" )
+            ]
         ]
-        [ relativeTo topLeftFrame svg ]
+        [ Svg.svg
+            [ Attributes.width (toString width)
+            , Attributes.height (toString height)
+            , Html.Attributes.style [ ( "display", "block" ) ]
+            ]
+            [ relativeTo topLeftFrame svg ]
+        ]
 
 
 coordinatesString : Point2d -> String
