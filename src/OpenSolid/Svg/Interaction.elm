@@ -156,9 +156,10 @@ type Interaction t
     | Drag t Modifiers { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
     | Release t Modifiers { startPoint : Point2d, endPoint : Point2d }
     | Scroll t Modifiers ScrollAmount
-    | Tap (List t)
-    | LongPress (List t)
-    | Gesture (List (Touch t))
+    | Tap t
+    | LongPress t
+    | Slide t { startPoint : Point2d, previousPoint : Point2d, currentPoint : Point2d }
+    | Lift t
 
 
 model : Model t
@@ -368,7 +369,7 @@ leaveTarget target hoverState =
                     )
 
 
-handleMouseMessage : MouseMsg t -> Model t -> ( Model t, Maybe (Interaction t) )
+handleMouseMessage : MouseMsg t -> Model t -> ( Model t, List (Interaction t) )
 handleMouseMessage message ((Model modelProperties) as model) =
     let
         { config, mouseState, justFinishedDrag, touchState } =
@@ -384,7 +385,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
                     Debug.log "Please raise an issue at"
                         "https://github.com/opensolid/svg/issues/new"
             in
-            ( model, Nothing )
+            ( model, [] )
 
         setMouseState updatedMouseState =
             Model
@@ -405,22 +406,22 @@ handleMouseMessage message ((Model modelProperties) as model) =
     case ( mouseState, message ) of
         ( Resting hoverState, EnteredTarget target ) ->
             ( setMouseState (Resting (enterTarget target hoverState))
-            , Nothing
+            , []
             )
 
         ( Resting hoverState, LeftTarget target ) ->
             ( setMouseState (Resting (leaveTarget target hoverState))
-            , Nothing
+            , []
             )
 
         ( Resting hoverState, EnteredContainer container ) ->
             ( setMouseState (Resting (enterContainer container hoverState))
-            , Nothing
+            , []
             )
 
         ( Resting hoverState, LeftContainer container ) ->
             ( setMouseState (Resting (leaveContainer container hoverState))
-            , Nothing
+            , []
             )
 
         ( Dragging properties, EnteredTarget target ) ->
@@ -429,7 +430,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
                     { properties
                         | hoverState = enterTarget target properties.hoverState
                     }
-            , Nothing
+            , []
             )
 
         ( Dragging properties, LeftTarget target ) ->
@@ -438,7 +439,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
                     { properties
                         | hoverState = leaveTarget target properties.hoverState
                     }
-            , Nothing
+            , []
             )
 
         ( Dragging properties, EnteredContainer container ) ->
@@ -448,7 +449,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
                         | hoverState =
                             enterContainer container properties.hoverState
                     }
-            , Nothing
+            , []
             )
 
         ( Dragging properties, LeftContainer container ) ->
@@ -458,7 +459,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
                         | hoverState =
                             leaveContainer container properties.hoverState
                     }
-            , Nothing
+            , []
             )
 
         ( Resting hoverState, PrimaryMouseDown mouseDown ) ->
@@ -474,7 +475,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
                             , pageOrigin = mouseDown.pageOrigin
                             , modifiers = mouseDown.modifiers
                             }
-                    , Nothing
+                    , []
                     )
             in
             case ( hoverState.target, hoverState.container ) of
@@ -494,7 +495,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
                     unexpectedMouseEvent ()
 
         ( Resting _, OtherMouseDown _ ) ->
-            ( model, Nothing )
+            ( model, [] )
 
         ( Resting _, DraggedTo _ ) ->
             if justFinishedDrag then
@@ -504,7 +505,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
                     , justFinishedDrag = False
                     , touchState = touchState
                     }
-                , Nothing
+                , []
                 )
             else
                 unexpectedMouseEvent ()
@@ -516,7 +517,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
             in
             ( setMouseState <|
                 Dragging { properties | modifiers = updatedModifiers }
-            , Nothing
+            , []
             )
 
         ( Dragging properties, KeyUp code ) ->
@@ -526,7 +527,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
             in
             ( setMouseState <|
                 Dragging { properties | modifiers = updatedModifiers }
-            , Nothing
+            , []
             )
 
         ( Dragging properties, MouseUp point ) ->
@@ -545,7 +546,7 @@ handleMouseMessage message ((Model modelProperties) as model) =
                         else
                             Click target modifiers
                 in
-                ( finishDrag (Resting hoverState), Just interaction )
+                ( finishDrag (Resting hoverState), [ interaction ] )
             else
                 unexpectedMouseEvent ()
 
@@ -558,13 +559,13 @@ handleMouseMessage message ((Model modelProperties) as model) =
                 let
                     interaction =
                         if dragStarted then
-                            Just <|
-                                Release target modifiers <|
-                                    { startPoint = startPoint
-                                    , endPoint = point
-                                    }
+                            [ Release target modifiers <|
+                                { startPoint = startPoint
+                                , endPoint = point
+                                }
+                            ]
                         else
-                            Nothing
+                            []
                 in
                 ( finishDrag (Resting hoverState), interaction )
             else
@@ -588,18 +589,18 @@ handleMouseMessage message ((Model modelProperties) as model) =
                             | currentPoint = newPoint
                             , dragStarted = True
                         }
-                , Just <|
-                    Drag target modifiers <|
+                , [ Drag target modifiers <|
                         { startPoint = startPoint
                         , previousPoint = properties.currentPoint
                         , currentPoint = newPoint
                         }
+                  ]
                 )
             else
-                ( model, Nothing )
+                ( model, [] )
 
         ( _, Scrolled target modifiers scrollAmount ) ->
-            ( model, Just (Scroll target modifiers scrollAmount) )
+            ( model, [ Scroll target modifiers scrollAmount ] )
 
         _ ->
             unexpectedMouseEvent ()
@@ -610,7 +611,7 @@ finalizeDrag (Model properties) =
     Model { properties | justFinishedDrag = False }
 
 
-handleTouchStart : List (TouchEvent t) -> Model t -> ( Model t, Maybe (Interaction t) )
+handleTouchStart : List (TouchEvent t) -> Model t -> ( Model t, List (Interaction t) )
 handleTouchStart touchEvents (Model properties) =
     let
         startTouch touchEvent =
@@ -637,10 +638,10 @@ handleTouchStart touchEvents (Model properties) =
         updatedTouchState =
             List.foldl startTouch properties.touchState touchEvents
     in
-    ( Model { properties | touchState = updatedTouchState }, Nothing )
+    ( Model { properties | touchState = updatedTouchState }, [] )
 
 
-moveTouch : Config -> TouchEvent t -> ActiveTouch t -> ( ActiveTouch t, List (Touch t) )
+moveTouch : Config -> TouchEvent t -> ActiveTouch t -> ( ActiveTouch t, List (Interaction t) )
 moveTouch { dragThresholdDistance } touchEvent activeTouch =
     let
         updatedTouch =
@@ -653,9 +654,8 @@ moveTouch { dragThresholdDistance } touchEvent activeTouch =
             in
             if distanceFromStart > dragThresholdDistance then
                 ( { updatedTouch | progress = Gesturing }
-                , [ Touch touchEvent.target
-                        { identifier = touchEvent.identifier
-                        , startPoint = activeTouch.startPoint
+                , [ Slide touchEvent.target
+                        { startPoint = activeTouch.startPoint
                         , previousPoint = activeTouch.startPoint
                         , currentPoint = touchEvent.point
                         }
@@ -667,9 +667,8 @@ moveTouch { dragThresholdDistance } touchEvent activeTouch =
     case activeTouch.progress of
         Gesturing ->
             ( updatedTouch
-            , [ Touch touchEvent.target
-                    { identifier = touchEvent.identifier
-                    , startPoint = activeTouch.startPoint
+            , [ Slide touchEvent.target
+                    { startPoint = activeTouch.startPoint
                     , previousPoint = activeTouch.currentPoint
                     , currentPoint = touchEvent.point
                     }
@@ -683,15 +682,15 @@ moveTouch { dragThresholdDistance } touchEvent activeTouch =
             checkForGestureStart ()
 
 
-handleTouchMove : List (TouchEvent t) -> Model t -> ( Model t, Maybe (Interaction t) )
+handleTouchMove : List (TouchEvent t) -> Model t -> ( Model t, List (Interaction t) )
 handleTouchMove touchEvents (Model properties) =
     let
-        processEvent touchEvent ( touchState, accumulatedMoves ) =
+        processEvent touchEvent ( touchState, accumulatedInteractions ) =
             case Dict.get touchEvent.identifier touchState of
                 Just activeTouch ->
                     if touchEvent.target == activeTouch.target then
                         let
-                            ( updatedTouch, newMoves ) =
+                            ( updatedTouch, newInteractions ) =
                                 moveTouch properties.config
                                     touchEvent
                                     activeTouch
@@ -702,10 +701,10 @@ handleTouchMove touchEvents (Model properties) =
                                         updatedTouch
                         in
                         ( updatedTouchState
-                        , accumulatedMoves ++ newMoves
+                        , accumulatedInteractions ++ newInteractions
                         )
                     else
-                        ( touchState, accumulatedMoves )
+                        ( touchState, accumulatedInteractions )
                             |> logError
                                 ("Touch move event "
                                     ++ toString touchEvent
@@ -714,50 +713,51 @@ handleTouchMove touchEvents (Model properties) =
                                 )
 
                 Nothing ->
-                    ( touchState, accumulatedMoves )
+                    ( touchState, accumulatedInteractions )
                         |> logError
                             ("No active touch found for touch move event "
                                 ++ toString touchEvent
                             )
 
-        ( updatedTouchState, moves ) =
+        ( updatedTouchState, interactions ) =
             List.foldl processEvent ( properties.touchState, [] ) touchEvents
-
-        interaction =
-            if List.isEmpty moves then
-                Nothing
-            else
-                Just (Gesture moves)
     in
     ( Model { properties | touchState = updatedTouchState }
-    , interaction
+    , interactions
     )
 
 
-handleTouchEnd : List (TouchEvent t) -> Model t -> ( Model t, Maybe (Interaction t) )
+handleTouchEnd : List (TouchEvent t) -> Model t -> ( Model t, List (Interaction t) )
 handleTouchEnd touchEvents (Model properties) =
     let
-        processEvent touchEvent ( touchState, accumulatedTargets ) =
+        processEvent touchEvent ( touchState, accumulatedTaps, accumulatedLifts ) =
             case Dict.get touchEvent.identifier touchState of
                 Just activeTouch ->
                     if touchEvent.target == activeTouch.target then
                         let
                             updatedTouchState =
                                 touchState |> Dict.remove touchEvent.identifier
-
-                            tappedTargets =
-                                case activeTouch.progress of
-                                    Tapping _ ->
-                                        [ activeTouch.target ]
-
-                                    _ ->
-                                        []
                         in
-                        ( updatedTouchState
-                        , accumulatedTargets ++ tappedTargets
-                        )
+                        case activeTouch.progress of
+                            Tapping _ ->
+                                ( updatedTouchState
+                                , activeTouch.target :: accumulatedTaps
+                                , accumulatedLifts
+                                )
+
+                            LongPressed ->
+                                ( updatedTouchState
+                                , accumulatedTaps
+                                , accumulatedLifts
+                                )
+
+                            Gesturing ->
+                                ( updatedTouchState
+                                , accumulatedTaps
+                                , activeTouch.target :: accumulatedLifts
+                                )
                     else
-                        ( touchState, accumulatedTargets )
+                        ( touchState, accumulatedTaps, accumulatedLifts )
                             |> logError
                                 ("Touch end event "
                                     ++ toString touchEvent
@@ -766,27 +766,27 @@ handleTouchEnd touchEvents (Model properties) =
                                 )
 
                 Nothing ->
-                    ( touchState, accumulatedTargets )
+                    ( touchState, accumulatedTaps, accumulatedLifts )
                         |> logError
                             ("No active touch found for touch end event "
                                 ++ toString touchEvent
                             )
 
-        ( updatedTouchState, targets ) =
-            List.foldl processEvent ( properties.touchState, [] ) touchEvents
+        ( updatedTouchState, tapTargets, liftTargets ) =
+            List.foldl processEvent
+                ( properties.touchState, [], [] )
+                touchEvents
 
-        interaction =
-            if List.isEmpty targets then
-                Nothing
-            else
-                Just (Tap targets)
+        interactions =
+            List.map Tap (List.reverse tapTargets)
+                ++ List.map Lift (List.reverse liftTargets)
     in
     ( Model { properties | touchState = updatedTouchState }
-    , interaction
+    , interactions
     )
 
 
-updateTouchProgress : Float -> Model t -> ( Model t, Maybe (Interaction t) )
+updateTouchProgress : Float -> Model t -> ( Model t, List (Interaction t) )
 updateTouchProgress delta (Model properties) =
     let
         { longPressThresholdTime } =
@@ -825,18 +825,18 @@ updateTouchProgress delta (Model properties) =
             properties.touchState
                 |> Dict.foldl processActiveTouch ( Dict.empty, [] )
 
-        interaction =
+        interactions =
             if List.isEmpty targets then
-                Nothing
+                []
             else
-                Just (LongPress targets)
+                List.map LongPress targets
     in
     ( Model { properties | touchState = updatedTouchState }
-    , interaction
+    , interactions
     )
 
 
-handleTouchMessage : TouchMsg t -> Model t -> ( Model t, Maybe (Interaction t) )
+handleTouchMessage : TouchMsg t -> Model t -> ( Model t, List (Interaction t) )
 handleTouchMessage touchMessage model =
     case touchMessage of
         TouchStart touchEvents ->
@@ -852,7 +852,7 @@ handleTouchMessage touchMessage model =
             updateTouchProgress delta model
 
 
-update : Msg t -> Model t -> ( Model t, Maybe (Interaction t) )
+update : Msg t -> Model t -> ( Model t, List (Interaction t) )
 update message model =
     case message of
         MouseMsg mouseMessage ->
