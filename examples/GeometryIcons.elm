@@ -44,13 +44,7 @@ viewPlane =
 
 vector2d : Point2d -> Vector2d -> Svg Never
 vector2d =
-    Svg.vector2d
-        { tipAttributes = [ Attributes.fill "black" ]
-        , stemAttributes = []
-        , groupAttributes = []
-        , tipLength = 6
-        , tipWidth = 5
-        }
+    Svg.vector2dWith { tipLength = 6, tipWidth = 5 } [ Attributes.fill "black" ]
 
 
 vector3d : Point3d -> Vector3d -> Svg Never
@@ -61,14 +55,8 @@ vector3d point vector =
 
 direction2d : Point2d -> Direction2d -> Svg Never
 direction2d =
-    Svg.direction2d
-        { tipAttributes = [ Attributes.fill "white" ]
-        , stemAttributes = []
-        , groupAttributes = []
-        , tipLength = 5
-        , tipWidth = 5
-        , length = 25
-        }
+    Svg.direction2dWith { length = 25, tipLength = 5, tipWidth = 5 }
+        [ Attributes.fill "white" ]
 
 
 direction3d : Point3d -> Direction3d -> Svg Never
@@ -77,23 +65,15 @@ direction3d point direction =
         vector =
             Vector3d.with { length = 25, direction = direction }
     in
-    Svg.vector2d
-        { tipAttributes = [ Attributes.fill "white" ]
-        , stemAttributes = []
-        , groupAttributes = []
-        , tipLength = 5
-        , tipWidth = 5
-        }
+    Svg.vector2dWith { tipLength = 5, tipWidth = 5 }
+        [ Attributes.fill "white" ]
         (Point3d.projectInto viewPlane point)
         (Vector3d.projectInto viewPlane vector)
 
 
 originPoint2d : Point2d -> Svg Never
 originPoint2d =
-    Svg.point2d
-        { attributes = [ Attributes.fill "white" ]
-        , radius = 1.5
-        }
+    Svg.point2dWith { radius = 1.5 } [ Attributes.fill "white" ]
 
 
 originPoint3d : Point3d -> Svg Never
@@ -883,7 +863,7 @@ quadraticSpline2d spline =
             ]
             (Polyline2d.fromVertices points)
         , Svg.g [ Attributes.fill "white" ]
-            (List.map (Svg.point2d { radius = 2, attributes = [] }) points)
+            (List.map (Svg.point2dWith { radius = 2 } []) points)
         ]
 
 
@@ -906,7 +886,7 @@ cubicSpline2d spline =
             ]
             (Polyline2d.fromVertices points)
         , Svg.g [ Attributes.fill "white" ]
-            (List.map (Svg.point2d { radius = 2, attributes = [] }) points)
+            (List.map (Svg.point2dWith { radius = 2 } []) points)
         ]
 
 
@@ -920,8 +900,8 @@ quadraticSpline3d spline =
             [ p1, p2, p3 ]
 
         drawControlPoint point =
-            Svg.point2d { radius = 2, attributes = [] }
-                (Point3d.projectInto viewPlane point)
+            Svg.point2dWith { radius = 2 } [] <|
+                Point3d.projectInto viewPlane point
     in
     Svg.g []
         [ Svg.quadraticSpline2d
@@ -947,8 +927,8 @@ cubicSpline3d spline =
             [ p1, p2, p3, p4 ]
 
         drawControlPoint point =
-            Svg.point2d { radius = 2, attributes = [] }
-                (Point3d.projectInto viewPlane point)
+            Svg.point2dWith { radius = 2 } [] <|
+                Point3d.projectInto viewPlane point
     in
     Svg.g []
         [ Svg.cubicSpline2d

@@ -23,81 +23,120 @@ import Svg.Attributes as Attributes
 import UrlParser
 
 
-vectorSvg : Svg Never
-vectorSvg =
+vector : Svg Never
+vector =
     Svg.vector2d
-        { tipLength = 30
-        , tipWidth = 15
-        , tipAttributes =
-            [ Attributes.fill "orange"
-            , Attributes.stroke "blue"
-            , Attributes.strokeWidth "2"
-            ]
-        , stemAttributes =
-            [ Attributes.stroke "blue"
-            , Attributes.strokeWidth "3"
-            , Attributes.strokeDasharray "3 3"
-            ]
-        , groupAttributes = []
-        }
+        [ Attributes.fill "black"
+        , Attributes.stroke "black"
+        ]
         (Point2d.fromCoordinates ( 100, 100 ))
         (Vector2d.fromComponents ( 100, 100 ))
 
 
-drawDirection : Point2d -> Direction2d -> Svg Never
-drawDirection =
-    Svg.direction2d
-        { length = 100
-        , tipLength = 8
-        , tipWidth = 8
-        , tipAttributes = [ Attributes.fill "orange" ]
-        , stemAttributes = []
-        , groupAttributes = [ Attributes.stroke "blue" ]
-        }
+customVector : Svg Never
+customVector =
+    Svg.vector2dWith { tipLength = 30, tipWidth = 30 }
+        [ Attributes.fill "orange"
+        , Attributes.stroke "blue"
+        , Attributes.strokeWidth "2"
+        ]
+        (Point2d.fromCoordinates ( 100, 100 ))
+        (Vector2d.fromComponents ( 100, 100 ))
 
 
-directionSvg : Svg Never
-directionSvg =
+directions : Svg Never
+directions =
     let
         basePoint =
             Point2d.fromCoordinates ( 100, 100 )
 
-        directions =
-            List.map degrees [ 0, 15, 30, 45, 60, 75, 90 ]
-                |> List.map Direction2d.fromAngle
-    in
-    Svg.g [] (List.map (drawDirection basePoint) directions)
+        angles =
+            List.map degrees [ 5, 25, 45, 65, 85 ]
 
+        values =
+            List.map Direction2d.fromAngle angles
 
-drawPoint : Point2d -> Svg Never
-drawPoint =
-    Svg.point2d
-        { radius = 3
-        , attributes =
-            [ Attributes.stroke "blue"
-            , Attributes.fill "orange"
+        attributes =
+            [ Attributes.fill "white"
+            , Attributes.stroke "black"
             ]
-        }
+    in
+    Svg.g attributes <|
+        List.map (Svg.direction2d [] basePoint) values
 
 
-pointSvg : Svg Never
-pointSvg =
+customDirections : Svg Never
+customDirections =
     let
-        points =
-            [ Point2d.fromCoordinates ( 100, 100 )
-            , Point2d.fromCoordinates ( 200, 200 )
-            , Point2d.fromCoordinates ( 110, 130 )
+        basePoint =
+            Point2d.fromCoordinates ( 100, 100 )
+
+        angles =
+            List.map degrees [ 5, 25, 45, 65, 85 ]
+
+        values =
+            List.map Direction2d.fromAngle angles
+
+        attributes =
+            [ Attributes.fill "orange"
+            , Attributes.stroke "blue"
+            , Attributes.strokeWidth "2"
+            ]
+
+        drawDirection =
+            Svg.direction2dWith
+                { length = 100
+                , tipLength = 20
+                , tipWidth = 20
+                }
+                []
+                basePoint
+    in
+    Svg.g attributes (List.map drawDirection values)
+
+
+points : Svg Never
+points =
+    let
+        values =
+            [ Point2d.fromCoordinates ( 110, 130 )
             , Point2d.fromCoordinates ( 140, 180 )
             , Point2d.fromCoordinates ( 170, 110 )
             , Point2d.fromCoordinates ( 180, 150 )
-            , Point2d.fromCoordinates ( 110, 190 )
+            ]
+
+        attributes =
+            [ Attributes.stroke "black"
+            , Attributes.fill "white"
             ]
     in
-    Svg.g [] (List.map drawPoint points)
+    Svg.g attributes (List.map (Svg.point2d []) values)
 
 
-circleSvg : Svg Never
-circleSvg =
+customPoints : Svg Never
+customPoints =
+    let
+        values =
+            [ Point2d.fromCoordinates ( 110, 130 )
+            , Point2d.fromCoordinates ( 140, 180 )
+            , Point2d.fromCoordinates ( 170, 110 )
+            , Point2d.fromCoordinates ( 180, 150 )
+            ]
+
+        attributes =
+            [ Attributes.stroke "blue"
+            , Attributes.fill "orange"
+            , Attributes.strokeWidth "2"
+            ]
+
+        drawPoint =
+            Svg.point2dWith { radius = 6 } []
+    in
+    Svg.g attributes (List.map drawPoint values)
+
+
+circle : Svg Never
+circle =
     Svg.circle2d
         [ Attributes.fill "orange"
         , Attributes.stroke "blue"
@@ -110,8 +149,8 @@ circleSvg =
         )
 
 
-lineSegmentSvg : Svg Never
-lineSegmentSvg =
+lineSegment : Svg Never
+lineSegment =
     Svg.lineSegment2d
         [ Attributes.stroke "blue"
         , Attributes.strokeWidth "5"
@@ -123,8 +162,8 @@ lineSegmentSvg =
         )
 
 
-triangleSvg : Svg Never
-triangleSvg =
+triangle : Svg Never
+triangle =
     Svg.triangle2d
         [ Attributes.stroke "blue"
         , Attributes.strokeWidth "10"
@@ -139,8 +178,8 @@ triangleSvg =
         )
 
 
-polylineSvg : Svg Never
-polylineSvg =
+polyline : Svg Never
+polyline =
     Svg.polyline2d
         [ Attributes.stroke "blue"
         , Attributes.fill "none"
@@ -159,8 +198,8 @@ polylineSvg =
         )
 
 
-polygonSvg : Svg Never
-polygonSvg =
+polygon : Svg Never
+polygon =
     Svg.polygon2d
         [ Attributes.stroke "blue"
         , Attributes.fill "orange"
@@ -175,8 +214,8 @@ polygonSvg =
         )
 
 
-arcSvg : Svg Never
-arcSvg =
+arc : Svg Never
+arc =
     Svg.arc2d
         [ Attributes.stroke "blue"
         , Attributes.strokeWidth "5"
@@ -191,8 +230,8 @@ arcSvg =
         )
 
 
-quadraticSplineSvg : Svg Never
-quadraticSplineSvg =
+quadraticSpline : Svg Never
+quadraticSpline =
     let
         spline =
             QuadraticSpline2d.fromControlPoints
@@ -220,13 +259,12 @@ quadraticSplineSvg =
             , Attributes.strokeDasharray "3 3"
             ]
             (Polyline2d.fromVertices points)
-        , Svg.g [ Attributes.fill "white" ]
-            (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+        , Svg.g [ Attributes.fill "white" ] (List.map (Svg.point2d []) points)
         ]
 
 
-cubicSplineSvg : Svg Never
-cubicSplineSvg =
+cubicSpline : Svg Never
+cubicSpline =
     let
         spline =
             CubicSpline2d.fromControlPoints
@@ -255,19 +293,14 @@ cubicSplineSvg =
             , Attributes.strokeDasharray "3 3"
             ]
             (Polyline2d.fromVertices points)
-        , Svg.g [ Attributes.fill "white" ]
-            (List.map (Svg.point2d { radius = 3, attributes = [] }) points)
+        , Svg.g [ Attributes.fill "white" ] (List.map (Svg.point2d []) points)
         ]
 
 
 drawText : Point2d -> String -> String -> Svg Never
 drawText point anchor baseline =
     Svg.g []
-        [ Svg.point2d
-            { radius = 2
-            , attributes = [ Attributes.fill "orange" ]
-            }
-            point
+        [ Svg.point2dWith { radius = 2 } [ Attributes.fill "orange" ] point
         , Svg.text2d
             [ Attributes.textAnchor anchor
             , Attributes.alignmentBaseline baseline
@@ -278,8 +311,8 @@ drawText point anchor baseline =
         ]
 
 
-textSvg : Svg Never
-textSvg =
+text : Svg Never
+text =
     let
         p1 =
             Point2d.fromCoordinates ( 100, 100 )
@@ -309,8 +342,8 @@ textSvg =
         ]
 
 
-scaledSvg : Svg Never
-scaledSvg =
+scaled : Svg Never
+scaled =
     let
         scales =
             [ 1.0, 1.5, 2.25 ]
@@ -318,19 +351,18 @@ scaledSvg =
         referencePoint =
             Point2d.fromCoordinates ( 100, 100 )
 
-        referencePointSvg =
-            Svg.point2d { radius = 3, attributes = [ Attributes.fill "black" ] }
-                referencePoint
-
         scaledCircle : Float -> Svg Never
         scaledCircle scale =
-            Svg.scaleAbout referencePoint scale circleSvg
+            Svg.scaleAbout referencePoint scale circle
     in
-    Svg.g [] (referencePointSvg :: List.map scaledCircle scales)
+    Svg.g []
+        (Svg.point2d [ Attributes.fill "black" ] referencePoint
+            :: List.map scaledCircle scales
+        )
 
 
-rotatedSvg : Svg Never
-rotatedSvg =
+rotated : Svg Never
+rotated =
     let
         angles =
             List.range 0 9
@@ -339,28 +371,27 @@ rotatedSvg =
         referencePoint =
             Point2d.fromCoordinates ( 200, 150 )
 
-        referencePointSvg =
-            Svg.point2d { radius = 3, attributes = [ Attributes.fill "black" ] }
-                referencePoint
-
         rotatedCircle : Float -> Svg Never
         rotatedCircle angle =
-            Svg.rotateAround referencePoint angle circleSvg
+            Svg.rotateAround referencePoint angle circle
     in
-    Svg.g [] (referencePointSvg :: List.map rotatedCircle angles)
-
-
-translatedSvg : Svg Never
-translatedSvg =
     Svg.g []
-        [ polylineSvg
-        , Svg.translateBy (Vector2d.fromComponents ( 0, 40 )) polylineSvg
-        , Svg.translateBy (Vector2d.fromComponents ( 5, -60 )) polylineSvg
+        (Svg.point2d [ Attributes.fill "black" ] referencePoint
+            :: List.map rotatedCircle angles
+        )
+
+
+translated : Svg Never
+translated =
+    Svg.g []
+        [ polyline
+        , Svg.translateBy (Vector2d.fromComponents ( 0, 40 )) polyline
+        , Svg.translateBy (Vector2d.fromComponents ( 5, -60 )) polyline
         ]
 
 
-mirroredSvg : Svg Never
-mirroredSvg =
+mirrored : Svg Never
+mirrored =
     let
         horizontalAxis =
             Axis2d.with
@@ -381,9 +412,9 @@ mirroredSvg =
             LineSegment2d.along angledAxis 50 250
     in
     Svg.g []
-        [ polygonSvg
-        , Svg.mirrorAcross horizontalAxis polygonSvg
-        , Svg.mirrorAcross angledAxis polygonSvg
+        [ polygon
+        , Svg.mirrorAcross horizontalAxis polygon
+        , Svg.mirrorAcross angledAxis polygon
         , Svg.g
             [ Attributes.strokeWidth "0.5"
             , Attributes.stroke "black"
@@ -395,10 +426,10 @@ mirroredSvg =
         ]
 
 
-placedSvg : Svg Never
-placedSvg =
+placed : Svg Never
+placed =
     let
-        stampSvg =
+        stamp =
             Svg.polygon2d
                 [ Attributes.fill "orange"
                 , Attributes.stroke "blue"
@@ -424,7 +455,7 @@ placedSvg =
                 |> Frame2d.rotateBy (degrees -30)
             ]
     in
-    Svg.g [] (List.map (\frame -> Svg.placeIn frame stampSvg) frames)
+    Svg.g [] (List.map (\frame -> Svg.placeIn frame stamp) frames)
 
 
 example : ( Float, Float ) -> ( Float, Float ) -> Svg Never -> Html Never
@@ -441,23 +472,26 @@ example ( minX, minY ) ( maxX, maxY ) =
 
 examples : List ( String, Html Never )
 examples =
-    [ ( "vector", example ( 90, 90 ) ( 210, 210 ) vectorSvg )
-    , ( "direction", example ( 90, 90 ) ( 210, 210 ) directionSvg )
-    , ( "point", example ( 90, 90 ) ( 210, 210 ) pointSvg )
-    , ( "circle", example ( 130, 130 ) ( 170, 170 ) circleSvg )
-    , ( "lineSegment", example ( 90, 90 ) ( 210, 210 ) lineSegmentSvg )
-    , ( "triangle", example ( 90, 90 ) ( 210, 210 ) triangleSvg )
-    , ( "polyline", example ( 90, 90 ) ( 210, 210 ) polylineSvg )
-    , ( "polygon", example ( 90, 140 ) ( 210, 210 ) polygonSvg )
-    , ( "arc", example ( 70, 60 ) ( 170, 170 ) arcSvg )
-    , ( "quadraticSpline", example ( 35, 35 ) ( 165, 165 ) quadraticSplineSvg )
-    , ( "cubicSpline", example ( 30, 5 ) ( 220, 170 ) cubicSplineSvg )
-    , ( "text", example ( 90, 90 ) ( 310, 260 ) textSvg )
-    , ( "scaled", example ( 90, 90 ) ( 250, 250 ) scaledSvg )
-    , ( "rotated", example ( 130, 80 ) ( 270, 220 ) rotatedSvg )
-    , ( "translated", example ( 87, 25 ) ( 215, 255 ) translatedSvg )
-    , ( "mirrored", example ( 35, 20 ) ( 265, 300 ) mirroredSvg )
-    , ( "placed", example ( 10, 10 ) ( 235, 190 ) placedSvg )
+    [ ( "vector", example ( 90, 90 ) ( 210, 210 ) vector )
+    , ( "customVector", example ( 90, 90 ) ( 210, 210 ) customVector )
+    , ( "directions", example ( 90, 90 ) ( 160, 160 ) directions )
+    , ( "customDirections", example ( 90, 90 ) ( 210, 210 ) customDirections )
+    , ( "points", example ( 90, 90 ) ( 200, 200 ) points )
+    , ( "customPoints", example ( 90, 90 ) ( 200, 200 ) customPoints )
+    , ( "circle", example ( 130, 130 ) ( 170, 170 ) circle )
+    , ( "lineSegment", example ( 90, 90 ) ( 210, 210 ) lineSegment )
+    , ( "triangle", example ( 90, 90 ) ( 210, 210 ) triangle )
+    , ( "polyline", example ( 90, 90 ) ( 210, 210 ) polyline )
+    , ( "polygon", example ( 90, 140 ) ( 210, 210 ) polygon )
+    , ( "arc", example ( 70, 60 ) ( 170, 170 ) arc )
+    , ( "quadraticSpline", example ( 35, 35 ) ( 165, 165 ) quadraticSpline )
+    , ( "cubicSpline", example ( 30, 5 ) ( 220, 170 ) cubicSpline )
+    , ( "text", example ( 90, 90 ) ( 310, 260 ) text )
+    , ( "scaled", example ( 90, 90 ) ( 250, 250 ) scaled )
+    , ( "rotated", example ( 130, 80 ) ( 270, 220 ) rotated )
+    , ( "translated", example ( 87, 25 ) ( 215, 255 ) translated )
+    , ( "mirrored", example ( 35, 20 ) ( 265, 300 ) mirrored )
+    , ( "placed", example ( 10, 10 ) ( 235, 190 ) placed )
     ]
 
 
