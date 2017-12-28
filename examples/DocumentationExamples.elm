@@ -303,7 +303,7 @@ drawText point anchor baseline =
         [ Svg.point2dWith { radius = 2 } [ Attributes.fill "orange" ] point
         , Svg.text2d
             [ Attributes.textAnchor anchor
-            , Attributes.alignmentBaseline baseline
+            , Attributes.dominantBaseline baseline
             , Attributes.fill "blue"
             ]
             point
