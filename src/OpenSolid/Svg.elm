@@ -135,6 +135,7 @@ conversion transformations to be applied to arbitrary SVG elements.
 
 -}
 
+import Basics.Extra exposing (inDegrees)
 import Html exposing (Html)
 import Html.Attributes
 import OpenSolid.Arc2d as Arc2d exposing (Arc2d)
@@ -1222,8 +1223,24 @@ scaleAbout point scale element =
 
 -}
 rotateAround : Point2d -> Float -> Svg msg -> Svg msg
-rotateAround point angle =
-    placeIn (Frame2d.rotateAround point angle Frame2d.xy)
+rotateAround point angle element =
+    let
+        ( x, y ) =
+            Point2d.coordinates point
+
+        xString =
+            toString x
+
+        yString =
+            toString y
+
+        angleString =
+            toString (inDegrees angle)
+
+        rotate =
+            "rotate(" ++ angleString ++ " " ++ xString ++ " " ++ yString ++ ")"
+    in
+    Svg.g [ Attributes.transform rotate ] [ element ]
 
 
 {-| Translate arbitrary SVG by a given displacement.
@@ -1246,8 +1263,15 @@ rotateAround point angle =
 
 -}
 translateBy : Vector2d -> Svg msg -> Svg msg
-translateBy vector =
-    placeIn (Frame2d.translateBy vector Frame2d.xy)
+translateBy vector element =
+    let
+        ( x, y ) =
+            Vector2d.components vector
+
+        translate =
+            "translate(" ++ toString x ++ " " ++ toString y ++ ")"
+    in
+    Svg.g [ Attributes.transform translate ] [ element ]
 
 
 {-| Mirror arbitrary SVG across a given axis.
