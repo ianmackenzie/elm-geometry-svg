@@ -6,6 +6,7 @@ module OpenSolid.Svg
         , cubicSpline2d
         , direction2d
         , direction2dWith
+        , ellipse2d
         , ellipticalArc2d
         , lineSegment2d
         , mirrorAcross
@@ -77,7 +78,7 @@ attributes such as `points` and `transform` set appropriately. Each function
 also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
-@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, ellipticalArc2d, circle2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
+@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, ellipticalArc2d, circle2d, ellipse2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
 
 
 # Text
@@ -142,6 +143,7 @@ import OpenSolid.BoundingBox2d as BoundingBox2d exposing (BoundingBox2d)
 import OpenSolid.Circle2d as Circle2d exposing (Circle2d)
 import OpenSolid.CubicSpline2d as CubicSpline2d exposing (CubicSpline2d)
 import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
+import OpenSolid.Ellipse2d as Ellipse2d exposing (Ellipse2d)
 import OpenSolid.EllipticalArc2d as EllipticalArc2d exposing (EllipticalArc2d)
 import OpenSolid.Frame2d as Frame2d exposing (Frame2d)
 import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
@@ -760,6 +762,58 @@ circle2d attributes circle =
             Attributes.r (toString (Circle2d.radius circle))
     in
     Svg.circle (cx :: cy :: r :: attributes) []
+
+
+{-| Draw an `Ellipse2d` as an SVG `<ellipse>` with the given attributes.
+
+<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipse" style="width: 260px; height: 190px" scrolling=no frameborder=0>
+`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipse`
+</iframe>
+
+    ellipse : Svg Never
+    ellipse =
+        Svg.ellipse2d
+            [ Attributes.fill "orange"
+            , Attributes.stroke "blue"
+            , Attributes.strokeWidth "2"
+            ]
+            (Ellipse2d.with
+                { centerPoint =
+                    Point2d.fromCoordinates ( 150, 150 )
+                , xDirection =
+                    Direction2d.fromAngle (degrees -30)
+                , xRadius = 120
+                , yRadius = 60
+                }
+            )
+
+-}
+ellipse2d : List (Attribute msg) -> Ellipse2d -> Svg msg
+ellipse2d attributes ellipse =
+    let
+        centerPoint =
+            Ellipse2d.centerPoint ellipse
+
+        ( x, y ) =
+            Point2d.coordinates centerPoint
+
+        cx =
+            Attributes.cx (toString x)
+
+        cy =
+            Attributes.cy (toString y)
+
+        rx =
+            Attributes.rx (toString (Ellipse2d.xRadius ellipse))
+
+        ry =
+            Attributes.ry (toString (Ellipse2d.yRadius ellipse))
+
+        angle =
+            Direction2d.angle (Ellipse2d.xDirection ellipse)
+    in
+    Svg.ellipse (cx :: cy :: rx :: ry :: attributes) []
+        |> rotateAround centerPoint angle
 
 
 {-| Draw a quadratic spline as an SVG `<path>` with the given attributes.

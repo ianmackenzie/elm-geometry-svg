@@ -9,6 +9,7 @@ import OpenSolid.BoundingBox2d as BoundingBox2d exposing (BoundingBox2d)
 import OpenSolid.Circle2d as Circle2d exposing (Circle2d)
 import OpenSolid.CubicSpline2d as CubicSpline2d exposing (CubicSpline2d)
 import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
+import OpenSolid.Ellipse2d as Ellipse2d exposing (Ellipse2d)
 import OpenSolid.Frame2d as Frame2d exposing (Frame2d)
 import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
 import OpenSolid.Point2d as Point2d exposing (Point2d)
@@ -145,6 +146,24 @@ circle =
         (Circle2d.with
             { centerPoint = Point2d.fromCoordinates ( 150, 150 )
             , radius = 10
+            }
+        )
+
+
+ellipse : Svg Never
+ellipse =
+    Svg.ellipse2d
+        [ Attributes.fill "orange"
+        , Attributes.stroke "blue"
+        , Attributes.strokeWidth "2"
+        ]
+        (Ellipse2d.with
+            { centerPoint =
+                Point2d.fromCoordinates ( 150, 150 )
+            , xDirection =
+                Direction2d.fromAngle (degrees -30)
+            , xRadius = 120
+            , yRadius = 60
             }
         )
 
@@ -479,6 +498,7 @@ examples =
     , ( "points", example ( 90, 90 ) ( 200, 200 ) points )
     , ( "customPoints", example ( 90, 90 ) ( 200, 200 ) customPoints )
     , ( "circle", example ( 130, 130 ) ( 170, 170 ) circle )
+    , ( "ellipse", example ( 20, 55 ) ( 280, 245 ) ellipse )
     , ( "lineSegment", example ( 90, 90 ) ( 210, 210 ) lineSegment )
     , ( "triangle", example ( 90, 90 ) ( 210, 210 ) triangle )
     , ( "polyline", example ( 90, 90 ) ( 210, 210 ) polyline )
