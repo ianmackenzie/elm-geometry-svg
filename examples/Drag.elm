@@ -111,9 +111,9 @@ view model =
                 , Svg.lineSegment2d (edgeAttributes (target Edge0) model) edge0
                 , Svg.lineSegment2d (edgeAttributes (target Edge1) model) edge1
                 , Svg.lineSegment2d (edgeAttributes (target Edge2) model) edge2
-                , Svg.point2d (pointOptions (target Vertex0) model) p0
-                , Svg.point2d (pointOptions (target Vertex1) model) p1
-                , Svg.point2d (pointOptions (target Vertex2) model) p2
+                , Svg.point2d (pointAttributes (target Vertex0) model) p0
+                , Svg.point2d (pointAttributes (target Vertex1) model) p1
+                , Svg.point2d (pointAttributes (target Vertex2) model) p2
                 , Svg.g []
                     [ Interaction.triangleHandle triangle
                         { target = target Interior
@@ -216,8 +216,8 @@ edgeAttributes dragTarget model =
     [ Svg.Attributes.stroke color ]
 
 
-pointOptions : Target -> Model -> Svg.PointOptions Msg
-pointOptions dragTarget model =
+pointAttributes : Target -> Model -> List (Svg.Attribute Msg)
+pointAttributes dragTarget model =
     let
         fillColor =
             if isActive dragTarget model then
@@ -225,10 +225,7 @@ pointOptions dragTarget model =
             else
                 "white"
     in
-    { radius = 5
-    , attributes =
-        [ Svg.Attributes.fill fillColor, Svg.Attributes.stroke "black" ]
-    }
+    [ Svg.Attributes.fill fillColor, Svg.Attributes.stroke "black" ]
 
 
 constrainBy : Interaction.Modifiers -> Vector2d -> Vector2d
