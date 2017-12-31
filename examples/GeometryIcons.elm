@@ -13,6 +13,8 @@ import OpenSolid.CubicSpline2d as CubicSpline2d exposing (CubicSpline2d)
 import OpenSolid.CubicSpline3d as CubicSpline3d exposing (CubicSpline3d)
 import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
 import OpenSolid.Direction3d as Direction3d exposing (Direction3d)
+import OpenSolid.Ellipse2d as Ellipse2d exposing (Ellipse2d)
+import OpenSolid.EllipticalArc2d as EllipticalArc2d exposing (EllipticalArc2d)
 import OpenSolid.Frame2d as Frame2d exposing (Frame2d)
 import OpenSolid.Frame3d as Frame3d exposing (Frame3d)
 import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
@@ -680,6 +682,27 @@ circle3dIcon =
         |> icon3d
 
 
+ellipse2dIcon : Svg Never
+ellipse2dIcon =
+    let
+        centerPoint =
+            Point2d.fromCoordinates ( 25, 30 )
+
+        ellipse =
+            Ellipse2d.with
+                { centerPoint = centerPoint
+                , xDirection = Direction2d.fromAngle (degrees 60)
+                , xRadius = 24
+                , yRadius = 12
+                }
+    in
+    Svg.g []
+        [ Svg.ellipse2d [ Attributes.fill "none" ] ellipse
+        , point2d centerPoint
+        ]
+        |> icon2d
+
+
 arc2d : Arc2d -> Svg Never
 arc2d arc =
     Svg.g []
@@ -795,6 +818,31 @@ arc3dIcon =
         , direction3d centerPoint axialDirection
         ]
         |> icon3d
+
+
+ellipticalArc2dIcon : Svg Never
+ellipticalArc2dIcon =
+    let
+        centerPoint =
+            Point2d.fromCoordinates ( 15, 20 )
+
+        arc =
+            EllipticalArc2d.with
+                { centerPoint = centerPoint
+                , xDirection = Direction2d.fromAngle (degrees 20)
+                , startAngle = degrees -90
+                , sweptAngle = degrees 180
+                , xRadius = 24
+                , yRadius = 12
+                }
+    in
+    Svg.g []
+        [ Svg.ellipticalArc2d [ Attributes.fill "none" ] arc
+        , vertex2d (EllipticalArc2d.startPoint arc)
+        , vertex2d (EllipticalArc2d.endPoint arc)
+        , point2d centerPoint
+        ]
+        |> icon2d
 
 
 polyline2dIcon : Svg Never
@@ -1020,8 +1068,10 @@ icons =
     , boundingBox3dIcon
     , circle2dIcon
     , circle3dIcon
+    , ellipse2dIcon
     , arc2dIcon
     , arc3dIcon
+    , ellipticalArc2dIcon
     , polyline2dIcon
     , polyline3dIcon
     , polygon2dIcon
