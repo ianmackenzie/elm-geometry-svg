@@ -649,6 +649,30 @@ arc2d attributes arc =
 
 
 {-| Draw an `EllipticalArc2d` as an SVG `<path>` with the given attributes.
+
+<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipticalArc" style="width: 120px; height: 120px" scrolling=no frameborder=0>
+`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipticalArc`
+</iframe>
+
+    ellipticalArc : Svg Never
+    ellipticalArc =
+        Svg.ellipticalArc2d
+            [ Attributes.stroke "blue"
+            , Attributes.fill "none"
+            , Attributes.strokeWidth "5"
+            , Attributes.strokeLinecap "round"
+            ]
+            (EllipticalArc2d.with
+                { centerPoint =
+                    Point2d.fromCoordinates ( 100, 10 )
+                , xDirection = Direction2d.x
+                , xRadius = 50
+                , yRadius = 100
+                , startAngle = 0
+                , sweptAngle = degrees 180
+                }
+            )
+
 -}
 ellipticalArc2d : List (Attribute msg) -> EllipticalArc2d -> Svg msg
 ellipticalArc2d attributes arc =

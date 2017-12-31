@@ -10,6 +10,7 @@ import OpenSolid.Circle2d as Circle2d exposing (Circle2d)
 import OpenSolid.CubicSpline2d as CubicSpline2d exposing (CubicSpline2d)
 import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
 import OpenSolid.Ellipse2d as Ellipse2d exposing (Ellipse2d)
+import OpenSolid.EllipticalArc2d as EllipticalArc2d exposing (EllipticalArc2d)
 import OpenSolid.Frame2d as Frame2d exposing (Frame2d)
 import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
 import OpenSolid.Point2d as Point2d exposing (Point2d)
@@ -245,6 +246,26 @@ arc =
             { centerPoint = Point2d.fromCoordinates ( 100, 100 )
             , startPoint = Point2d.fromCoordinates ( 150, 75 )
             , sweptAngle = degrees 135
+            }
+        )
+
+
+ellipticalArc : Svg Never
+ellipticalArc =
+    Svg.ellipticalArc2d
+        [ Attributes.stroke "blue"
+        , Attributes.fill "none"
+        , Attributes.strokeWidth "5"
+        , Attributes.strokeLinecap "round"
+        ]
+        (EllipticalArc2d.with
+            { centerPoint =
+                Point2d.fromCoordinates ( 100, 10 )
+            , xDirection = Direction2d.x
+            , xRadius = 50
+            , yRadius = 100
+            , startAngle = 0
+            , sweptAngle = degrees 180
             }
         )
 
@@ -504,6 +525,7 @@ examples =
     , ( "polyline", example ( 90, 90 ) ( 210, 210 ) polyline )
     , ( "polygon", example ( 90, 140 ) ( 210, 210 ) polygon )
     , ( "arc", example ( 70, 60 ) ( 170, 170 ) arc )
+    , ( "ellipticalArc", example ( 40, 0 ) ( 160, 120 ) ellipticalArc )
     , ( "quadraticSpline", example ( 35, 35 ) ( 165, 165 ) quadraticSpline )
     , ( "cubicSpline", example ( 30, 5 ) ( 220, 170 ) cubicSpline )
     , ( "text", example ( 90, 90 ) ( 310, 260 ) text )
