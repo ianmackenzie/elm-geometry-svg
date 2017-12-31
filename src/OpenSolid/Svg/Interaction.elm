@@ -1154,10 +1154,8 @@ pointHandle : Point2d -> { target : t, radius : Float } -> Svg (Msg t)
 pointHandle point { target, radius } =
     let
         shape =
-            Svg.point2d
-                { radius = radius
-                , attributes = [ noStroke, transparentFill ]
-                }
+            Svg.point2dWith { radius = radius }
+                [ noStroke, transparentFill ]
                 point
     in
     customHandle shape target
