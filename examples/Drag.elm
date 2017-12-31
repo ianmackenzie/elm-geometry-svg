@@ -118,37 +118,30 @@ view model =
                     [ Interaction.triangleHandle triangle
                         { target = target Interior
                         , padding = 10
-                        , renderBounds = boundingBox
                         }
                     , Interaction.lineSegmentHandle edge0
                         { target = target Edge0
                         , padding = 10
-                        , renderBounds = boundingBox
                         }
                     , Interaction.lineSegmentHandle edge1
                         { target = target Edge1
                         , padding = 10
-                        , renderBounds = boundingBox
                         }
                     , Interaction.lineSegmentHandle edge2
                         { target = target Edge2
                         , padding = 10
-                        , renderBounds = boundingBox
                         }
                     , Interaction.pointHandle p0
                         { target = target Vertex0
                         , radius = 10
-                        , renderBounds = boundingBox
                         }
                     , Interaction.pointHandle p1
                         { target = target Vertex1
                         , radius = 10
-                        , renderBounds = boundingBox
                         }
                     , Interaction.pointHandle p2
                         { target = target Vertex2
                         , radius = 10
-                        , renderBounds = boundingBox
                         }
                     ]
                     |> Svg.map InteractionMsg
@@ -292,13 +285,10 @@ verticesIn boundingBox index triangle =
         ]
 
 
-handleInteraction : Maybe (Interaction Target) -> Model -> Model
+handleInteraction : Interaction Target -> Model -> Model
 handleInteraction interaction model =
     case interaction of
-        Nothing ->
-            model
-
-        Just (Interaction.Drag ((TriangleTarget _) as target) modifiers { previousPoint, currentPoint }) ->
+        Interaction.Drag ((TriangleTarget _) as target) modifiers { previousPoint, currentPoint } ->
             if List.member target model.selectedVertices then
                 let
                     applyDrag selectedVertex model =
@@ -319,7 +309,7 @@ handleInteraction interaction model =
                     model
                     |> setSelectedVertices []
 
-        Just (Interaction.Drag Elsewhere modifiers { startPoint, currentPoint }) ->
+        Interaction.Drag Elsewhere modifiers { startPoint, currentPoint } ->
             let
                 boundingBox =
                     Point2d.hull startPoint currentPoint
@@ -330,13 +320,13 @@ handleInteraction interaction model =
             in
             setSelectedVertices targets model
 
-        Just (Interaction.Click Elsewhere modifiers) ->
+        Interaction.Click Elsewhere modifiers ->
             if modifiers.ctrl || modifiers.shift then
                 model
             else
                 { model | selectedVertices = [] }
 
-        Just (Interaction.Click ((TriangleTarget { triangleIndex, component }) as target) modifiers) ->
+        Interaction.Click ((TriangleTarget { triangleIndex, component }) as target) modifiers ->
             let
                 newSelectedVertices =
                     if isVertex component then
@@ -359,34 +349,41 @@ handleInteraction interaction model =
             in
             { model | selectedVertices = newSelectedVertices }
 
-        Just (Interaction.Release target _ modifiers) ->
+        Interaction.Release target _ modifiers ->
             model
 
-        Just (Interaction.Tap targets) ->
+        Interaction.Tap target ->
             let
                 _ =
-                    Debug.log "Tapped" targets
+                    Debug.log "Tapped" target
             in
             model
 
-        Just (Interaction.LongPress targets) ->
+        Interaction.LongPress target ->
             let
                 _ =
-                    Debug.log "Pressed" targets
+                    Debug.log "Pressed" target
             in
             model
 
-        Just (Interaction.Gesture touches) ->
+        Interaction.Slide target _ ->
             let
                 _ =
-                    Debug.log "Gesture" touches
+                    Debug.log "Slide" target
             in
             model
 
-        Just (Interaction.Scroll target modifiers amount) ->
+        Interaction.Scroll target modifiers amount ->
             let
                 _ =
                     Debug.log "Scroll" amount
+            in
+            model
+
+        Interaction.Lift target ->
+            let
+                _ =
+                    Debug.log "Lift" target
             in
             model
 
@@ -463,12 +460,12 @@ update message model =
     case message of
         InteractionMsg interactionMsg ->
             let
-                ( updatedInteractionModel, maybeInteraction ) =
+                ( updatedInteractionModel, interactions ) =
                     Interaction.update interactionMsg model.interactionModel
             in
             model
                 |> setInteractionModel updatedInteractionModel
-                |> handleInteraction maybeInteraction
+                |> (\model -> List.foldl handleInteraction model interactions)
                 |> noCmd
 
 
