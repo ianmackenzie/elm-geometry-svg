@@ -1235,7 +1235,7 @@ rotateAround point angle element =
             toString y
 
         angleString =
-            toString (inDegrees angle)
+            toString (angle |> inDegrees)
 
         rotate =
             "rotate(" ++ angleString ++ " " ++ xString ++ " " ++ yString ++ ")"
