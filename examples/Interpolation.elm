@@ -63,7 +63,8 @@ view { x0 } =
                     , Svg.Attributes.strokeWidth "0.01"
                     ]
                     spline
-                , Svg.point2d { radius = 0.02, attributes = [] } (Point2d.fromCoordinates ( x0, x0 ))
+                , Svg.point2dWith { radius = 0.02 } [] <|
+                    Point2d.fromCoordinates ( x0, x0 )
                 ]
     in
     Html.div []
