@@ -1,5 +1,6 @@
 module Logo exposing (..)
 
+import Basics.Extra exposing (inDegrees)
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events as Events
@@ -99,8 +100,8 @@ view model =
             , inputField "X offset:" init.xOffset XOffset
             , inputField "Y offset:" init.yOffset YOffset
             , inputField "Z offset:" init.zOffset ZOffset
-            , inputField "Azimuth:" (init.azimuth / degrees 1) Azimuth
-            , inputField "Elevation:" (init.elevation / degrees 1) Elevation
+            , inputField "Azimuth:" (init.azimuth |> inDegrees) Azimuth
+            , inputField "Elevation:" (init.elevation |> inDegrees) Elevation
             ]
         , logo model
         ]
