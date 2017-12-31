@@ -60,7 +60,7 @@ view { x0 } =
                 [ Svg.cubicSpline2d
                     [ Svg.Attributes.fill "none"
                     , Svg.Attributes.stroke "black"
-                    , Svg.Attributes.strokeWidth "0.01"
+                    , Svg.Attributes.strokeWidth "0.005"
                     ]
                     spline
                 , Svg.point2dWith { radius = 0.02 } [] <|
