@@ -708,11 +708,11 @@ ellipticalArc2d attributes arc =
         yRadiusString =
             toString yRadius
 
-        xAngle =
-            Direction2d.angle (EllipticalArc2d.xDirection arc)
+        xDirection =
+            EllipticalArc2d.xDirection arc
 
         angleString =
-            toString (xAngle / degrees 1)
+            toString (Direction2d.angle xDirection |> inDegrees)
 
         moveCommand =
             [ "M"
