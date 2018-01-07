@@ -958,6 +958,22 @@ cubicSpline3dIcon =
     icon3d (cubicSpline3d spline)
 
 
+sphere3dIcon : Svg Never
+sphere3dIcon =
+    let
+        centerPoint =
+            Point2d.fromCoordinates ( 25, 25 )
+
+        circle =
+            Circle2d.with { centerPoint = centerPoint, radius = 15 }
+    in
+    Svg.g []
+        [ Svg.circle2d [ Attributes.fill "none" ] circle
+        , point2d centerPoint
+        ]
+        |> icon3d
+
+
 icons : List (Svg Never)
 icons =
     [ point2dIcon
@@ -991,6 +1007,7 @@ icons =
     , cubicSpline2dIcon
     , quadraticSpline3dIcon
     , cubicSpline3dIcon
+    , sphere3dIcon
     ]
 
 
