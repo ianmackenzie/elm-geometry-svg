@@ -17,6 +17,7 @@ import OpenSolid.Ellipse2d as Ellipse2d exposing (Ellipse2d)
 import OpenSolid.EllipticalArc2d as EllipticalArc2d exposing (EllipticalArc2d)
 import OpenSolid.Frame2d as Frame2d exposing (Frame2d)
 import OpenSolid.Frame3d as Frame3d exposing (Frame3d)
+import OpenSolid.Interval as Interval exposing (Interval)
 import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
 import OpenSolid.LineSegment3d as LineSegment3d exposing (LineSegment3d)
 import OpenSolid.Point2d as Point2d exposing (Point2d)
@@ -153,51 +154,49 @@ point3d =
     Point3d.projectInto viewPlane >> point2d
 
 
-axis2d : Axis2d -> Svg Never
-axis2d axis =
+axis2d : Interval -> Axis2d -> Svg Never
+axis2d interval axis =
     let
         originPoint =
             Axis2d.originPoint axis
 
+        { minValue, maxValue } =
+            Interval.extrema interval
+
         segment =
             LineSegment2d.fromEndpoints
-                ( Point2d.along axis -20
-                , Point2d.along axis 45
+                ( Point2d.along axis minValue
+                , Point2d.along axis maxValue
                 )
     in
-    Svg.g []
-        [ Svg.lineSegment2d
-            [ Attributes.strokeDasharray "3 3"
-            , Attributes.strokeWidth "0.75"
-            ]
-            segment
-        , direction2d originPoint (Axis2d.direction axis)
-        , originPoint2d originPoint
+    Svg.lineSegment2d
+        [ Attributes.strokeDasharray "3 3"
+        , Attributes.strokeWidth "0.75"
         ]
+        segment
 
 
-axis3d : Axis3d -> Svg Never
-axis3d axis =
+axis3d : Interval -> Axis3d -> Svg Never
+axis3d interval axis =
     let
         originPoint =
             Axis3d.originPoint axis
 
+        { minValue, maxValue } =
+            Interval.extrema interval
+
         segment =
             LineSegment3d.fromEndpoints
-                ( Point3d.along axis -20
-                , Point3d.along axis 45
+                ( Point3d.along axis minValue
+                , Point3d.along axis maxValue
                 )
                 |> LineSegment3d.projectInto viewPlane
     in
-    Svg.g []
-        [ Svg.lineSegment2d
-            [ Attributes.strokeDasharray "3 3"
-            , Attributes.strokeWidth "0.75"
-            ]
-            segment
-        , direction3d originPoint (Axis3d.direction axis)
-        , originPoint3d originPoint
+    Svg.lineSegment2d
+        [ Attributes.strokeDasharray "3 3"
+        , Attributes.strokeWidth "0.75"
         ]
+        segment
 
 
 plane3d : SketchPlane3d -> Svg Never
@@ -311,27 +310,54 @@ direction3dIcon =
 axis2dIcon : Svg Never
 axis2dIcon =
     let
+        originPoint =
+            Point2d.fromCoordinates ( 10, 15 )
+
+        direction =
+            Direction2d.fromAngle (degrees 20)
+
         axis =
             Axis2d.with
-                { originPoint = Point2d.fromCoordinates ( 10, 15 )
-                , direction = Direction2d.fromAngle (degrees 20)
+                { originPoint = originPoint
+                , direction = direction
                 }
+
+        interval =
+            Interval.with { minValue = -20, maxValue = 45 }
     in
-    icon2d (axis2d axis)
+    Svg.g []
+        [ axis2d interval axis
+        , direction2d originPoint direction
+        , originPoint2d originPoint
+        ]
+        |> icon2d
 
 
 axis3dIcon : Svg Never
 axis3dIcon =
     let
+        originPoint =
+            Point3d.fromCoordinates ( 0, 20, 40 )
+
+        direction =
+            Direction3d.on SketchPlane3d.yz <|
+                Direction2d.fromAngle (degrees -20)
+
         axis =
             Axis3d.with
-                { originPoint = Point3d.fromCoordinates ( 0, 20, 40 )
-                , direction =
-                    Direction3d.on SketchPlane3d.yz <|
-                        Direction2d.fromAngle (degrees -20)
+                { originPoint = originPoint
+                , direction = direction
                 }
+
+        interval =
+            Interval.with { minValue = -20, maxValue = 45 }
     in
-    icon3d (axis3d axis)
+    Svg.g []
+        [ axis3d interval axis
+        , direction3d originPoint (Axis3d.direction axis)
+        , originPoint3d originPoint
+        ]
+        |> icon3d
 
 
 plane3dIcon : Svg Never
