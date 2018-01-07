@@ -597,48 +597,8 @@ boundingBox3dIcon =
 
 
 circle3d : Circle3d -> Svg Never
-circle3d circle =
-    let
-        projectedCenter =
-            Point3d.projectInto viewPlane (Circle3d.centerPoint circle)
-
-        ( x, y ) =
-            Point2d.coordinates projectedCenter
-
-        axialDirection =
-            Circle3d.axialDirection circle
-
-        xDirection =
-            axialDirection
-                |> Direction3d.projectInto viewPlane
-                |> Maybe.withDefault Direction2d.x
-
-        radius =
-            Circle3d.radius circle
-
-        normalDirection =
-            SketchPlane3d.normalDirection viewPlane
-
-        xRatio =
-            abs (Direction3d.componentIn normalDirection axialDirection)
-
-        frame =
-            Frame2d.with
-                { originPoint = projectedCenter
-                , xDirection = xDirection
-                }
-    in
-    Svg.g []
-        [ Svg.ellipse
-            [ Attributes.cx "0"
-            , Attributes.cy "0"
-            , Attributes.rx (toString (xRatio * radius))
-            , Attributes.ry (toString radius)
-            , Attributes.fill "none"
-            ]
-            []
-        ]
-        |> Svg.placeIn frame
+circle3d =
+    Circle3d.projectInto viewPlane >> ellipse2d
 
 
 circle2dIcon : Svg Never
@@ -682,6 +642,11 @@ circle3dIcon =
         |> icon3d
 
 
+ellipse2d : Ellipse2d -> Svg Never
+ellipse2d =
+    Svg.ellipse2d [ Attributes.fill "none" ]
+
+
 ellipse2dIcon : Svg Never
 ellipse2dIcon =
     let
@@ -696,11 +661,7 @@ ellipse2dIcon =
                 , yRadius = 12
                 }
     in
-    Svg.g []
-        [ Svg.ellipse2d [ Attributes.fill "none" ] ellipse
-        , point2d centerPoint
-        ]
-        |> icon2d
+    Svg.g [] [ ellipse2d ellipse, point2d centerPoint ] |> icon2d
 
 
 arc2d : Arc2d -> Svg Never
@@ -724,6 +685,11 @@ arc2dIcon =
                 }
     in
     icon2d (arc2d arc)
+
+
+arc3d : Arc3d -> Svg Never
+arc3d =
+    Arc3d.projectInto viewPlane >> ellipticalArc2d
 
 
 arc3dIcon : Svg Never
@@ -750,74 +716,20 @@ arc3dIcon =
 
         centerPoint =
             Arc3d.centerPoint arc
-
-        projectedCenter =
-            Point3d.projectInto viewPlane centerPoint
-
-        xDirection =
-            axialDirection
-                |> Direction3d.projectInto viewPlane
-                |> Maybe.withDefault Direction2d.x
-
-        localFrame =
-            Frame2d.with
-                { originPoint = projectedCenter
-                , xDirection = xDirection
-                }
-
-        localStart =
-            Point3d.projectInto viewPlane (Arc3d.startPoint arc)
-                |> Point2d.relativeTo localFrame
-
-        ( x1, y1 ) =
-            Point2d.coordinates localStart
-
-        localEnd =
-            Point3d.projectInto viewPlane (Arc3d.endPoint arc)
-                |> Point2d.relativeTo localFrame
-
-        ( x2, y2 ) =
-            Point2d.coordinates localEnd
-
-        radius =
-            Arc3d.radius arc
-
-        normalDirection =
-            SketchPlane3d.normalDirection viewPlane
-
-        xRatio =
-            abs (Direction3d.componentIn normalDirection axialDirection)
-
-        localPathComponents =
-            [ "M"
-            , toString x1
-            , toString y1
-            , "A"
-            , toString (xRatio * radius)
-            , toString radius
-            , "0"
-            , "0"
-            , "1"
-            , toString x2
-            , toString y2
-            ]
-
-        ellipticalArc =
-            Svg.path
-                [ Attributes.d (String.join " " localPathComponents)
-                , Attributes.fill "none"
-                ]
-                []
-                |> Svg.placeIn localFrame
     in
     Svg.g []
-        [ ellipticalArc
+        [ arc3d arc
         , vertex3d (Arc3d.startPoint arc)
         , vertex3d (Arc3d.endPoint arc)
         , point3d centerPoint
         , direction3d centerPoint axialDirection
         ]
         |> icon3d
+
+
+ellipticalArc2d : EllipticalArc2d -> Svg Never
+ellipticalArc2d =
+    Svg.ellipticalArc2d [ Attributes.fill "none" ]
 
 
 ellipticalArc2dIcon : Svg Never
@@ -837,7 +749,7 @@ ellipticalArc2dIcon =
                 }
     in
     Svg.g []
-        [ Svg.ellipticalArc2d [ Attributes.fill "none" ] arc
+        [ ellipticalArc2d arc
         , vertex2d (EllipticalArc2d.startPoint arc)
         , vertex2d (EllipticalArc2d.endPoint arc)
         , point2d centerPoint
