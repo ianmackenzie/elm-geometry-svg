@@ -679,15 +679,33 @@ ellipse2dIcon =
         centerPoint =
             Point2d.fromCoordinates ( 25, 30 )
 
+        xRadius =
+            24
+
+        yRadius =
+            12
+
         ellipse =
             Ellipse2d.with
                 { centerPoint = centerPoint
-                , xDirection = Direction2d.fromAngle (degrees 60)
+                , xDirection = Direction2d.fromAngle (degrees 50)
                 , xRadius = 24
                 , yRadius = 12
                 }
+
+        xInterval =
+            Interval.with { minValue = -xRadius - 5, maxValue = xRadius + 5 }
+
+        yInterval =
+            Interval.with { minValue = -yRadius - 5, maxValue = yRadius + 5 }
     in
-    Svg.g [] [ ellipse2d ellipse, point2d centerPoint ] |> icon2d
+    Svg.g []
+        [ axis2d xInterval (Ellipse2d.xAxis ellipse)
+        , axis2d yInterval (Ellipse2d.yAxis ellipse)
+        , point2d centerPoint
+        , ellipse2d ellipse
+        ]
+        |> icon2d
 
 
 arc2d : Arc2d -> Svg Never
