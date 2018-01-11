@@ -163,8 +163,8 @@ ellipse =
                 Point2d.fromCoordinates ( 150, 150 )
             , xDirection =
                 Direction2d.fromAngle (degrees -30)
-            , xRadius = 80
-            , yRadius = 40
+            , xRadius = 60
+            , yRadius = 30
             }
         )
 
@@ -519,7 +519,7 @@ examples =
     , ( "points", example ( 90, 90 ) ( 200, 200 ) points )
     , ( "customPoints", example ( 90, 90 ) ( 200, 200 ) customPoints )
     , ( "circle", example ( 130, 130 ) ( 170, 170 ) circle )
-    , ( "ellipse", example ( 70, 90 ) ( 230, 210 ) ellipse )
+    , ( "ellipse", example ( 80, 100 ) ( 220, 200 ) ellipse )
     , ( "lineSegment", example ( 90, 90 ) ( 210, 210 ) lineSegment )
     , ( "triangle", example ( 90, 90 ) ( 210, 210 ) triangle )
     , ( "polyline", example ( 90, 90 ) ( 210, 210 ) polyline )

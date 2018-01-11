@@ -791,7 +791,7 @@ circle2d attributes circle =
 
 {-| Draw an `Ellipse2d` as an SVG `<ellipse>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipse" style="width: 160px; height: 120px" scrolling=no frameborder=0>
+<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipse" style="width: 140px; height: 100px" scrolling=no frameborder=0>
 `https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipse`
 </iframe>
 
@@ -807,8 +807,8 @@ circle2d attributes circle =
                     Point2d.fromCoordinates ( 150, 150 )
                 , xDirection =
                     Direction2d.fromAngle (degrees -30)
-                , xRadius = 80
-                , yRadius = 40
+                , xRadius = 60
+                , yRadius = 30
                 }
             )
 
