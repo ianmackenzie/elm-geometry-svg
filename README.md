@@ -1,10 +1,10 @@
 ## What is it?
 
 This [Elm](http://elm-lang.org) package provides functions to create and
-manipulate SVG elements using the [OpenSolid](http://package.elm-lang.org/packages/opensolid/geometry/latest)
-geometric data types. You can:
+manipulate SVG elements using the [`opensolid/geometry`](http://package.elm-lang.org/packages/opensolid/geometry/latest)
+data types. You can:
 
-  - Draw OpenSolid 2D geometric objects as SVG
+  - Draw 2D `opensolid/geometry` objects as SVG
   - Apply OpenSolid-based 2D transformations to arbitrary SVG elements
   - Convert SVG between different coordinate systems
 
@@ -92,10 +92,8 @@ package, try:
   - Sending me (@ianmackenzie) a message on the [Elm Slack](http://elmlang.herokuapp.com/) -
     even if you don't have any particular questions right now, just come say
     hello!
+  - Posting to the [Elm Discourse](https://discourse.elm-lang.org/) forums
   - Posting to the [r/elm](https://reddit.com/r/elm) subreddit
-  - Posting to the [elm-discuss](https://groups.google.com/forum/#!forum/elm-discuss)
-    Google Group (somewhat less active than Slack and Reddit, but I still follow
-    it regularly if you prefer e-mail)
   - Or if you happen to be in the New York area, come on out to the
     [Elm NYC meetup](https://www.meetup.com/Elm-NYC/) =)
 
