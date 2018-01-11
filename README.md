@@ -70,14 +70,14 @@ elm package install opensolid/svg
 in a command prompt inside your project directory or by adding
 
 ```json
-"opensolid/svg": "2.0.0 <= v < 3.0.0"
+"opensolid/svg": "3.0.0 <= v < 4.0.0"
 ```
 
 to the `dependencies` field in your project's `elm-package.json`.
 
 ## Documentation
 
-[Full API documentation](http://package.elm-lang.org/packages/opensolid/svg/2.0.1/OpenSolid-Svg)
+[Full API documentation](http://package.elm-lang.org/packages/opensolid/svg/3.0.0/OpenSolid-Svg)
 is available.
 
 ## Questions? Comments?
