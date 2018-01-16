@@ -62,7 +62,7 @@ main : Html Never
 main =
     let
         boundingBox =
-            BoundingBox2d.with
+            BoundingBox2d.fromExtrema
                 { minX = 0
                 , maxX = 800
                 , minY = 0
@@ -70,7 +70,12 @@ main =
                 }
 
         rectangle =
-            Rectangle2d.with { minX = 100, minY = 100, maxX = 700, maxY = 500 }
+            Rectangle2d.fromExtrema
+                { minX = 100
+                , minY = 100
+                , maxX = 700
+                , maxY = 500
+                }
 
         tolerance =
             1

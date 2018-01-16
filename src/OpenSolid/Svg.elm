@@ -262,14 +262,15 @@ vector2dWith options attributes basePoint vector =
     case Vector2d.lengthAndDirection vector of
         Just ( length, direction ) ->
             let
-                frame =
+                localFrame =
                     Frame2d.with
                         { originPoint = basePoint
                         , xDirection = direction
                         }
 
                 tipBasePoint =
-                    Point2d.in_ frame ( length - options.tipLength, 0 )
+                    Point2d.fromCoordinatesIn localFrame
+                        ( length - options.tipLength, 0 )
 
                 stem =
                     LineSegment2d.from basePoint tipBasePoint

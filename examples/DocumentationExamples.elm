@@ -501,7 +501,7 @@ placed =
 example : ( Float, Float ) -> ( Float, Float ) -> Svg Never -> Html Never
 example ( minX, minY ) ( maxX, maxY ) =
     Svg.render2d
-        (BoundingBox2d.with
+        (BoundingBox2d.fromExtrema
             { minX = minX
             , maxX = maxX
             , minY = minY

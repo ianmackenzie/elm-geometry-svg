@@ -9,22 +9,26 @@ import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
 tip : { a | tipLength : Float, tipWidth : Float } -> Point2d -> Float -> Direction2d -> Triangle2d
 tip { tipLength, tipWidth } basePoint length direction =
     let
-        frame =
+        localFrame =
             Frame2d.with
                 { originPoint = basePoint
                 , xDirection = direction
                 }
 
         tipPoint =
-            Point2d.in_ frame ( length, 0 )
+            Point2d.fromCoordinatesIn localFrame
+                ( length, 0 )
 
         tipBasePoint =
-            Point2d.in_ frame ( length - tipLength, 0 )
+            Point2d.fromCoordinatesIn localFrame
+                ( length - tipLength, 0 )
 
         leftPoint =
-            Point2d.in_ frame ( length - tipLength, tipWidth / 2 )
+            Point2d.fromCoordinatesIn localFrame
+                ( length - tipLength, tipWidth / 2 )
 
         rightPoint =
-            Point2d.in_ frame ( length - tipLength, -tipWidth / 2 )
+            Point2d.fromCoordinatesIn localFrame
+                ( length - tipLength, -tipWidth / 2 )
     in
     Triangle2d.fromVertices ( rightPoint, tipPoint, leftPoint )

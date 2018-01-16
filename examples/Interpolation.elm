@@ -34,7 +34,7 @@ view : Model -> Html Msg
 view { x0 } =
     let
         boundingBox =
-            BoundingBox2d.with
+            BoundingBox2d.fromExtrema
                 { minX = 0
                 , maxX = 300
                 , minY = -100

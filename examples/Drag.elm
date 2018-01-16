@@ -73,7 +73,7 @@ init =
 
 boundingBox : BoundingBox2d
 boundingBox =
-    BoundingBox2d.with
+    BoundingBox2d.fromExtrema
         { minX = 0
         , minY = 0
         , maxX = 600
@@ -171,7 +171,11 @@ view model =
                                 , Svg.Attributes.stroke "blue"
                                 , Svg.Attributes.pointerEvents "none"
                                 ]
-                                (Point2d.hull startPoint currentPoint)
+                                (BoundingBox2d.fromCorners
+                                    ( startPoint
+                                    , currentPoint
+                                    )
+                                )
                         else
                             Svg.text ""
                 ]
@@ -312,7 +316,7 @@ handleInteraction interaction model =
         Interaction.Drag Elsewhere modifiers { startPoint, currentPoint } ->
             let
                 boundingBox =
-                    Point2d.hull startPoint currentPoint
+                    BoundingBox2d.fromCorners ( startPoint, currentPoint )
 
                 targets =
                     List.indexedMap (verticesIn boundingBox) model.triangles

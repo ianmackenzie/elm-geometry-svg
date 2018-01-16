@@ -127,8 +127,8 @@ point2d point =
         circle =
             Circle2d.with { centerPoint = point, radius = 2 }
 
-        localPoint coordinates =
-            Point2d.in_ (Frame2d.atPoint point) coordinates
+        localPoint =
+            Point2d.fromCoordinatesIn (Frame2d.atPoint point)
 
         horizontal =
             LineSegment2d.fromEndpoints
@@ -160,8 +160,8 @@ axis2d interval axis =
         originPoint =
             Axis2d.originPoint axis
 
-        { minValue, maxValue } =
-            Interval.extrema interval
+        ( minValue, maxValue ) =
+            Interval.endpoints interval
 
         segment =
             LineSegment2d.fromEndpoints
@@ -182,8 +182,8 @@ axis3d interval axis =
         originPoint =
             Axis3d.originPoint axis
 
-        { minValue, maxValue } =
-            Interval.extrema interval
+        ( minValue, maxValue ) =
+            Interval.endpoints interval
 
         segment =
             LineSegment3d.fromEndpoints
@@ -323,7 +323,7 @@ axis2dIcon =
                 }
 
         interval =
-            Interval.with { minValue = -20, maxValue = 45 }
+            Interval.from -20 45
     in
     Svg.g []
         [ axis2d interval axis
@@ -350,7 +350,7 @@ axis3dIcon =
                 }
 
         interval =
-            Interval.with { minValue = -20, maxValue = 45 }
+            Interval.from -20 45
     in
     Svg.g []
         [ axis3d interval axis
@@ -596,7 +596,7 @@ boundingBox2dIcon : Svg Never
 boundingBox2dIcon =
     let
         boundingBox =
-            BoundingBox2d.with
+            BoundingBox2d.fromExtrema
                 { minX = 15
                 , maxX = 45
                 , minY = 10
@@ -610,7 +610,7 @@ boundingBox3dIcon : Svg Never
 boundingBox3dIcon =
     let
         boundingBox =
-            BoundingBox3d.with
+            BoundingBox3d.fromExtrema
                 { minX = -20
                 , maxX = 15
                 , minY = 20
@@ -694,10 +694,10 @@ ellipse2dIcon =
                 }
 
         xInterval =
-            Interval.with { minValue = -xRadius - 5, maxValue = xRadius + 5 }
+            Interval.from (-xRadius - 5) (xRadius + 5)
 
         yInterval =
-            Interval.with { minValue = -yRadius - 5, maxValue = yRadius + 5 }
+            Interval.from (-yRadius - 5) (yRadius + 5)
     in
     Svg.g []
         [ axis2d xInterval (Ellipse2d.xAxis ellipse)
