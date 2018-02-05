@@ -559,10 +559,28 @@ polyline2d attributes polyline =
 polygon2d : List (Attribute msg) -> Polygon2d -> Svg msg
 polygon2d attributes polygon =
     let
-        vertices =
-            Polygon2d.vertices polygon
+        loops =
+            Polygon2d.outerLoop polygon :: Polygon2d.innerLoops polygon
+
+        loopString loop =
+            let
+                coordinateStrings =
+                    loop
+                        |> List.map
+                            (\point ->
+                                let
+                                    ( x, y ) =
+                                        Point2d.coordinates point
+                                in
+                                toString x ++ " " ++ toString y
+                            )
+            in
+            "M " ++ String.join " L " coordinateStrings ++ " Z"
+
+        pathAttribute =
+            Attributes.d (String.join " " (List.map loopString loops))
     in
-    Svg.polygon (pointsAttribute vertices :: attributes) []
+    Svg.path (pathAttribute :: attributes) []
 
 
 {-| Draw an `Arc2d` as an SVG `<path>` with the given attributes.
