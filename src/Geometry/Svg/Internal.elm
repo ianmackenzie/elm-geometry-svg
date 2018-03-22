@@ -1,9 +1,9 @@
-module OpenSolid.Svg.Internal exposing (tip)
+module Geometry.Svg.Internal exposing (tip)
 
-import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
-import OpenSolid.Frame2d as Frame2d exposing (Frame2d)
-import OpenSolid.Point2d as Point2d exposing (Point2d)
-import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
+import Direction2d exposing (Direction2d)
+import Frame2d exposing (Frame2d)
+import Point2d exposing (Point2d)
+import Triangle2d exposing (Triangle2d)
 
 
 tip : { a | tipLength : Float, tipWidth : Float } -> Point2d -> Float -> Direction2d -> Triangle2d

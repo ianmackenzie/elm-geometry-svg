@@ -1,4 +1,4 @@
-module OpenSolid.Svg
+module Geometry.Svg
     exposing
         ( arc2d
         , boundingBox2d
@@ -27,13 +27,7 @@ module OpenSolid.Svg
         , vector2dWith
         )
 
-{-| Various OpenSolid-related SVG functionality:
-
-  - [Draw](#geometry) OpenSolid 2D geometry as SVG elements
-  - [Transform](#transformations) arbitrary SVG elements using standard
-    OpenSolid transformation functions
-  - [Convert](#coordinate-transformations) SVG between different coordinate
-    systems
+{-| Draw 2D `elm-geometry` values as SVG.
 
 
 ## Reading this documentation
@@ -42,12 +36,12 @@ For the examples, assume that the following imports are present:
 
     import Svg exposing (Svg)
     import Svg.Attributes as Attributes
-    import OpenSolid.Svg as Svg
+    import Geometry.Svg as Svg
 
-Also assume that any necessary OpenSolid modules/types have been imported using
-the following format:
+Also assume that any necessary `elm-geometry` modules/types have been imported
+using the following format:
 
-    import OpenSolid.Point2d as Point2d exposing (Point2d)
+    import Point2d exposing (Point2d)
 
 All examples use a Y-up coordinate system instead of SVG's Y-down (window)
 coordinate system; they were all rendered with a final [`render2d`](#render2d)
@@ -135,28 +129,28 @@ conversion transformations to be applied to arbitrary SVG elements.
 
 -}
 
+import Arc2d exposing (Arc2d)
+import Axis2d exposing (Axis2d)
 import Basics.Extra exposing (inDegrees)
+import BoundingBox2d exposing (BoundingBox2d)
+import Circle2d exposing (Circle2d)
+import CubicSpline2d exposing (CubicSpline2d)
+import Direction2d exposing (Direction2d)
+import Ellipse2d exposing (Ellipse2d)
+import EllipticalArc2d exposing (EllipticalArc2d)
+import Frame2d exposing (Frame2d)
+import Geometry.Svg.Internal as Internal
 import Html exposing (Html)
 import Html.Attributes
-import OpenSolid.Arc2d as Arc2d exposing (Arc2d)
-import OpenSolid.Axis2d as Axis2d exposing (Axis2d)
-import OpenSolid.BoundingBox2d as BoundingBox2d exposing (BoundingBox2d)
-import OpenSolid.Circle2d as Circle2d exposing (Circle2d)
-import OpenSolid.CubicSpline2d as CubicSpline2d exposing (CubicSpline2d)
-import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
-import OpenSolid.Ellipse2d as Ellipse2d exposing (Ellipse2d)
-import OpenSolid.EllipticalArc2d as EllipticalArc2d exposing (EllipticalArc2d)
-import OpenSolid.Frame2d as Frame2d exposing (Frame2d)
-import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
-import OpenSolid.Point2d as Point2d exposing (Point2d)
-import OpenSolid.Polygon2d as Polygon2d exposing (Polygon2d)
-import OpenSolid.Polyline2d as Polyline2d exposing (Polyline2d)
-import OpenSolid.QuadraticSpline2d as QuadraticSpline2d exposing (QuadraticSpline2d)
-import OpenSolid.Svg.Internal as Internal
-import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
-import OpenSolid.Vector2d as Vector2d exposing (Vector2d)
+import LineSegment2d exposing (LineSegment2d)
+import Point2d exposing (Point2d)
+import Polygon2d exposing (Polygon2d)
+import Polyline2d exposing (Polyline2d)
+import QuadraticSpline2d exposing (QuadraticSpline2d)
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Attributes
+import Triangle2d exposing (Triangle2d)
+import Vector2d exposing (Vector2d)
 
 
 {-| Render some SVG to an HTML `<svg>` element, clipping to the given bounding
@@ -370,7 +364,7 @@ direction2dWith options attributes basePoint direction =
         }
         attributes
         basePoint
-        (Vector2d.with { length = options.length, direction = direction })
+        (Vector2d.withLength options.length direction)
 
 
 {-| Draw a point as an SVG `<circle>` with the given attributes.
@@ -437,7 +431,7 @@ point2d =
 -}
 point2dWith : { radius : Float } -> List (Attribute msg) -> Point2d -> Svg msg
 point2dWith { radius } attributes point =
-    circle2d attributes (Circle2d.with { centerPoint = point, radius = radius })
+    circle2d attributes (Circle2d.withRadius radius point)
 
 
 {-| Draw a `LineSegment2d` as an SVG `<polyline>` with the given attributes.
@@ -731,7 +725,7 @@ ellipticalArc2d attributes arc =
             EllipticalArc2d.xDirection arc
 
         angleString =
-            toString (Direction2d.angle xDirection |> inDegrees)
+            toString (Direction2d.toAngle xDirection |> inDegrees)
 
         moveCommand =
             [ "M"
@@ -854,7 +848,7 @@ ellipse2d attributes ellipse =
             Attributes.ry (toString (Ellipse2d.yRadius ellipse))
 
         angle =
-            Direction2d.angle (Ellipse2d.xDirection ellipse)
+            Direction2d.toAngle (Ellipse2d.xDirection ellipse)
     in
     Svg.ellipse (cx :: cy :: rx :: ry :: attributes) []
         |> rotateAround centerPoint angle
@@ -1047,22 +1041,6 @@ boundingBox2d attributes boundingBox =
     Svg.rect (x :: y :: width :: height :: attributes) []
 
 
-
---{-| Draw a generic curve as SVG with the given attributes. Arcs, lines and
---quadratic and cubic splines will be drawn using native SVG paths. Other curves
---will be converted to polylines using the given tolerance.
----}
---curve2d : Float -> List (Attribute msg) -> Curve2d -> Svg msg
---curve2d tolerance attributes =
---    Curve2d.match
---        |> Curve2d.isLineSegment (lineSegment2d attributes)
---        |> Curve2d.isArc (arc2d attributes)
---        |> Curve2d.isQuadraticSpline (quadraticSpline2d attributes)
---        |> Curve2d.isCubicSpline (cubicSpline2d attributes)
---        |> Curve2d.otherwise
---            (Curve2d.toPolyline tolerance >> polyline2d attributes)
-
-
 {-| Draw a string of text with the given attributes at the given point. You can
 use the SVG [`textAnchor`](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor)
 and [`alignmentBaseline`](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/alignment-baseline)
@@ -1137,10 +1115,7 @@ text2d attributes basePoint text =
             Point2d.coordinates basePoint
 
         mirrorAxis =
-            Axis2d.with
-                { originPoint = basePoint
-                , direction = Direction2d.x
-                }
+            Axis2d.through basePoint Direction2d.x
 
         xAttribute =
             Attributes.x (toString x)

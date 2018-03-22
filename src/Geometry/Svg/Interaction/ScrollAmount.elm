@@ -1,4 +1,4 @@
-module OpenSolid.Svg.Interaction.ScrollAmount
+module Geometry.Svg.Interaction.ScrollAmount
     exposing
         ( ScrollAmount(..)
         , inLines

@@ -1,4 +1,4 @@
-module OpenSolid.Svg.Interaction
+module Geometry.Svg.Interaction
     exposing
         ( Interaction(..)
         , Model
@@ -28,24 +28,24 @@ module OpenSolid.Svg.Interaction
         )
 
 import AnimationFrame
+import BoundingBox2d exposing (BoundingBox2d)
 import DOM
 import Dict exposing (Dict)
+import Direction2d exposing (Direction2d)
+import Geometry.Svg as Svg
+import Geometry.Svg.Interaction.ScrollAmount as ScrollAmount exposing (ScrollAmount)
+import Geometry.Svg.Internal as Internal
 import Html.Events
 import Json.Decode as Decode exposing (Decoder)
 import Keyboard
+import LineSegment2d exposing (LineSegment2d)
 import Mouse
-import OpenSolid.BoundingBox2d as BoundingBox2d exposing (BoundingBox2d)
-import OpenSolid.Direction2d as Direction2d exposing (Direction2d)
-import OpenSolid.LineSegment2d as LineSegment2d exposing (LineSegment2d)
-import OpenSolid.Point2d as Point2d exposing (Point2d)
-import OpenSolid.Svg as Svg
-import OpenSolid.Svg.Interaction.ScrollAmount as ScrollAmount exposing (ScrollAmount)
-import OpenSolid.Svg.Internal as Internal
-import OpenSolid.Triangle2d as Triangle2d exposing (Triangle2d)
-import OpenSolid.Vector2d as Vector2d exposing (Vector2d)
+import Point2d exposing (Point2d)
 import Svg exposing (Svg)
 import Svg.Attributes
 import Time exposing (Time)
+import Triangle2d exposing (Triangle2d)
+import Vector2d exposing (Vector2d)
 
 
 type alias Modifiers =
