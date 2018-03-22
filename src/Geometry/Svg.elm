@@ -42,7 +42,7 @@ call to flip the example 'upside down' for display.
 
 # Geometry
 
-These functions turn OpenSolid values into SVG elements with geometric
+These functions turn `elm-geometry` 2D values into SVG elements with geometric
 attributes such as `points` and `transform` set appropriately. Each function
 also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
@@ -52,7 +52,7 @@ should be added to the resulting element.
 
 # Transformations
 
-These functions allow you to use all the normal OpenSolid 2D transformations on
+These functions allow you to use all the normal `elm-geometry` 2D transformations on
 arbitrary fragments of SVG. For example,
 
     Svg.mirrorAcross Axis2d.x
