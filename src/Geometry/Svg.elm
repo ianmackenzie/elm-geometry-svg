@@ -4,27 +4,19 @@ module Geometry.Svg
         , boundingBox2d
         , circle2d
         , cubicSpline2d
-        , direction2d
-        , direction2dWith
         , ellipse2d
         , ellipticalArc2d
         , lineSegment2d
         , mirrorAcross
         , placeIn
-        , point2d
-        , point2dWith
         , polygon2d
         , polyline2d
         , quadraticSpline2d
         , relativeTo
-        , render2d
         , rotateAround
         , scaleAbout
-        , text2d
         , translateBy
         , triangle2d
-        , vector2d
-        , vector2dWith
         )
 
 {-| Draw 2D `elm-geometry` values as SVG.
@@ -44,25 +36,8 @@ using the following format:
     import Point2d exposing (Point2d)
 
 All examples use a Y-up coordinate system instead of SVG's Y-down (window)
-coordinate system; they were all rendered with a final [`render2d`](#render2d)
+coordinate system; they were all rendered with a final [`relativeTo`](#relativeTo)
 call to flip the example 'upside down' for display.
-
-
-# Rendering
-
-@docs render2d
-
-
-# Primitives
-
-The basic primitive types (points, directions, vectors) don't have an obvious
-mapping to SVG, but the functions in this section attempt to provide a simple
-default way to draw each of them. If you want more customization, you will
-likely need to write your own custom helper functions (perhaps using other
-functions from this package); for example, a 'crosshair' style point might be
-formed from a combination of `circle2d` and `lineSegment2d` calls.
-
-@docs vector2d, vector2dWith, direction2d, direction2dWith, point2d, point2dWith
 
 
 # Geometry
@@ -73,11 +48,6 @@ also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
 @docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, ellipticalArc2d, circle2d, ellipse2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
-
-
-# Text
-
-@docs text2d
 
 
 # Transformations
@@ -122,8 +92,8 @@ can be more efficient since the geometry itself does not have to be recreated
 
 # Coordinate transformations
 
-Similar to the above transformations, these functions allow OpenSolid coordinate
-conversion transformations to be applied to arbitrary SVG elements.
+Similar to the above transformations, these functions allow `elm-geometry`
+coordinate conversion transformations to be applied to arbitrary SVG elements.
 
 @docs relativeTo, placeIn
 
@@ -139,9 +109,6 @@ import Direction2d exposing (Direction2d)
 import Ellipse2d exposing (Ellipse2d)
 import EllipticalArc2d exposing (EllipticalArc2d)
 import Frame2d exposing (Frame2d)
-import Geometry.Svg.Internal as Internal
-import Html exposing (Html)
-import Html.Attributes
 import LineSegment2d exposing (LineSegment2d)
 import Point2d exposing (Point2d)
 import Polygon2d exposing (Polygon2d)
@@ -151,45 +118,6 @@ import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Attributes
 import Triangle2d exposing (Triangle2d)
 import Vector2d exposing (Vector2d)
-
-
-{-| Render some SVG to an HTML `<svg>` element, clipping to the given bounding
-box. It is assumed that the SVG is already in pixel units, so the bounding box
-is also used to set the width and height of the resulting `<svg>` element.
-
-In addition, it is assumed that the SVG has been drawn in a coordinate system
-with positive X to the right and positive Y up, so this function will flip the
-coordinate system so that coordinates start at the top-left corner as required.
-
--}
-render2d : BoundingBox2d -> Svg msg -> Html msg
-render2d boundingBox svg =
-    let
-        { minX, maxY } =
-            BoundingBox2d.extrema boundingBox
-
-        topLeftFrame =
-            Frame2d.atPoint (Point2d.fromCoordinates ( minX, maxY ))
-                |> Frame2d.flipY
-
-        ( width, height ) =
-            BoundingBox2d.dimensions boundingBox
-    in
-    Html.div
-        [ Html.Attributes.style
-            [ ( "border", "0" )
-            , ( "padding", "0" )
-            , ( "margin", "0" )
-            , ( "display", "inline-block" )
-            ]
-        ]
-        [ Svg.svg
-            [ Attributes.width (toString width)
-            , Attributes.height (toString height)
-            , Html.Attributes.style [ ( "display", "block" ) ]
-            ]
-            [ relativeTo topLeftFrame svg ]
-        ]
 
 
 coordinatesString : Point2d -> String
@@ -204,234 +132,6 @@ coordinatesString point =
 pointsAttribute : List Point2d -> Attribute msg
 pointsAttribute points =
     Attributes.points (String.join " " (List.map coordinatesString points))
-
-
-{-| Draw a vector with the given attributes, starting from the given base point.
-Nothing will be drawn if the vector length is zero. Vectors are drawn as an
-arrow with a stem line and a tip triangle:
-
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#vector" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#vector`
-</iframe>
-
-    vector : Svg Never
-    vector =
-        Svg.vector2d
-            [ Attributes.fill "black"
-            , Attributes.stroke "black"
-            ]
-            (Point2d.fromCoordinates ( 100, 100 ))
-            (Vector2d.fromComponents ( 100, 100 ))
-
-To customize the size of the tip, use `Svg.vector2dWith`; `Svg.vector2d` is
-defined as
-
-    Svg.vector2dWith { tipLength = 10, tipWidth = 8 }
-
--}
-vector2d : List (Attribute msg) -> Point2d -> Vector2d -> Svg msg
-vector2d =
-    vector2dWith { tipLength = 10, tipWidth = 8 }
-
-
-{-| Draw a vector with a custom tip length and width.
-
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#customVector" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#customVector`
-</iframe>
-
-    customVector : Svg Never
-    customVector =
-        Svg.vector2dWith { tipLength = 30, tipWidth = 30 }
-            [ Attributes.fill "orange"
-            , Attributes.stroke "blue"
-            , Attributes.strokeWidth "2"
-            ]
-            (Point2d.fromCoordinates ( 100, 100 ))
-            (Vector2d.fromComponents ( 100, 100 ))
-
--}
-vector2dWith : { tipLength : Float, tipWidth : Float } -> List (Attribute msg) -> Point2d -> Vector2d -> Svg msg
-vector2dWith options attributes basePoint vector =
-    case Vector2d.lengthAndDirection vector of
-        Just ( length, direction ) ->
-            let
-                localFrame =
-                    Frame2d.with
-                        { originPoint = basePoint
-                        , xDirection = direction
-                        }
-
-                tipBasePoint =
-                    Point2d.fromCoordinatesIn localFrame
-                        ( length - options.tipLength, 0 )
-
-                stem =
-                    LineSegment2d.from basePoint tipBasePoint
-
-                tip =
-                    Internal.tip options basePoint length direction
-            in
-            Svg.g attributes [ lineSegment2d [] stem, triangle2d [] tip ]
-
-        Nothing ->
-            Svg.text ""
-
-
-{-| Draw a direction with the given attributes, starting from the given base
-point.
-
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#directions" style="width: 70px; height: 70px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#directions`
-</iframe>
-
-    directions : Svg Never
-    directions =
-        let
-            basePoint =
-                Point2d.fromCoordinates ( 100, 100 )
-
-            angles =
-                List.map degrees [ 5, 25, 45, 65, 85 ]
-
-            values =
-                List.map Direction2d.fromAngle angles
-
-            attributes =
-                [ Attributes.fill "white"
-                , Attributes.stroke "black"
-                ]
-        in
-        Svg.g attributes <|
-            List.map (Svg.direction2d [] basePoint) values
-
-This function is similar to `Svg.vector2d`, but a default length is baked in as
-well as a default tip length and width; `Svg.direction2d` is defined as
-
-    Svg.direction2dWith
-        { length = 50
-        , tipLength = 9
-        , tipWidth = 9
-        }
-
--}
-direction2d : List (Attribute msg) -> Point2d -> Direction2d -> Svg msg
-direction2d =
-    direction2dWith { length = 50, tipLength = 9, tipWidth = 9 }
-
-
-{-| Draw a direction with a custom length, tip length and width.
-
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#customDirections" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#customDirections`
-</iframe>
-
-    customDirections : Svg Never
-    customDirections =
-        let
-            basePoint =
-                Point2d.fromCoordinates ( 100, 100 )
-
-            angles =
-                List.map degrees [ 5, 25, 45, 65, 85 ]
-
-            values =
-                List.map Direction2d.fromAngle angles
-
-            attributes =
-                [ Attributes.fill "orange"
-                , Attributes.stroke "blue"
-                , Attributes.strokeWidth "2"
-                ]
-
-            drawDirection =
-                Svg.direction2dWith
-                    { length = 100
-                    , tipLength = 20
-                    , tipWidth = 20
-                    }
-                    []
-                    basePoint
-        in
-        Svg.g attributes (List.map drawDirection values)
-
--}
-direction2dWith : { length : Float, tipLength : Float, tipWidth : Float } -> List (Attribute msg) -> Point2d -> Direction2d -> Svg msg
-direction2dWith options attributes basePoint direction =
-    vector2dWith
-        { tipLength = options.tipLength
-        , tipWidth = options.tipWidth
-        }
-        attributes
-        basePoint
-        (Vector2d.withLength options.length direction)
-
-
-{-| Draw a point as an SVG `<circle>` with the given attributes.
-
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#points" style="width: 110px; height: 110px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#points`
-</iframe>
-
-    points : Svg Never
-    points =
-        let
-            values =
-                [ Point2d.fromCoordinates ( 110, 130 )
-                , Point2d.fromCoordinates ( 140, 180 )
-                , Point2d.fromCoordinates ( 170, 110 )
-                , Point2d.fromCoordinates ( 180, 150 )
-                ]
-
-            attributes =
-                [ Attributes.stroke "black"
-                , Attributes.fill "white"
-                ]
-        in
-        Svg.g attributes (List.map (Svg.point2d []) values)
-
-Use `Svg.point2dWith` to customize the circle radius; `Svg.point2d` is defined
-as
-
-    Svg.point2dWith { radius = 3 }
-
--}
-point2d : List (Attribute msg) -> Point2d -> Svg msg
-point2d =
-    point2dWith { radius = 3 }
-
-
-{-| Draw a point with a custom radius.
-
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#customPoints" style="width: 110px; height: 110px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#customPoints`
-</iframe>
-
-    customPoints : Svg Never
-    customPoints =
-        let
-            values =
-                [ Point2d.fromCoordinates ( 110, 130 )
-                , Point2d.fromCoordinates ( 140, 180 )
-                , Point2d.fromCoordinates ( 170, 110 )
-                , Point2d.fromCoordinates ( 180, 150 )
-                ]
-
-            attributes =
-                [ Attributes.stroke "blue"
-                , Attributes.fill "orange"
-                , Attributes.strokeWidth "2"
-                ]
-
-            drawPoint =
-                Svg.point2dWith { radius = 6 } []
-        in
-        Svg.g attributes (List.map drawPoint values)
-
--}
-point2dWith : { radius : Float } -> List (Attribute msg) -> Point2d -> Svg msg
-point2dWith { radius } attributes point =
-    circle2d attributes (Circle2d.withRadius radius point)
 
 
 {-| Draw a `LineSegment2d` as an SVG `<polyline>` with the given attributes.
@@ -1039,92 +739,6 @@ boundingBox2d attributes boundingBox =
             Attributes.height (toString (maxY - minY))
     in
     Svg.rect (x :: y :: width :: height :: attributes) []
-
-
-{-| Draw a string of text with the given attributes at the given point. You can
-use the SVG [`textAnchor`](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor)
-and [`alignmentBaseline`](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/alignment-baseline)
-attributes to align the text relative to the given point as desired.
-
-The wrinkle is that this function assumes that you are constructing your diagram
-in a coordinate system where positive X is to the right and positive Y is up. As
-a result, it will actually draw the text _upside down_, assuming that you will
-eventually flip your entire diagram upside down again to convert it to the
-Y-down coordinate system used by SVG (perhaps by using `render2d`).
-
-Note that you can apply all the usual transformations to SVG text just like any
-other SVG element!
-
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#text" style="width: 220px; height: 170px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#text`
-</iframe>
-
-    drawText : Point2d -> String -> String -> Svg Never
-    drawText point anchor baseline =
-        Svg.g []
-            [ Svg.point2d
-                { radius = 2
-                , attributes =
-                    [ Attributes.fill "orange" ]
-                }
-                point
-            , Svg.text2d
-                [ Attributes.textAnchor anchor
-                , Attributes.alignmentBaseline baseline
-                , Attributes.fill "blue"
-                ]
-                point
-                (anchor ++ "/" ++ baseline)
-            ]
-
-    text : Svg Never
-    text =
-        let
-            p1 =
-                Point2d.fromCoordinates ( 100, 100 )
-
-            p2 =
-                Point2d.fromCoordinates ( 300, 145 )
-
-            p3 =
-                Point2d.fromCoordinates ( 175, 190 )
-
-            p4 =
-                Point2d.fromCoordinates ( 300, 250 )
-        in
-        Svg.g []
-            [ drawText p1 "start" "baseline"
-            , drawText p2 "end" "middle"
-                |> Svg.scaleAbout p2 1.33
-            , drawText p3 "middle" "baseline"
-                |> Svg.mirrorAcross
-                    (Axis2d.with
-                        { originPoint = p3
-                        , direction = Direction2d.x
-                        }
-                    )
-            , drawText p4 "end" "hanging"
-                |> Svg.rotateAround p4 (degrees 10)
-            ]
-
--}
-text2d : List (Attribute msg) -> Point2d -> String -> Svg msg
-text2d attributes basePoint text =
-    let
-        ( x, y ) =
-            Point2d.coordinates basePoint
-
-        mirrorAxis =
-            Axis2d.through basePoint Direction2d.x
-
-        xAttribute =
-            Attributes.x (toString x)
-
-        yAttribute =
-            Attributes.y (toString y)
-    in
-    Svg.text_ (xAttribute :: yAttribute :: attributes) [ Svg.text text ]
-        |> mirrorAcross mirrorAxis
 
 
 {-| Scale arbitrary SVG around a given point by a given scale.
