@@ -12,6 +12,7 @@ module Geometry.Svg
         , polygon2d
         , polyline2d
         , quadraticSpline2d
+        , rectangle2d
         , relativeTo
         , rotateAround
         , scaleAbout
@@ -47,7 +48,7 @@ attributes such as `points` and `transform` set appropriately. Each function
 also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
-@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, ellipticalArc2d, circle2d, ellipse2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
+@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, ellipticalArc2d, circle2d, ellipse2d, rectangle2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
 
 
 # Transformations
@@ -114,6 +115,7 @@ import Point2d exposing (Point2d)
 import Polygon2d exposing (Polygon2d)
 import Polyline2d exposing (Polyline2d)
 import QuadraticSpline2d exposing (QuadraticSpline2d)
+import Rectangle2d exposing (Rectangle2d)
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Attributes
 import Triangle2d exposing (Triangle2d)
@@ -552,6 +554,11 @@ ellipse2d attributes ellipse =
     in
     Svg.ellipse (cx :: cy :: rx :: ry :: attributes) []
         |> rotateAround centerPoint angle
+
+
+rectangle2d : List (Attribute msg) -> Rectangle2d -> Svg msg
+rectangle2d attributes rectangle =
+    polygon2d attributes (Rectangle2d.toPolygon rectangle)
 
 
 {-| Draw a quadratic spline as an SVG `<path>` with the given attributes.
