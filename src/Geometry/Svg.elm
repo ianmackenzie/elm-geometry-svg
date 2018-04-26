@@ -257,19 +257,24 @@ polygon2d attributes polygon =
             Polygon2d.outerLoop polygon :: Polygon2d.innerLoops polygon
 
         loopString loop =
-            let
-                coordinateStrings =
-                    loop
-                        |> List.map
-                            (\point ->
-                                let
-                                    ( x, y ) =
-                                        Point2d.coordinates point
-                                in
-                                toString x ++ " " ++ toString y
-                            )
-            in
-            "M " ++ String.join " L " coordinateStrings ++ " Z"
+            case loop of
+                [] ->
+                    ""
+
+                _ ->
+                    let
+                        coordinateStrings =
+                            loop
+                                |> List.map
+                                    (\point ->
+                                        let
+                                            ( x, y ) =
+                                                Point2d.coordinates point
+                                        in
+                                        toString x ++ " " ++ toString y
+                                    )
+                    in
+                    "M " ++ String.join " L " coordinateStrings ++ " Z"
 
         pathAttribute =
             Attributes.d (String.join " " (List.map loopString loops))
