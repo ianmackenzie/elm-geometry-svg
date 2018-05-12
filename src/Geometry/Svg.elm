@@ -343,19 +343,25 @@ arc2d attributes arc =
             let
                 t =
                     toFloat index / toFloat numSegments
-
-                ( x, y ) =
-                    Point2d.coordinates (Arc2d.pointOn arc t)
             in
-            [ "A"
-            , radiusString
-            , radiusString
-            , "0"
-            , "0"
-            , sweepFlag
-            , toString x
-            , toString y
-            ]
+            case Arc2d.pointOn arc t of
+                Just point ->
+                    let
+                        ( x, y ) =
+                            Point2d.coordinates point
+                    in
+                    [ "A"
+                    , radiusString
+                    , radiusString
+                    , "0"
+                    , "0"
+                    , sweepFlag
+                    , toString x
+                    , toString y
+                    ]
+
+                Nothing ->
+                    []
 
         arcSegments =
             List.map arcSegment (List.range 1 numSegments)
@@ -444,19 +450,25 @@ ellipticalArc2d attributes arc =
             let
                 t =
                     toFloat index / toFloat numSegments
-
-                ( x, y ) =
-                    Point2d.coordinates (EllipticalArc2d.pointOn arc t)
             in
-            [ "A"
-            , xRadiusString
-            , yRadiusString
-            , angleString
-            , "0"
-            , sweepFlag
-            , toString x
-            , toString y
-            ]
+            case EllipticalArc2d.pointOn arc t of
+                Just point ->
+                    let
+                        ( x, y ) =
+                            Point2d.coordinates point
+                    in
+                    [ "A"
+                    , xRadiusString
+                    , yRadiusString
+                    , angleString
+                    , "0"
+                    , sweepFlag
+                    , toString x
+                    , toString y
+                    ]
+
+                Nothing ->
+                    []
 
         arcSegments =
             List.map arcSegment (List.range 1 numSegments)
