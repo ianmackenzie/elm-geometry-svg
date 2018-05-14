@@ -587,18 +587,24 @@ rectangle2d attributes rectangle =
     quadraticSpline : Svg Never
     quadraticSpline =
         let
-            spline =
-                QuadraticSpline2d.fromControlPoints
-                    ( Point2d.fromCoordinates ( 50, 50 )
-                    , Point2d.fromCoordinates ( 100, 150 )
-                    , Point2d.fromCoordinates ( 150, 100 )
-                    )
+            startPoint =
+                Point2d.fromCoordinates ( 50, 50 )
 
-            ( p1, p2, p3 ) =
-                QuadraticSpline2d.controlPoints spline
+            controlPoint =
+                Point2d.fromCoordinates ( 100, 150 )
+
+            endPoint =
+                Point2d.fromCoordinates ( 150, 100 )
+
+            spline =
+                QuadraticSpline2d.with
+                    { startPoint = startPoint
+                    , controlPoint = controlPoint
+                    , endPoint = endPoint
+                    }
 
             points =
-                [ p1, p2, p3 ]
+                [ startPoint, controlPoint, endPoint ]
         in
         Svg.g [ Attributes.stroke "blue" ]
             [ Svg.quadraticSpline2d
@@ -628,17 +634,14 @@ rectangle2d attributes rectangle =
 quadraticSpline2d : List (Attribute msg) -> QuadraticSpline2d -> Svg msg
 quadraticSpline2d attributes spline =
     let
-        ( p1, p2, p3 ) =
-            QuadraticSpline2d.controlPoints spline
-
         ( x1, y1 ) =
-            Point2d.coordinates p1
+            Point2d.coordinates (QuadraticSpline2d.startPoint spline)
 
         ( x2, y2 ) =
-            Point2d.coordinates p2
+            Point2d.coordinates (QuadraticSpline2d.controlPoint spline)
 
         ( x3, y3 ) =
-            Point2d.coordinates p3
+            Point2d.coordinates (QuadraticSpline2d.endPoint spline)
 
         pathComponents =
             [ "M"
@@ -666,19 +669,32 @@ quadraticSpline2d attributes spline =
     cubicSpline : Svg Never
     cubicSpline =
         let
-            spline =
-                CubicSpline2d.fromControlPoints
-                    ( Point2d.fromCoordinates ( 50, 50 )
-                    , Point2d.fromCoordinates ( 100, 150 )
-                    , Point2d.fromCoordinates ( 150, 25 )
-                    , Point2d.fromCoordinates ( 200, 125 )
-                    )
+            startPoint =
+                Point2d.fromCoordinates ( 50, 50 )
 
-            ( p1, p2, p3, p4 ) =
-                CubicSpline2d.controlPoints spline
+            startControlPoint =
+                Point2d.fromCoordinates ( 100, 150 )
+
+            endControlPoint =
+                Point2d.fromCoordinates ( 150, 25 )
+
+            endPoint =
+                Point2d.fromCoordinates ( 200, 125 )
+
+            spline =
+                CubicSpline2d.with
+                    { startPoint = startPoint
+                    , startControlPoint = startControlPoint
+                    , endControlPoint = endControlPoint
+                    , endPoint = endPoint
+                    }
 
             points =
-                [ p1, p2, p3, p4 ]
+                [ startPoint
+                , startControlPoint
+                , endControlPoint
+                , endPoint
+                ]
         in
         Svg.g [ Attributes.stroke "blue" ]
             [ Svg.cubicSpline2d
@@ -708,20 +724,17 @@ quadraticSpline2d attributes spline =
 cubicSpline2d : List (Attribute msg) -> CubicSpline2d -> Svg msg
 cubicSpline2d attributes spline =
     let
-        ( p1, p2, p3, p4 ) =
-            CubicSpline2d.controlPoints spline
-
         ( x1, y1 ) =
-            Point2d.coordinates p1
+            Point2d.coordinates (CubicSpline2d.startPoint spline)
 
         ( x2, y2 ) =
-            Point2d.coordinates p2
+            Point2d.coordinates (CubicSpline2d.startControlPoint spline)
 
         ( x3, y3 ) =
-            Point2d.coordinates p3
+            Point2d.coordinates (CubicSpline2d.endControlPoint spline)
 
         ( x4, y4 ) =
-            Point2d.coordinates p4
+            Point2d.coordinates (CubicSpline2d.endPoint spline)
 
         pathComponents =
             [ "M"
