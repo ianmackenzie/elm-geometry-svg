@@ -1,12 +1,13 @@
 module Interpolation exposing (..)
 
+import Circle2d
+import CubicSpline2d
+import Frame2d
+import Geometry.Svg as Svg
 import Html exposing (Html)
 import Html.Attributes
 import Kintail.InputWidget as InputWidget
-import OpenSolid.BoundingBox2d as BoundingBox2d
-import OpenSolid.CubicSpline2d as CubicSpline2d
-import OpenSolid.Point2d as Point2d
-import OpenSolid.Svg as Svg
+import Point2d
 import Svg
 import Svg.Attributes
 
@@ -33,13 +34,14 @@ update (NewValue newValue) _ =
 view : Model -> Html Msg
 view { x0 } =
     let
-        boundingBox =
-            BoundingBox2d.fromExtrema
-                { minX = 0
-                , maxX = 300
-                , minY = -100
-                , maxY = 400
-                }
+        topLeftFrame =
+            Frame2d.atCoordinates ( 0, 400 ) |> Frame2d.reverseY
+
+        width =
+            300
+
+        height =
+            500
 
         y1 =
             (2 - x0) / (3 * (1 - x0))
@@ -48,12 +50,12 @@ view { x0 } =
             (2 * x0 - 1) / (3 * x0)
 
         spline =
-            CubicSpline2d.fromControlPoints
-                ( Point2d.origin
-                , Point2d.fromCoordinates ( 1 / 3, y1 )
-                , Point2d.fromCoordinates ( 2 / 3, y2 )
-                , Point2d.fromCoordinates ( 1, 1 )
-                )
+            CubicSpline2d.with
+                { startPoint = Point2d.origin
+                , startControlPoint = Point2d.fromCoordinates ( 1 / 3, y1 )
+                , endControlPoint = Point2d.fromCoordinates ( 2 / 3, y2 )
+                , endPoint = Point2d.fromCoordinates ( 1, 1 )
+                }
 
         svg =
             Svg.g []
@@ -63,13 +65,23 @@ view { x0 } =
                     , Svg.Attributes.strokeWidth "0.005"
                     ]
                     spline
-                , Svg.point2dWith { radius = 0.02 } [] <|
-                    Point2d.fromCoordinates ( x0, x0 )
+                , Svg.circle2d [] <|
+                    Circle2d.withRadius 0.02
+                        (Point2d.fromCoordinates ( x0, x0 ))
                 ]
     in
     Html.div []
         [ Html.div []
-            [ Svg.render2d boundingBox (Svg.scaleAbout Point2d.origin 300 svg) ]
+            [ Svg.svg
+                [ Svg.Attributes.width (toString width)
+                , Svg.Attributes.height (toString height)
+                , Html.Attributes.style [ ( "display", "block" ) ]
+                ]
+                [ svg
+                    |> Svg.scaleAbout Point2d.origin 300
+                    |> Svg.relativeTo topLeftFrame
+                ]
+            ]
         , InputWidget.slider [ Html.Attributes.style [ ( "width", "300px" ) ] ]
             { min = 0.01, max = 0.99, step = 0.01 }
             x0

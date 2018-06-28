@@ -1,15 +1,15 @@
 module Logo exposing (..)
 
 import Basics.Extra exposing (inDegrees)
+import Frame2d
+import Frame3d
+import Geometry.Svg as Svg
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events as Events
-import OpenSolid.Frame2d as Frame2d
-import OpenSolid.Frame3d as Frame3d
-import OpenSolid.Point2d as Point2d
-import OpenSolid.Point3d as Point3d
-import OpenSolid.Polygon2d as Polygon2d
-import OpenSolid.Svg as Svg
+import Point2d
+import Point3d
+import Polygon2d
 import Svg exposing (Svg)
 import Svg.Attributes
 
@@ -162,16 +162,16 @@ logo model =
             Point3d.projectInto (Frame3d.yzSketchPlane viewFrame)
 
         leftPolygon =
-            Polygon2d.fromVertices (List.map to2d [ p1, p2, p8, p7, p6 ])
+            Polygon2d.singleLoop (List.map to2d [ p1, p2, p8, p7, p6 ])
 
         rightPolygon =
-            Polygon2d.fromVertices (List.map to2d [ p2, p3, p4, p9, p8 ])
+            Polygon2d.singleLoop (List.map to2d [ p2, p3, p4, p9, p8 ])
 
         topPolygon =
-            Polygon2d.fromVertices (List.map to2d [ p6, p7, p9, p4, p5 ])
+            Polygon2d.singleLoop (List.map to2d [ p6, p7, p9, p4, p5 ])
 
         trianglePolygon =
-            Polygon2d.fromVertices (List.map to2d [ p7, p8, p9 ])
+            Polygon2d.singleLoop (List.map to2d [ p7, p8, p9 ])
 
         orange =
             "rgb(240, 173, 0)"
@@ -230,7 +230,7 @@ logo model =
 
         topLeftFrame =
             Frame2d.atPoint (Point2d.fromCoordinates ( -250, 250 ))
-                |> Frame2d.flipY
+                |> Frame2d.reverseY
 
         scene =
             Svg.relativeTo topLeftFrame
