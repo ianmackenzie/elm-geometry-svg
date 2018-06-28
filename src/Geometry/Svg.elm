@@ -573,6 +573,8 @@ ellipse2d attributes ellipse =
         |> rotateAround centerPoint angle
 
 
+{-| Draw a `Rectangle2d` as a polygon with the given attributes.
+-}
 rectangle2d : List (Attribute msg) -> Rectangle2d -> Svg msg
 rectangle2d attributes rectangle =
     polygon2d attributes (Rectangle2d.toPolygon rectangle)
