@@ -106,6 +106,7 @@ import Basics.Extra exposing (inDegrees)
 import BoundingBox2d exposing (BoundingBox2d)
 import Circle2d exposing (Circle2d)
 import CubicSpline2d exposing (CubicSpline2d)
+import Curve.ParameterValue as ParameterValue exposing (ParameterValue)
 import Direction2d exposing (Direction2d)
 import Ellipse2d exposing (Ellipse2d)
 import EllipticalArc2d exposing (EllipticalArc2d)
@@ -339,32 +340,23 @@ arc2d attributes arc =
             , toString y0
             ]
 
-        arcSegment index =
+        arcSegment parameterValue =
             let
-                t =
-                    toFloat index / toFloat numSegments
+                ( x, y ) =
+                    Point2d.coordinates (Arc2d.pointOn arc parameterValue)
             in
-            case Arc2d.pointOn arc t of
-                Just point ->
-                    let
-                        ( x, y ) =
-                            Point2d.coordinates point
-                    in
-                    [ "A"
-                    , radiusString
-                    , radiusString
-                    , "0"
-                    , "0"
-                    , sweepFlag
-                    , toString x
-                    , toString y
-                    ]
-
-                Nothing ->
-                    []
+            [ "A"
+            , radiusString
+            , radiusString
+            , "0"
+            , "0"
+            , sweepFlag
+            , toString x
+            , toString y
+            ]
 
         arcSegments =
-            List.map arcSegment (List.range 1 numSegments)
+            List.map arcSegment (ParameterValue.trailing numSegments)
 
         pathComponents =
             moveCommand ++ List.concat arcSegments
@@ -446,32 +438,24 @@ ellipticalArc2d attributes arc =
             , toString y0
             ]
 
-        arcSegment index =
+        arcSegment parameterValue =
             let
-                t =
-                    toFloat index / toFloat numSegments
+                ( x, y ) =
+                    Point2d.coordinates
+                        (EllipticalArc2d.pointOn arc parameterValue)
             in
-            case EllipticalArc2d.pointOn arc t of
-                Just point ->
-                    let
-                        ( x, y ) =
-                            Point2d.coordinates point
-                    in
-                    [ "A"
-                    , xRadiusString
-                    , yRadiusString
-                    , angleString
-                    , "0"
-                    , sweepFlag
-                    , toString x
-                    , toString y
-                    ]
-
-                Nothing ->
-                    []
+            [ "A"
+            , xRadiusString
+            , yRadiusString
+            , angleString
+            , "0"
+            , sweepFlag
+            , toString x
+            , toString y
+            ]
 
         arcSegments =
-            List.map arcSegment (List.range 1 numSegments)
+            List.map arcSegment (ParameterValue.trailing numSegments)
 
         pathComponents =
             moveCommand ++ List.concat arcSegments
