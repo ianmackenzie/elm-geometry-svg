@@ -38,7 +38,7 @@ of SVG across an arbitrary axis:
 
 Note that these functions will work on *any* `Svg msg`, value, not just ones
 that happen to have been produced with this package! So you can use them as a
-convenient way to transform SVG that you've produced using some other package.
+convenient way to transform SVG that you've produced in some other way.
 
 ## Coordinate conversion
 
