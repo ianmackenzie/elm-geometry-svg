@@ -137,8 +137,8 @@ pointsAttribute points =
 
 {-| Draw a `LineSegment2d` as an SVG `<polyline>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#lineSegment" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#lineSegment`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#lineSegment" style="width: 120px; height: 120px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#lineSegment`
 </iframe>
 
     lineSegment : Svg Never
@@ -165,8 +165,8 @@ lineSegment2d attributes lineSegment =
 
 {-| Draw a `Triangle2d` as an SVG `<polygon>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#triangle" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#triangle`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#triangle" style="width: 120px; height: 120px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#triangle`
 </iframe>
 
     triangle : Svg Never
@@ -196,8 +196,8 @@ triangle2d attributes triangle =
 
 {-| Draw a `Polyline2d` as an SVG `<polyline>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#polyline" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#polyline`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#polyline" style="width: 120px; height: 120px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#polyline`
 </iframe>
 
     polyline : Svg Never
@@ -231,8 +231,8 @@ polyline2d attributes polyline =
 
 {-| Draw a `Polygon2d` as an SVG `<polygon>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#polygon" style="width: 120px; height: 70px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#polygon`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#polygon" style="width: 120px; height: 70px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#polygon`
 </iframe>
 
     polygon : Svg Never
@@ -293,8 +293,8 @@ polygon2d attributes polygon =
 
 {-| Draw an `Arc2d` as an SVG `<path>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#arc" style="width: 100px; height: 110px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#arc`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#arc" style="width: 100px; height: 110px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#arc`
 </iframe>
 
     arc : Svg Never
@@ -375,8 +375,8 @@ arc2d attributes arc =
 
 {-| Draw an `EllipticalArc2d` as an SVG `<path>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipticalArc" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipticalArc`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#ellipticalArc" style="width: 120px; height: 120px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#ellipticalArc`
 </iframe>
 
     ellipticalArc : Svg Never
@@ -474,8 +474,8 @@ ellipticalArc2d attributes arc =
 
 {-| Draw a `Circle2d` as an SVG `<circle>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#circle" style="width: 40px; height: 40px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#circle`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#circle" style="width: 40px; height: 40px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#circle`
 </iframe>
 
     circle : Svg Never
@@ -513,8 +513,8 @@ circle2d attributes circle =
 
 {-| Draw an `Ellipse2d` as an SVG `<ellipse>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipse" style="width: 140px; height: 100px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#ellipse`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#ellipse" style="width: 140px; height: 100px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#ellipse`
 </iframe>
 
     ellipse : Svg Never
@@ -565,8 +565,8 @@ ellipse2d attributes ellipse =
 
 {-| Draw a quadratic spline as an SVG `<path>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#quadraticSpline" style="width: 130px; height: 130px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#quadraticSpline`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#quadraticSpline" style="width: 130px; height: 130px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#quadraticSpline`
 </iframe>
 
     quadraticSpline : Svg Never
@@ -644,8 +644,8 @@ quadraticSpline2d attributes spline =
 
 {-| Draw a cubic spline as an SVG `<path>` with the given attributes.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#cubicSpline" style="width: 190px; height: 165px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#cubicSpline`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#cubicSpline" style="width: 190px; height: 165px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#cubicSpline`
 </iframe>
 
     cubicSpline : Svg Never
@@ -759,8 +759,8 @@ boundingBox2d attributes boundingBox =
 
 {-| Scale arbitrary SVG around a given point by a given scale.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#scaled" style="width: 160px; height: 160px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#scaled`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#scaled" style="width: 160px; height: 160px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#scaled`
 </iframe>
 
     scaled : Svg Never
@@ -813,8 +813,8 @@ scaleAbout point scale element =
 
 {-| Rotate arbitrary SVG around a given point by a given angle.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#rotated" style="width: 140px; height: 140px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#rotated`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#rotated" style="width: 140px; height: 140px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#rotated`
 </iframe>
 
     rotated : Svg Never
@@ -869,8 +869,8 @@ rotateAround point angle element =
 
 {-| Translate arbitrary SVG by a given displacement.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#translated" style="width: 128px; height: 230px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#translated`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#translated" style="width: 128px; height: 230px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#translated`
 </iframe>
 
     translated : Svg Never
@@ -900,8 +900,8 @@ translateBy vector element =
 
 {-| Mirror arbitrary SVG across a given axis.
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#mirrored" style="width: 230px; height: 280px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#mirrored`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#mirrored" style="width: 230px; height: 280px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#mirrored`
 </iframe>
 
     mirrored : Svg Never
@@ -988,8 +988,8 @@ and return that SVG expressed in global coordinates.
 This can be useful for taking a chunk of SVG and 'stamping' it in different
 positions with different orientations:
 
-<iframe src="https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#placed" style="width: 225px; height: 180px" scrolling=no frameborder=0>
-`https://opensolid.github.io/svg/3.0.0/doc/images/DocumentationExamples.html#placed`
+<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#placed" style="width: 225px; height: 180px" scrolling=no frameborder=0>
+`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#placed`
 </iframe>
 
     placed : Svg Never
