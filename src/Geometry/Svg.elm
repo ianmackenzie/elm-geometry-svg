@@ -590,6 +590,10 @@ ellipse2d attributes ellipse =
 
             points =
                 [ startPoint, controlPoint, endPoint ]
+
+            drawPoint point =
+                Svg.circle2d []
+                    (Circle2d.withRadius 3 point)
         in
         Svg.g [ Attributes.stroke "blue" ]
             [ Svg.quadraticSpline2d
@@ -605,14 +609,7 @@ ellipse2d attributes ellipse =
                 ]
                 (Polyline2d.fromVertices points)
             , Svg.g [ Attributes.fill "white" ]
-                (points
-                    |> List.map
-                        (Svg.point2d
-                            { radius = 3
-                            , attributes = []
-                            }
-                        )
-                )
+                (List.map drawPoint points)
             ]
 
 -}
@@ -680,6 +677,10 @@ quadraticSpline2d attributes spline =
                 , endControlPoint
                 , endPoint
                 ]
+
+            drawPoint point =
+                Svg.circle2d []
+                    (Circle2d.withRadius 3 point)
         in
         Svg.g [ Attributes.stroke "blue" ]
             [ Svg.cubicSpline2d
@@ -695,14 +696,7 @@ quadraticSpline2d attributes spline =
                 ]
                 (Polyline2d.fromVertices points)
             , Svg.g [ Attributes.fill "white" ]
-                (points
-                    |> List.map
-                        (Svg.point2d
-                            { radius = 3
-                            , attributes = []
-                            }
-                        )
-                )
+                (List.map drawPoint points)
             ]
 
 -}

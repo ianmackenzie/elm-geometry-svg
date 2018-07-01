@@ -190,6 +190,10 @@ quadraticSpline =
 
         points =
             [ startPoint, controlPoint, endPoint ]
+
+        drawPoint point =
+            Svg.circle2d []
+                (Circle2d.withRadius 3 point)
     in
     Svg.g [ Attributes.stroke "blue" ]
         [ Svg.quadraticSpline2d
@@ -204,7 +208,8 @@ quadraticSpline =
             , Attributes.strokeDasharray "3 3"
             ]
             (Polyline2d.fromVertices points)
-        , Svg.g [ Attributes.fill "white" ] (List.map (point2d []) points)
+        , Svg.g [ Attributes.fill "white" ]
+            (List.map drawPoint points)
         ]
 
 
@@ -232,7 +237,15 @@ cubicSpline =
                 }
 
         points =
-            [ startPoint, startControlPoint, endControlPoint, endPoint ]
+            [ startPoint
+            , startControlPoint
+            , endControlPoint
+            , endPoint
+            ]
+
+        drawPoint point =
+            Svg.circle2d []
+                (Circle2d.withRadius 3 point)
     in
     Svg.g [ Attributes.stroke "blue" ]
         [ Svg.cubicSpline2d
@@ -247,7 +260,8 @@ cubicSpline =
             , Attributes.strokeDasharray "3 3"
             ]
             (Polyline2d.fromVertices points)
-        , Svg.g [ Attributes.fill "white" ] (List.map (point2d []) points)
+        , Svg.g [ Attributes.fill "white" ]
+            (List.map drawPoint points)
         ]
 
 
