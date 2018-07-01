@@ -1,5 +1,8 @@
 ## elm-geometry-svg
 
+_Release notes for version 1.0 (relative to `opensolid/svg` 3.0) are
+[here](https://github.com/ianmackenzie/elm-geometry-svg/releases/tag/1.0.0)._
+
 This [Elm](http://elm-lang.org) package provides functions to create and
 manipulate SVG elements using the [`elm-geometry`](http://package.elm-lang.org/packages/ianmackenzie/elm-geometry/latest)
 data types. You can:
