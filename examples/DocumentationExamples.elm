@@ -116,14 +116,22 @@ polygon =
     Svg.polygon2d
         [ Attributes.stroke "blue"
         , Attributes.fill "orange"
-        , Attributes.strokeWidth "5"
+        , Attributes.strokeWidth "3"
         ]
-        (Polygon2d.singleLoop
-            [ Point2d.fromCoordinates ( 100, 200 )
-            , Point2d.fromCoordinates ( 120, 150 )
-            , Point2d.fromCoordinates ( 180, 150 )
-            , Point2d.fromCoordinates ( 200, 200 )
-            ]
+        (Polygon2d.with
+            { outerLoop =
+                [ Point2d.fromCoordinates ( 100, 200 )
+                , Point2d.fromCoordinates ( 120, 150 )
+                , Point2d.fromCoordinates ( 180, 150 )
+                , Point2d.fromCoordinates ( 200, 200 )
+                ]
+            , innerLoops =
+                [ [ Point2d.fromCoordinates ( 150, 185 )
+                  , Point2d.fromCoordinates ( 165, 160 )
+                  , Point2d.fromCoordinates ( 135, 160 )
+                  ]
+                ]
+            }
         )
 
 
