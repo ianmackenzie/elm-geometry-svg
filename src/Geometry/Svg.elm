@@ -101,7 +101,6 @@ coordinate conversion transformations to be applied to arbitrary SVG elements.
 
 import Arc2d exposing (Arc2d)
 import Axis2d exposing (Axis2d)
-import Basics.Extra exposing (inDegrees)
 import BoundingBox2d exposing (BoundingBox2d)
 import Circle2d exposing (Circle2d)
 import CubicSpline2d exposing (CubicSpline2d)
@@ -121,13 +120,18 @@ import Triangle2d exposing (Triangle2d)
 import Vector2d exposing (Vector2d)
 
 
+inDegrees : Float -> Float
+inDegrees angle =
+    angle / degrees 1
+
+
 coordinatesString : Point2d -> String
 coordinatesString point =
     let
         ( x, y ) =
             Point2d.coordinates point
     in
-    toString x ++ "," ++ toString y
+    String.fromFloat x ++ "," ++ String.fromFloat y
 
 
 pointsAttribute : List Point2d -> Attribute msg
@@ -279,8 +283,14 @@ polygon2d attributes polygon =
                                         let
                                             ( x, y ) =
                                                 Point2d.coordinates point
+
+                                            xString =
+                                                String.fromFloat x
+
+                                            yString =
+                                                String.fromFloat y
                                         in
-                                        toString x ++ " " ++ toString y
+                                        xString ++ " " ++ yString
                                     )
                     in
                     "M " ++ String.join " L " coordinateStrings ++ " Z"
@@ -338,12 +348,12 @@ arc2d attributes arc =
             Arc2d.radius arc
 
         radiusString =
-            toString radius
+            String.fromFloat radius
 
         moveCommand =
             [ "M"
-            , toString x0
-            , toString y0
+            , String.fromFloat x0
+            , String.fromFloat y0
             ]
 
         arcSegment parameterValue =
@@ -357,8 +367,8 @@ arc2d attributes arc =
             , "0"
             , "0"
             , sweepFlag
-            , toString x
-            , toString y
+            , String.fromFloat x
+            , String.fromFloat y
             ]
 
         arcSegments =
@@ -427,21 +437,21 @@ ellipticalArc2d attributes arc =
             EllipticalArc2d.yRadius arc
 
         xRadiusString =
-            toString xRadius
+            String.fromFloat xRadius
 
         yRadiusString =
-            toString yRadius
+            String.fromFloat yRadius
 
         xDirection =
             EllipticalArc2d.xDirection arc
 
         angleString =
-            toString (Direction2d.toAngle xDirection |> inDegrees)
+            String.fromFloat (Direction2d.toAngle xDirection |> inDegrees)
 
         moveCommand =
             [ "M"
-            , toString x0
-            , toString y0
+            , String.fromFloat x0
+            , String.fromFloat y0
             ]
 
         arcSegment parameterValue =
@@ -456,8 +466,8 @@ ellipticalArc2d attributes arc =
             , angleString
             , "0"
             , sweepFlag
-            , toString x
-            , toString y
+            , String.fromFloat x
+            , String.fromFloat y
             ]
 
         arcSegments =
@@ -500,13 +510,13 @@ circle2d attributes circle =
             Point2d.coordinates (Circle2d.centerPoint circle)
 
         cx =
-            Attributes.cx (toString x)
+            Attributes.cx (String.fromFloat x)
 
         cy =
-            Attributes.cy (toString y)
+            Attributes.cy (String.fromFloat y)
 
         r =
-            Attributes.r (toString (Circle2d.radius circle))
+            Attributes.r (String.fromFloat (Circle2d.radius circle))
     in
     Svg.circle (cx :: cy :: r :: attributes) []
 
@@ -545,16 +555,16 @@ ellipse2d attributes ellipse =
             Point2d.coordinates centerPoint
 
         cx =
-            Attributes.cx (toString x)
+            Attributes.cx (String.fromFloat x)
 
         cy =
-            Attributes.cy (toString y)
+            Attributes.cy (String.fromFloat y)
 
         rx =
-            Attributes.rx (toString (Ellipse2d.xRadius ellipse))
+            Attributes.rx (String.fromFloat (Ellipse2d.xRadius ellipse))
 
         ry =
-            Attributes.ry (toString (Ellipse2d.yRadius ellipse))
+            Attributes.ry (String.fromFloat (Ellipse2d.yRadius ellipse))
 
         angle =
             Direction2d.toAngle (Ellipse2d.xDirection ellipse)
@@ -627,13 +637,13 @@ quadraticSpline2d attributes spline =
 
         pathComponents =
             [ "M"
-            , toString x1
-            , toString y1
+            , String.fromFloat x1
+            , String.fromFloat y1
             , "Q"
-            , toString x2
-            , toString y2
-            , toString x3
-            , toString y3
+            , String.fromFloat x2
+            , String.fromFloat y2
+            , String.fromFloat x3
+            , String.fromFloat y3
             ]
 
         pathAttribute =
@@ -717,15 +727,15 @@ cubicSpline2d attributes spline =
 
         pathComponents =
             [ "M"
-            , toString x1
-            , toString y1
+            , String.fromFloat x1
+            , String.fromFloat y1
             , "C"
-            , toString x2
-            , toString y2
-            , toString x3
-            , toString y3
-            , toString x4
-            , toString y4
+            , String.fromFloat x2
+            , String.fromFloat y2
+            , String.fromFloat x3
+            , String.fromFloat y3
+            , String.fromFloat x4
+            , String.fromFloat y4
             ]
 
         pathAttribute =
@@ -743,16 +753,16 @@ boundingBox2d attributes boundingBox =
             BoundingBox2d.extrema boundingBox
 
         x =
-            Attributes.x (toString minX)
+            Attributes.x (String.fromFloat minX)
 
         y =
-            Attributes.y (toString minY)
+            Attributes.y (String.fromFloat minY)
 
         width =
-            Attributes.width (toString (maxX - minX))
+            Attributes.width (String.fromFloat (maxX - minX))
 
         height =
-            Attributes.height (toString (maxY - minY))
+            Attributes.height (String.fromFloat (maxY - minY))
     in
     Svg.rect (x :: y :: width :: height :: attributes) []
 
@@ -803,7 +813,7 @@ scaleAbout point scale element =
             Point2d.coordinates (Point2d.scaleAbout point scale Point2d.origin)
 
         components =
-            List.map toString [ scale, 0, 0, scale, px, py ]
+            List.map String.fromFloat [ scale, 0, 0, scale, px, py ]
 
         transform =
             "matrix(" ++ String.join " " components ++ ")"
@@ -853,13 +863,13 @@ rotateAround point angle element =
             Point2d.coordinates point
 
         xString =
-            toString x
+            String.fromFloat x
 
         yString =
-            toString y
+            String.fromFloat y
 
         angleString =
-            toString (angle |> inDegrees)
+            String.fromFloat (angle |> inDegrees)
 
         rotate =
             "rotate(" ++ angleString ++ " " ++ xString ++ " " ++ yString ++ ")"
@@ -892,8 +902,14 @@ translateBy vector element =
         ( x, y ) =
             Vector2d.components vector
 
+        xString =
+            String.fromFloat x
+
+        yString =
+            String.fromFloat y
+
         translate =
-            "translate(" ++ toString x ++ " " ++ toString y ++ ")"
+            "translate(" ++ xString ++ " " ++ yString ++ ")"
     in
     Svg.g [ Attributes.transform translate ] [ element ]
 
@@ -1048,7 +1064,7 @@ placeIn frame element =
             Direction2d.components (Frame2d.yDirection frame)
 
         components =
-            List.map toString [ x1, y1, x2, y2, px, py ]
+            List.map String.fromFloat [ x1, y1, x2, y2, px, py ]
 
         transform =
             "matrix(" ++ String.join " " components ++ ")"
