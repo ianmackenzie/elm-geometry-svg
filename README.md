@@ -60,19 +60,11 @@ different positions with different orientations:
 
 Assuming you have [installed Elm](https://guide.elm-lang.org/install.html) and
 started a new project, use [elm-package](https://guide.elm-lang.org/install.html#elm-package)
-to install `elm-geometry-svg`, either by running
+to install `elm-geometry-svg`, by running:
 
 ```
-elm package install ianmackenzie/elm-geometry-svg
+elm install ianmackenzie/elm-geometry-svg
 ```
-
-in a command prompt inside your project directory or by adding
-
-```json
-"ianmackenzie/elm-geometry-svg": "1.0.0 <= v < 2.0.0"
-```
-
-to the `dependencies` field in your project's `elm-package.json`.
 
 ## Documentation
 
