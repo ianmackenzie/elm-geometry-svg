@@ -1011,7 +1011,7 @@ positions with different orientations:
                     , Attributes.stroke "blue"
                     , Attributes.strokeWidth "2"
                     ]
-                    (Polygon2d.fromVertices vertices)
+                    (Polygon2d.singleLoop vertices)
 
             frames =
                 [ Frame2d.atPoint

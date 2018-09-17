@@ -208,7 +208,7 @@ plane3d sketchPlane =
                 |> Point3d.projectInto viewPlane
 
         outline =
-            Polygon2d.fromVertices
+            Polygon2d.singleLoop
                 [ point -16 -16
                 , point 16 -16
                 , point 16 16
@@ -242,7 +242,7 @@ sketchPlane3d sketchPlane =
                 |> Point3d.projectInto viewPlane
 
         outline =
-            Polygon2d.fromVertices
+            Polygon2d.singleLoop
                 [ point -6 -6
                 , point 30 -6
                 , point 30 30
@@ -455,7 +455,7 @@ triangle2d triangle =
         ( p1, p2, p3 ) =
             Triangle2d.vertices triangle
     in
-    polygon2d (Polygon2d.fromVertices [ p1, p2, p3 ])
+    polygon2d (Polygon2d.singleLoop [ p1, p2, p3 ])
 
 
 triangle3d : Triangle3d -> Svg Never
@@ -528,7 +528,7 @@ boundingBox2d boundingBox =
     in
     Svg.g []
         [ Svg.polygon2d [ Attributes.fill "none" ]
-            (Polygon2d.fromVertices vertices)
+            (Polygon2d.singleLoop vertices)
         , Svg.g [] (List.map vertex2d vertices)
         ]
 
@@ -843,7 +843,7 @@ polygon2dIcon =
                 |> List.map
                     (\angle -> Point2d.fromPolarCoordinates ( 15, angle ))
                 |> List.map (Point2d.translateBy displacement)
-                |> Polygon2d.fromVertices
+                |> Polygon2d.singleLoop
     in
     icon2d (polygon2d polygon)
 
@@ -1075,7 +1075,7 @@ container svg =
                 , Attributes.stroke "none"
                 , Attributes.fill "none"
                 ]
-                (Polygon2d.fromVertices
+                (Polygon2d.singleLoop
                     [ Point2d.fromCoordinates ( 0, 0 )
                     , Point2d.fromCoordinates ( 80, 0 )
                     , Point2d.fromCoordinates ( 80, 80 )
