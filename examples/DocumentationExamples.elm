@@ -60,7 +60,7 @@ point2dWith { radius } attributes point =
     Svg.circle2d attributes (Circle2d.withRadius radius point)
 
 
-circle : Svg Never
+circle : Svg msg
 circle =
     Svg.circle2d
         [ Attributes.fill "orange"
@@ -70,7 +70,7 @@ circle =
         (Circle2d.withRadius 10 (Point2d.fromCoordinates ( 150, 150 )))
 
 
-ellipse : Svg Never
+ellipse : Svg msg
 ellipse =
     Svg.ellipse2d
         [ Attributes.fill "orange"
@@ -88,7 +88,7 @@ ellipse =
         )
 
 
-lineSegment : Svg Never
+lineSegment : Svg msg
 lineSegment =
     Svg.lineSegment2d
         [ Attributes.stroke "blue"
@@ -101,7 +101,7 @@ lineSegment =
         )
 
 
-triangle : Svg Never
+triangle : Svg msg
 triangle =
     Svg.triangle2d
         [ Attributes.stroke "blue"
@@ -117,7 +117,7 @@ triangle =
         )
 
 
-polyline : Svg Never
+polyline : Svg msg
 polyline =
     Svg.polyline2d
         [ Attributes.stroke "blue"
@@ -137,7 +137,7 @@ polyline =
         )
 
 
-polygon : Svg Never
+polygon : Svg msg
 polygon =
     Svg.polygon2d
         [ Attributes.stroke "blue"
@@ -161,7 +161,7 @@ polygon =
         )
 
 
-arc : Svg Never
+arc : Svg msg
 arc =
     Svg.arc2d
         [ Attributes.stroke "blue"
@@ -175,7 +175,7 @@ arc =
         )
 
 
-ellipticalArc : Svg Never
+ellipticalArc : Svg msg
 ellipticalArc =
     Svg.ellipticalArc2d
         [ Attributes.stroke "blue"
@@ -195,7 +195,7 @@ ellipticalArc =
         )
 
 
-quadraticSpline : Svg Never
+quadraticSpline : Svg msg
 quadraticSpline =
     let
         startPoint =
@@ -239,7 +239,7 @@ quadraticSpline =
         ]
 
 
-cubicSpline : Svg Never
+cubicSpline : Svg msg
 cubicSpline =
     let
         startPoint =
@@ -291,7 +291,7 @@ cubicSpline =
         ]
 
 
-scaled : Svg Never
+scaled : Svg msg
 scaled =
     let
         scales =
@@ -300,7 +300,7 @@ scaled =
         referencePoint =
             Point2d.fromCoordinates ( 100, 100 )
 
-        scaledCircle : Float -> Svg Never
+        scaledCircle : Float -> Svg msg
         scaledCircle scale =
             Svg.scaleAbout referencePoint scale circle
     in
@@ -310,7 +310,7 @@ scaled =
         )
 
 
-rotated : Svg Never
+rotated : Svg msg
 rotated =
     let
         angles =
@@ -320,7 +320,7 @@ rotated =
         referencePoint =
             Point2d.fromCoordinates ( 200, 150 )
 
-        rotatedCircle : Float -> Svg Never
+        rotatedCircle : Float -> Svg msg
         rotatedCircle angle =
             Svg.rotateAround referencePoint angle circle
     in
@@ -330,7 +330,7 @@ rotated =
         )
 
 
-translated : Svg Never
+translated : Svg msg
 translated =
     Svg.g []
         [ polyline
@@ -339,7 +339,7 @@ translated =
         ]
 
 
-mirrored : Svg Never
+mirrored : Svg msg
 mirrored =
     let
         horizontalAxis =
@@ -370,7 +370,7 @@ mirrored =
         ]
 
 
-placed : Svg Never
+placed : Svg msg
 placed =
     let
         stamp =
@@ -402,7 +402,7 @@ placed =
     Svg.g [] (List.map (\frame -> Svg.placeIn frame stamp) frames)
 
 
-example : ( Float, Float ) -> ( Float, Float ) -> Svg Never -> Html Never
+example : ( Float, Float ) -> ( Float, Float ) -> Svg msg -> Html msg
 example ( minX, minY ) ( maxX, maxY ) svg =
     let
         topLeftFrame =
