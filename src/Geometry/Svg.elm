@@ -1,23 +1,8 @@
-module Geometry.Svg
-    exposing
-        ( arc2d
-        , boundingBox2d
-        , circle2d
-        , cubicSpline2d
-        , ellipse2d
-        , ellipticalArc2d
-        , lineSegment2d
-        , mirrorAcross
-        , placeIn
-        , polygon2d
-        , polyline2d
-        , quadraticSpline2d
-        , relativeTo
-        , rotateAround
-        , scaleAbout
-        , translateBy
-        , triangle2d
-        )
+module Geometry.Svg exposing
+    ( lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, ellipticalArc2d, circle2d, ellipse2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
+    , scaleAbout, rotateAround, translateBy, mirrorAcross
+    , relativeTo, placeIn
+    )
 
 {-| Draw 2D `elm-geometry` values as SVG.
 
