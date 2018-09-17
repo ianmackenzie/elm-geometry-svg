@@ -145,7 +145,7 @@ pointsAttribute points =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#lineSegment`
 </iframe>
 
-    lineSegment : Svg Never
+    lineSegment : Svg msg
     lineSegment =
         Svg.lineSegment2d
             [ Attributes.stroke "blue"
@@ -173,7 +173,7 @@ lineSegment2d attributes lineSegment =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#triangle`
 </iframe>
 
-    triangle : Svg Never
+    triangle : Svg msg
     triangle =
         Svg.triangle2d
             [ Attributes.stroke "blue"
@@ -204,7 +204,7 @@ triangle2d attributes triangle =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#polyline`
 </iframe>
 
-    polyline : Svg Never
+    polyline : Svg msg
     polyline =
         Svg.polyline2d
             [ Attributes.stroke "blue"
@@ -239,7 +239,7 @@ polyline2d attributes polyline =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#polygon`
 </iframe>
 
-    polygon : Svg Never
+    polygon : Svg msg
     polygon =
         Svg.polygon2d
             [ Attributes.stroke "blue"
@@ -307,7 +307,7 @@ polygon2d attributes polygon =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#arc`
 </iframe>
 
-    arc : Svg Never
+    arc : Svg msg
     arc =
         Svg.arc2d
             [ Attributes.stroke "blue"
@@ -338,6 +338,7 @@ arc2d attributes arc =
         sweepFlag =
             if sweptAngle >= 0 then
                 "1"
+
             else
                 "0"
 
@@ -389,7 +390,7 @@ arc2d attributes arc =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#ellipticalArc`
 </iframe>
 
-    ellipticalArc : Svg Never
+    ellipticalArc : Svg msg
     ellipticalArc =
         Svg.ellipticalArc2d
             [ Attributes.stroke "blue"
@@ -424,6 +425,7 @@ ellipticalArc2d attributes arc =
         sweepFlag =
             if sweptAngle >= 0 then
                 "1"
+
             else
                 "0"
 
@@ -488,7 +490,7 @@ ellipticalArc2d attributes arc =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#circle`
 </iframe>
 
-    circle : Svg Never
+    circle : Svg msg
     circle =
         Svg.circle2d
             [ Attributes.fill "orange"
@@ -527,7 +529,7 @@ circle2d attributes circle =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#ellipse`
 </iframe>
 
-    ellipse : Svg Never
+    ellipse : Svg msg
     ellipse =
         Svg.ellipse2d
             [ Attributes.fill "orange"
@@ -579,7 +581,7 @@ ellipse2d attributes ellipse =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#quadraticSpline`
 </iframe>
 
-    quadraticSpline : Svg Never
+    quadraticSpline : Svg msg
     quadraticSpline =
         let
             startPoint =
@@ -658,7 +660,7 @@ quadraticSpline2d attributes spline =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#cubicSpline`
 </iframe>
 
-    cubicSpline : Svg Never
+    cubicSpline : Svg msg
     cubicSpline =
         let
             startPoint =
@@ -773,7 +775,7 @@ boundingBox2d attributes boundingBox =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#scaled`
 </iframe>
 
-    scaled : Svg Never
+    scaled : Svg msg
     scaled =
         let
             scales =
@@ -790,7 +792,7 @@ boundingBox2d attributes boundingBox =
                         }
                     )
 
-            scaledCircle : Float -> Svg Never
+            scaledCircle : Float -> Svg msg
             scaledCircle scale =
                 Svg.scaleAbout referencePoint scale circle
         in
@@ -827,7 +829,7 @@ scaleAbout point scale element =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#rotated`
 </iframe>
 
-    rotated : Svg Never
+    rotated : Svg msg
     rotated =
         let
             angles =
@@ -846,7 +848,7 @@ scaleAbout point scale element =
                         }
                     )
 
-            rotatedCircle : Float -> Svg Never
+            rotatedCircle : Float -> Svg msg
             rotatedCircle angle =
                 Svg.rotateAround referencePoint angle circle
         in
@@ -883,7 +885,7 @@ rotateAround point angle element =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#translated`
 </iframe>
 
-    translated : Svg Never
+    translated : Svg msg
     translated =
         Svg.g []
             [ polyline
@@ -920,7 +922,7 @@ translateBy vector element =
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#mirrored`
 </iframe>
 
-    mirrored : Svg Never
+    mirrored : Svg msg
     mirrored =
         let
             horizontalAxis =
@@ -1008,7 +1010,7 @@ positions with different orientations:
 `https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#placed`
 </iframe>
 
-    placed : Svg Never
+    placed : Svg msg
     placed =
         let
             vertices =
