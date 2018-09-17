@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Main exposing (main)
 
 import Html exposing (Html)
 import OpenSolid.Axis2d as Axis2d
