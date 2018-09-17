@@ -56,7 +56,8 @@ In the above example only a single SVG element was transformed, but all of these
 transformation functions work equally well on arbitrarily complex fragments of
 SVG such as nested groups of elements of different types:
 
-    Svg.rotateAround Point2d.origin (degrees 30)
+    Svg.rotateAround Point2d.origin
+        (degrees 30)
         (Svg.g [ Attributes.stroke "blue" ]
             [ Svg.lineSegment2d [] lineSegment
             , Svg.circle2d [] someCircle
