@@ -967,7 +967,7 @@ the model coordinate system:
         Point2d.fromCoordinates ( 0, 300 )
 
     topLeftFrame =
-        Frame2d.atPoint topLeftPoint |> Frame2d.flipY
+        Frame2d.atPoint topLeftPoint |> Frame2d.reverseY
 
 (As expressed in the model frame, the top-left SVG frame is at the point
 (0, 300) and its Y direction is equal to the global negative Y direction.) If

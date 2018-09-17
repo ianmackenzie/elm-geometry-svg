@@ -98,7 +98,7 @@ main =
 
         topLeftFrame =
             Frame2d.atPoint (Point2d.fromCoordinates ( -400, 400 ))
-                |> Frame2d.flipY
+                |> Frame2d.reverseY
     in
     Svg.svg [ Attributes.width "800", Attributes.height "800" ]
         [ Svg.relativeTo topLeftFrame topLevelGroup ]
