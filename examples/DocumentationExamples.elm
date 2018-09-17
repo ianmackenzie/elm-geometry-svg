@@ -1,9 +1,35 @@
-module DocumentationExamples exposing (..)
+module DocumentationExamples exposing
+    ( Model
+    , Msg
+    , arc
+    , circle
+    , cubicSpline
+    , ellipse
+    , ellipticalArc
+    , example
+    , examples
+    , lineSegment
+    , main
+    , mirrored
+    , placed
+    , point2d
+    , point2dWith
+    , polygon
+    , polyline
+    , quadraticSpline
+    , rotated
+    , scaled
+    , translated
+    , triangle
+    )
 
 import Arc2d exposing (Arc2d)
 import Axis2d exposing (Axis2d)
+import Browser
+import Browser.Navigation as Navigation
 import Circle2d exposing (Circle2d)
 import CubicSpline2d exposing (CubicSpline2d)
+import Dict
 import Direction2d exposing (Direction2d)
 import Ellipse2d exposing (Ellipse2d)
 import EllipticalArc2d exposing (EllipticalArc2d)
@@ -12,7 +38,6 @@ import Geometry.Svg as Svg
 import Html exposing (Html)
 import Html.Attributes
 import LineSegment2d exposing (LineSegment2d)
-import Navigation
 import Point2d exposing (Point2d)
 import Polygon2d exposing (Polygon2d)
 import Polyline2d exposing (Polyline2d)
@@ -20,7 +45,8 @@ import QuadraticSpline2d exposing (QuadraticSpline2d)
 import Svg exposing (Svg)
 import Svg.Attributes as Attributes
 import Triangle2d exposing (Triangle2d)
-import UrlParser
+import Url exposing (Url)
+import Url.Parser exposing ((</>))
 import Vector2d exposing (Vector2d)
 
 
@@ -390,9 +416,9 @@ example ( minX, minY ) ( maxX, maxY ) svg =
             maxY - minY
     in
     Svg.svg
-        [ Attributes.width (toString width)
-        , Attributes.height (toString height)
-        , Html.Attributes.style [ ( "display", "block" ) ]
+        [ Attributes.width (String.fromFloat width)
+        , Attributes.height (String.fromFloat height)
+        , Html.Attributes.style "display" "block"
         ]
         [ svg |> Svg.relativeTo topLeftFrame ]
 
@@ -418,57 +444,88 @@ examples =
 
 
 type alias Model =
-    Maybe (Html Never)
+    { displayedExample : Maybe (Html Never)
+    , navigationKey : Navigation.Key
+    }
 
 
-type alias Msg =
-    Navigation.Location
+type Msg
+    = UrlChange Url
+    | UrlRequest Browser.UrlRequest
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     let
+        examplesByName =
+            Dict.fromList examples
+
+        getExample : Maybe String -> Maybe (Html Never)
+        getExample fragment =
+            fragment |> Maybe.andThen (\name -> Dict.get name examplesByName)
+
+        hashParser : Url.Parser.Parser (Maybe (Html Never) -> a) a
         hashParser =
-            UrlParser.oneOf
-                (examples
-                    |> List.map
-                        (\( name, example ) ->
-                            UrlParser.s name |> UrlParser.map example
-                        )
-                )
+            Url.Parser.s "DocumentationExamples.elm"
+                </> Url.Parser.fragment getExample
 
-        parseLocation : Navigation.Location -> Maybe (Html Never)
-        parseLocation =
-            UrlParser.parseHash hashParser
+        parse : Url -> Maybe (Html Never)
+        parse url =
+            case Url.Parser.parse hashParser url of
+                Nothing ->
+                    Nothing
 
-        init location =
-            ( parseLocation location, Cmd.none )
+                Just parseResult ->
+                    parseResult
 
-        update location model =
-            ( parseLocation location, Cmd.none )
+        init flags url key =
+            ( { displayedExample = parse url, navigationKey = key }
+            , Cmd.none
+            )
+
+        update message model =
+            case message of
+                UrlChange url ->
+                    ( { model | displayedExample = parse url }, Cmd.none )
+
+                UrlRequest (Browser.Internal url) ->
+                    ( model
+                    , Navigation.pushUrl model.navigationKey (Url.toString url)
+                    )
+
+                UrlRequest (Browser.External url) ->
+                    ( model
+                    , Navigation.load url
+                    )
 
         view model =
-            case model of
-                Just html ->
-                    html |> Html.map never
+            { title = "DocumentationExamples"
+            , body =
+                [ case model.displayedExample of
+                    Just html ->
+                        html |> Html.map never
 
-                Nothing ->
-                    let
-                        exampleItem ( name, _ ) =
-                            Html.li []
-                                [ Html.a
-                                    [ Html.Attributes.href ("#" ++ name) ]
-                                    [ Html.text name ]
-                                ]
-                    in
-                    Html.div []
-                        [ Html.text "Please choose an example:"
-                        , Html.ul [] (List.map exampleItem examples)
-                        ]
+                    Nothing ->
+                        let
+                            exampleItem ( name, _ ) =
+                                Html.li []
+                                    [ Html.a
+                                        [ Html.Attributes.href ("#" ++ name) ]
+                                        [ Html.text name ]
+                                    ]
+                        in
+                        Html.div []
+                            [ Html.text "Please choose an example:"
+                            , Html.ul [] (List.map exampleItem examples)
+                            ]
+                ]
+            }
     in
-    Navigation.program identity
+    Browser.application
         { init = init
         , update = update
         , view = view
         , subscriptions = always Sub.none
+        , onUrlRequest = UrlRequest
+        , onUrlChange = UrlChange
         }
