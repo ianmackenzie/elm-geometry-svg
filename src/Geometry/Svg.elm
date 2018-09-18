@@ -949,7 +949,7 @@ translateBy vector element =
 -}
 mirrorAcross : Axis2d -> Svg msg -> Svg msg
 mirrorAcross axis =
-    placeIn (Frame2d.mirrorAcross axis Frame2d.xy)
+    placeIn (Frame2d.mirrorAcross axis Frame2d.atOrigin)
 
 
 {-| Convert SVG expressed in global coordinates to SVG expressed in coordinates
@@ -983,7 +983,7 @@ into top-left SVG window coordinates and render the result to HTML with
 -}
 relativeTo : Frame2d -> Svg msg -> Svg msg
 relativeTo frame =
-    placeIn (Frame2d.relativeTo frame Frame2d.xy)
+    placeIn (Frame2d.relativeTo frame Frame2d.atOrigin)
 
 
 {-| Take SVG defined in local coordinates relative to a given reference frame,

@@ -116,7 +116,7 @@ import Svg.Attributes as Attributes
 
 viewPlane : SketchPlane3d
 viewPlane =
-    Frame3d.xyz
+    Frame3d.atOrigin
         |> Frame3d.rotateAroundOwn Frame3d.zAxis (degrees 30)
         |> Frame3d.rotateAroundOwn Frame3d.yAxis (degrees -30)
         |> Frame3d.yzSketchPlane
@@ -190,12 +190,12 @@ frame3d frame =
 
 indicator2d : Svg Never
 indicator2d =
-    Svg.g [ Attributes.stroke "darkgrey" ] [ frame2d Frame2d.xy ]
+    Svg.g [ Attributes.stroke "darkgrey" ] [ frame2d Frame2d.atOrigin ]
 
 
 indicator3d : Svg Never
 indicator3d =
-    Svg.g [ Attributes.stroke "darkgrey" ] [ frame3d Frame3d.xyz ]
+    Svg.g [ Attributes.stroke "darkgrey" ] [ frame3d Frame3d.atOrigin ]
 
 
 point2d : Point2d -> Svg Never
