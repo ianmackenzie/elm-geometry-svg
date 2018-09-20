@@ -1,5 +1,5 @@
 module Geometry.Svg exposing
-    ( lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, ellipticalArc2d, circle2d, ellipse2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
+    ( lineSegment2d, triangle2d, polyline2d, polygon2d, rectangle2d, arc2d, ellipticalArc2d, circle2d, ellipse2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
     , scaleAbout, rotateAround, translateBy, mirrorAcross
     , relativeTo, placeIn
     )
@@ -32,7 +32,7 @@ attributes such as `points` and `transform` set appropriately. Each function
 also accepts a list of additional SVG attributes such as `fill` or `stroke` that
 should be added to the resulting element.
 
-@docs lineSegment2d, triangle2d, polyline2d, polygon2d, arc2d, ellipticalArc2d, circle2d, ellipse2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
+@docs lineSegment2d, triangle2d, polyline2d, polygon2d, rectangle2d, arc2d, ellipticalArc2d, circle2d, ellipse2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
 
 
 # Transformations
@@ -100,6 +100,7 @@ import Point2d exposing (Point2d)
 import Polygon2d exposing (Polygon2d)
 import Polyline2d exposing (Polyline2d)
 import QuadraticSpline2d exposing (QuadraticSpline2d)
+import Rectangle2d exposing (Rectangle2d)
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Attributes
 import Triangle2d exposing (Triangle2d)
@@ -285,6 +286,23 @@ polygon2d attributes polygon =
             Attributes.d (String.join " " (List.map loopString loops))
     in
     Svg.path (pathAttribute :: attributes) []
+
+
+rectangle2d : List (Attribute msg) -> Rectangle2d -> Svg msg
+rectangle2d attributes rectangle =
+    let
+        ( width, height ) =
+            Rectangle2d.dimensions rectangle
+    in
+    Svg.rect
+        (Attributes.width (String.fromFloat width ++ "px")
+            :: Attributes.height (String.fromFloat height ++ "px")
+            :: Attributes.x (String.fromFloat (-width / 2) ++ "px")
+            :: Attributes.y (String.fromFloat (-height / 2) ++ "px")
+            :: attributes
+        )
+        []
+        |> placeIn (Rectangle2d.axes rectangle)
 
 
 {-| Draw an `Arc2d` as an SVG `<path>` with the given attributes.
