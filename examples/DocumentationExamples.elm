@@ -42,6 +42,7 @@ import Point2d exposing (Point2d)
 import Polygon2d exposing (Polygon2d)
 import Polyline2d exposing (Polyline2d)
 import QuadraticSpline2d exposing (QuadraticSpline2d)
+import Rectangle2d exposing (Rectangle2d)
 import Svg exposing (Svg)
 import Svg.Attributes as Attributes
 import Triangle2d exposing (Triangle2d)
@@ -159,6 +160,23 @@ polygon =
                 ]
             }
         )
+
+
+rectangle : Svg msg
+rectangle =
+    let
+        axes =
+            Frame2d.atCoordinates ( 150, 150 )
+                |> Frame2d.rotateBy (degrees 20)
+    in
+    Svg.rectangle2d
+        [ Attributes.stroke "blue"
+        , Attributes.fill "orange"
+        , Attributes.strokeWidth "4"
+        , Attributes.rx "15"
+        , Attributes.ry "15"
+        ]
+        (Rectangle2d.centeredOn axes ( 120, 80 ))
 
 
 arc : Svg msg
@@ -431,6 +449,7 @@ examples =
     , ( "triangle", example ( 90, 90 ) ( 210, 210 ) triangle )
     , ( "polyline", example ( 90, 90 ) ( 210, 210 ) polyline )
     , ( "polygon", example ( 90, 140 ) ( 210, 210 ) polygon )
+    , ( "rectangle", example ( 50, 75 ) ( 250, 225 ) rectangle )
     , ( "arc", example ( 70, 60 ) ( 170, 170 ) arc )
     , ( "ellipticalArc", example ( 40, 0 ) ( 160, 120 ) ellipticalArc )
     , ( "quadraticSpline", example ( 35, 35 ) ( 165, 165 ) quadraticSpline )
