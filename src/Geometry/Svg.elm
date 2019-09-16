@@ -326,7 +326,8 @@ rectangle2d attributes rectangle =
             , Attributes.strokeWidth "5"
             ]
             (Point2d.pixels 150 50
-                |> Arc2d.sweptAround (Point2d.pixels 100 100)
+                |> Arc2d.sweptAround
+                    (Point2d.pixels 100 100)
                     (Angle.degrees 90)
             )
 
