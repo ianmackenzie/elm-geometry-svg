@@ -14,6 +14,8 @@ For the examples, assume that the following imports are present:
     import Svg exposing (Svg)
     import Svg.Attributes as Attributes
     import Geometry.Svg as Svg
+    import Angle
+    import Pixels
 
 Also assume that any necessary `elm-geometry` modules/types have been imported
 using the following format:
@@ -57,7 +59,7 @@ transformation functions work equally well on arbitrarily complex fragments of
 SVG such as nested groups of elements of different types:
 
     Svg.rotateAround Point2d.origin
-        (degrees 30)
+        (Angle.degrees 30)
         (Svg.g [ Attributes.stroke "blue" ]
             [ Svg.lineSegment2d [] lineSegment
             , Svg.circle2d [] someCircle
@@ -91,12 +93,12 @@ import Axis2d exposing (Axis2d)
 import BoundingBox2d exposing (BoundingBox2d)
 import Circle2d exposing (Circle2d)
 import CubicSpline2d exposing (CubicSpline2d)
-import Curve.ParameterValue as ParameterValue exposing (ParameterValue)
 import Direction2d exposing (Direction2d)
 import Ellipse2d exposing (Ellipse2d)
 import EllipticalArc2d exposing (EllipticalArc2d)
 import Frame2d exposing (Frame2d)
 import LineSegment2d exposing (LineSegment2d)
+import Parameter1d
 import Pixels exposing (Pixels)
 import Point2d exposing (Point2d)
 import Polygon2d exposing (Polygon2d)
@@ -118,10 +120,10 @@ toString pixels =
 coordinatesString : Point2d Pixels coordinates -> String
 coordinatesString point =
     let
-        ( x, y ) =
-            Point2d.coordinates point
+        { x, y } =
+            Point2d.toPixels point
     in
-    toString x ++ "," ++ toString y
+    String.fromFloat x ++ "," ++ String.fromFloat y
 
 
 pointsAttribute : List (Point2d Pixels coordinates) -> Attribute msg
@@ -131,9 +133,7 @@ pointsAttribute points =
 
 {-| Draw a `LineSegment2d` as an SVG `<polyline>` with the given attributes.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#lineSegment" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#lineSegment`
-</iframe>
+![Line segment](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/lineSegment2d.svg)
 
     lineSegment : Svg msg
     lineSegment =
@@ -141,10 +141,9 @@ pointsAttribute points =
             [ Attributes.stroke "blue"
             , Attributes.strokeWidth "5"
             ]
-            (LineSegment2d.fromEndpoints
-                ( Point2d.fromCoordinates ( 100, 100 )
-                , Point2d.fromCoordinates ( 200, 200 )
-                )
+            (LineSegment2d.from
+                (Point2d.pixels 100 100)
+                (Point2d.pixels 200 200)
             )
 
 -}
@@ -159,9 +158,7 @@ lineSegment2d attributes lineSegment =
 
 {-| Draw a `Triangle2d` as an SVG `<polygon>` with the given attributes.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#triangle" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#triangle`
-</iframe>
+![Triangle](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/triangle2d.svg)
 
     triangle : Svg msg
     triangle =
@@ -172,9 +169,9 @@ lineSegment2d attributes lineSegment =
             , Attributes.fill "orange"
             ]
             (Triangle2d.fromVertices
-                ( Point2d.fromCoordinates ( 100, 100 )
-                , Point2d.fromCoordinates ( 200, 100 )
-                , Point2d.fromCoordinates ( 100, 200 )
+                ( Point2d.pixels 100 100
+                , Point2d.pixels 200 100
+                , Point2d.pixels 100 200
                 )
             )
 
@@ -190,9 +187,7 @@ triangle2d attributes triangle =
 
 {-| Draw a `Polyline2d` as an SVG `<polyline>` with the given attributes.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#polyline" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#polyline`
-</iframe>
+![Polyline](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/polyline2d.svg)
 
     polyline : Svg msg
     polyline =
@@ -204,12 +199,12 @@ triangle2d attributes triangle =
             , Attributes.strokeLinejoin "round"
             ]
             (Polyline2d.fromVertices
-                [ Point2d.fromCoordinates ( 100, 100 )
-                , Point2d.fromCoordinates ( 120, 200 )
-                , Point2d.fromCoordinates ( 140, 100 )
-                , Point2d.fromCoordinates ( 160, 200 )
-                , Point2d.fromCoordinates ( 180, 100 )
-                , Point2d.fromCoordinates ( 200, 200 )
+                [ Point2d.pixels 100 100
+                , Point2d.pixels 120 200
+                , Point2d.pixels 140 100
+                , Point2d.pixels 160 200
+                , Point2d.pixels 180 100
+                , Point2d.pixels 200 200
                 ]
             )
 
@@ -225,9 +220,7 @@ polyline2d attributes polyline =
 
 {-| Draw a `Polygon2d` as an SVG `<polygon>` with the given attributes.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#polygon" style="width: 120px; height: 70px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#polygon`
-</iframe>
+![Polygon](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/polygon2d.svg)
 
     polygon : Svg msg
     polygon =
@@ -236,20 +229,17 @@ polyline2d attributes polyline =
             , Attributes.fill "orange"
             , Attributes.strokeWidth "3"
             ]
-            (Polygon2d.with
-                { outerLoop =
-                    [ Point2d.fromCoordinates ( 100, 200 )
-                    , Point2d.fromCoordinates ( 120, 150 )
-                    , Point2d.fromCoordinates ( 180, 150 )
-                    , Point2d.fromCoordinates ( 200, 200 )
-                    ]
-                , innerLoops =
-                    [ [ Point2d.fromCoordinates ( 150, 185 )
-                      , Point2d.fromCoordinates ( 165, 160 )
-                      , Point2d.fromCoordinates ( 135, 160 )
-                      ]
-                    ]
-                }
+            (Polygon2d.withHoles
+                [ [ Point2d.pixels 150 185
+                  , Point2d.pixels 165 160
+                  , Point2d.pixels 135 160
+                  ]
+                ]
+                [ Point2d.pixels 100 200
+                , Point2d.pixels 120 150
+                , Point2d.pixels 180 150
+                , Point2d.pixels 200 200
+                ]
             )
 
 -}
@@ -271,10 +261,10 @@ polygon2d attributes polygon =
                                 |> List.map
                                     (\point ->
                                         let
-                                            ( x, y ) =
-                                                Point2d.coordinates point
+                                            { x, y } =
+                                                Point2d.toPixels point
                                         in
-                                        toString x ++ " " ++ toString y
+                                        String.fromFloat x ++ " " ++ String.fromFloat y
                                     )
                     in
                     "M " ++ String.join " L " coordinateStrings ++ " Z"
@@ -285,6 +275,29 @@ polygon2d attributes polygon =
     Svg.path (pathAttribute :: attributes) []
 
 
+{-| Draw a `Rectangle2d` as an SVG `<rectangle>` with the given attributes.
+
+![Rectangle](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/rectangle2d.svg)
+
+    rectangle : Svg msg
+    rectangle =
+        let
+            axes =
+                Frame2d.atPoint (Point2d.pixels 150 150)
+                    |> Frame2d.rotateBy (Angle.degrees 20)
+        in
+        Svg.rectangle2d
+            [ Attributes.stroke "blue"
+            , Attributes.fill "orange"
+            , Attributes.strokeWidth "4"
+            , Attributes.rx "15"
+            , Attributes.ry "15"
+            ]
+            (Rectangle2d.withAxes axes
+                ( Pixels.pixels 120, Pixels.pixels 80 )
+            )
+
+-}
 rectangle2d : List (Attribute msg) -> Rectangle2d Pixels coordinates -> Svg msg
 rectangle2d attributes rectangle =
     let
@@ -304,9 +317,7 @@ rectangle2d attributes rectangle =
 
 {-| Draw an `Arc2d` as an SVG `<path>` with the given attributes.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#arc" style="width: 100px; height: 110px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#arc`
-</iframe>
+![Arc](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/arc2d.svg)
 
     arc : Svg msg
     arc =
@@ -314,13 +325,9 @@ rectangle2d attributes rectangle =
             [ Attributes.stroke "blue"
             , Attributes.strokeWidth "5"
             ]
-            (Arc2d.with
-                { centerPoint =
-                    Point2d.fromCoordinates ( 100, 100 )
-                , startPoint =
-                    Point2d.fromCoordinates ( 150, 50 )
-                , sweptAngle = degrees 90
-                }
+            (Point2d.pixels 150 50
+                |> Arc2d.sweptAround (Point2d.pixels 100 100)
+                    (Angle.degrees 90)
             )
 
 -}
@@ -343,8 +350,8 @@ arc2d attributes arc =
             else
                 "0"
 
-        ( x0, y0 ) =
-            Point2d.coordinates (Arc2d.startPoint arc)
+        p0 =
+            Point2d.toPixels (Arc2d.startPoint arc)
 
         radius =
             Arc2d.radius arc
@@ -354,14 +361,14 @@ arc2d attributes arc =
 
         moveCommand =
             [ "M"
-            , toString x0
-            , toString y0
+            , String.fromFloat p0.x
+            , String.fromFloat p0.y
             ]
 
         arcSegment parameterValue =
             let
-                ( x, y ) =
-                    Point2d.coordinates (Arc2d.pointOn arc parameterValue)
+                { x, y } =
+                    Point2d.toPixels (Arc2d.pointOn arc parameterValue)
             in
             [ "A"
             , radiusString
@@ -369,12 +376,12 @@ arc2d attributes arc =
             , "0"
             , "0"
             , sweepFlag
-            , toString x
-            , toString y
+            , String.fromFloat x
+            , String.fromFloat y
             ]
 
         arcSegments =
-            List.map arcSegment (ParameterValue.trailing numSegments)
+            Parameter1d.trailing numSegments arcSegment
 
         pathComponents =
             moveCommand ++ List.concat arcSegments
@@ -387,9 +394,7 @@ arc2d attributes arc =
 
 {-| Draw an `EllipticalArc2d` as an SVG `<path>` with the given attributes.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#ellipticalArc" style="width: 120px; height: 120px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#ellipticalArc`
-</iframe>
+![Elliptical arc](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/ellipticalArc2d.svg)
 
     ellipticalArc : Svg msg
     ellipticalArc =
@@ -400,13 +405,12 @@ arc2d attributes arc =
             , Attributes.strokeLinecap "round"
             ]
             (EllipticalArc2d.with
-                { centerPoint =
-                    Point2d.fromCoordinates ( 100, 10 )
+                { centerPoint = Point2d.pixels 100 10
                 , xDirection = Direction2d.x
-                , xRadius = 50
-                , yRadius = 100
-                , startAngle = 0
-                , sweptAngle = degrees 180
+                , xRadius = Pixels.pixels 50
+                , yRadius = Pixels.pixels 100
+                , startAngle = Angle.degrees 0
+                , sweptAngle = Angle.degrees 180
                 }
             )
 
@@ -430,8 +434,8 @@ ellipticalArc2d attributes arc =
             else
                 "0"
 
-        ( x0, y0 ) =
-            Point2d.coordinates (EllipticalArc2d.startPoint arc)
+        p0 =
+            Point2d.toPixels (EllipticalArc2d.startPoint arc)
 
         xRadius =
             EllipticalArc2d.xRadius arc
@@ -447,14 +451,14 @@ ellipticalArc2d attributes arc =
 
         moveCommand =
             [ "M"
-            , toString x0
-            , toString y0
+            , String.fromFloat p0.x
+            , String.fromFloat p0.y
             ]
 
         arcSegment parameterValue =
             let
-                ( x, y ) =
-                    Point2d.coordinates
+                { x, y } =
+                    Point2d.toPixels
                         (EllipticalArc2d.pointOn arc parameterValue)
             in
             [ "A"
@@ -463,12 +467,12 @@ ellipticalArc2d attributes arc =
             , angleString
             , "0"
             , sweepFlag
-            , toString x
-            , toString y
+            , String.fromFloat x
+            , String.fromFloat y
             ]
 
         arcSegments =
-            List.map arcSegment (ParameterValue.trailing numSegments)
+            Parameter1d.trailing numSegments arcSegment
 
         pathComponents =
             moveCommand ++ List.concat arcSegments
@@ -481,9 +485,7 @@ ellipticalArc2d attributes arc =
 
 {-| Draw a `Circle2d` as an SVG `<circle>` with the given attributes.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#circle" style="width: 40px; height: 40px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#circle`
-</iframe>
+![Circle](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/circle2d.svg)
 
     circle : Svg msg
     circle =
@@ -492,25 +494,22 @@ ellipticalArc2d attributes arc =
             , Attributes.stroke "blue"
             , Attributes.strokeWidth "2"
             ]
-            (Circle2d.with
-                { centerPoint =
-                    Point2d.fromCoordinates ( 150, 150 )
-                , radius = 10
-                }
+            (Circle2d.withRadius (Pixels.pixels 10)
+                (Point2d.pixels 150 150)
             )
 
 -}
 circle2d : List (Attribute msg) -> Circle2d Pixels coordinates -> Svg msg
 circle2d attributes circle =
     let
-        ( x, y ) =
-            Point2d.coordinates (Circle2d.centerPoint circle)
+        { x, y } =
+            Point2d.toPixels (Circle2d.centerPoint circle)
 
         cx =
-            Attributes.cx (toString x)
+            Attributes.cx (String.fromFloat x)
 
         cy =
-            Attributes.cy (toString y)
+            Attributes.cy (String.fromFloat y)
 
         r =
             Attributes.r (toString (Circle2d.radius circle))
@@ -520,9 +519,7 @@ circle2d attributes circle =
 
 {-| Draw an `Ellipse2d` as an SVG `<ellipse>` with the given attributes.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#ellipse" style="width: 140px; height: 100px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#ellipse`
-</iframe>
+![Ellipse](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/ellipse2d.svg)
 
     ellipse : Svg msg
     ellipse =
@@ -532,12 +529,10 @@ circle2d attributes circle =
             , Attributes.strokeWidth "2"
             ]
             (Ellipse2d.with
-                { centerPoint =
-                    Point2d.fromCoordinates ( 150, 150 )
-                , xDirection =
-                    Direction2d.fromAngle (degrees -30)
-                , xRadius = 60
-                , yRadius = 30
+                { centerPoint = Point2d.pixels 150 150
+                , xDirection = Direction2d.degrees -30
+                , xRadius = Pixels.pixels 60
+                , yRadius = Pixels.pixels 30
                 }
             )
 
@@ -548,14 +543,14 @@ ellipse2d attributes ellipse =
         centerPoint =
             Ellipse2d.centerPoint ellipse
 
-        ( x, y ) =
-            Point2d.coordinates centerPoint
+        { x, y } =
+            Point2d.toPixels centerPoint
 
         cx =
-            Attributes.cx (toString x)
+            Attributes.cx (String.fromFloat x)
 
         cy =
-            Attributes.cy (toString y)
+            Attributes.cy (String.fromFloat y)
 
         rx =
             Attributes.rx (toString (Ellipse2d.xRadius ellipse))
@@ -572,35 +567,37 @@ ellipse2d attributes ellipse =
 
 {-| Draw a quadratic spline as an SVG `<path>` with the given attributes.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#quadraticSpline" style="width: 130px; height: 130px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#quadraticSpline`
-</iframe>
+![Quadratic spline](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/quadraticSpline2d.svg)
 
     quadraticSpline : Svg msg
     quadraticSpline =
         let
-            startPoint =
-                Point2d.fromCoordinates ( 50, 50 )
+            firstControlPoint =
+                Point2d.pixels 50 50
 
-            controlPoint =
-                Point2d.fromCoordinates ( 100, 150 )
+            secondControlPoint =
+                Point2d.pixels 100 150
 
-            endPoint =
-                Point2d.fromCoordinates ( 150, 100 )
+            thirdControlPoint =
+                Point2d.pixels 150 100
 
             spline =
-                QuadraticSpline2d.with
-                    { startPoint = startPoint
-                    , controlPoint = controlPoint
-                    , endPoint = endPoint
-                    }
+                QuadraticSpline2d.fromControlPoints
+                    firstControlPoint
+                    secondControlPoint
+                    thirdControlPoint
 
-            points =
-                [ startPoint, controlPoint, endPoint ]
+            controlPoints =
+                [ firstControlPoint
+                , secondControlPoint
+                , thirdControlPoint
+                ]
 
             drawPoint point =
-                Svg.circle2d []
-                    (Circle2d.withRadius 3 point)
+                Svg.circle2d [] <|
+                    Circle2d.withRadius (Pixels.pixels 3)
+                        point
+
         in
         Svg.g [ Attributes.stroke "blue" ]
             [ Svg.quadraticSpline2d
@@ -614,33 +611,33 @@ ellipse2d attributes ellipse =
                 , Attributes.fill "none"
                 , Attributes.strokeDasharray "3 3"
                 ]
-                (Polyline2d.fromVertices points)
+                (Polyline2d.fromVertices controlPoints)
             , Svg.g [ Attributes.fill "white" ]
-                (List.map drawPoint points)
+                (List.map drawPoint controlPoints)
             ]
 
 -}
 quadraticSpline2d : List (Attribute msg) -> QuadraticSpline2d Pixels coordinates -> Svg msg
 quadraticSpline2d attributes spline =
     let
-        ( x1, y1 ) =
-            Point2d.coordinates (QuadraticSpline2d.startPoint spline)
+        p1 =
+            Point2d.toPixels (QuadraticSpline2d.firstControlPoint spline)
 
-        ( x2, y2 ) =
-            Point2d.coordinates (QuadraticSpline2d.controlPoint spline)
+        p2 =
+            Point2d.toPixels (QuadraticSpline2d.secondControlPoint spline)
 
-        ( x3, y3 ) =
-            Point2d.coordinates (QuadraticSpline2d.endPoint spline)
+        p3 =
+            Point2d.toPixels (QuadraticSpline2d.thirdControlPoint spline)
 
         pathComponents =
             [ "M"
-            , toString x1
-            , toString y1
+            , String.fromFloat p1.x
+            , String.fromFloat p1.y
             , "Q"
-            , toString x2
-            , toString y2
-            , toString x3
-            , toString y3
+            , String.fromFloat p2.x
+            , String.fromFloat p2.y
+            , String.fromFloat p3.x
+            , String.fromFloat p3.y
             ]
 
         pathAttribute =
@@ -651,43 +648,41 @@ quadraticSpline2d attributes spline =
 
 {-| Draw a cubic spline as an SVG `<path>` with the given attributes.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#cubicSpline" style="width: 190px; height: 165px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#cubicSpline`
-</iframe>
+![Cubic spline](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/cubicSpline2d.svg)
 
     cubicSpline : Svg msg
     cubicSpline =
         let
-            startPoint =
-                Point2d.fromCoordinates ( 50, 50 )
+            firstControlPoint =
+                Point2d.pixels 50 50
 
-            startControlPoint =
-                Point2d.fromCoordinates ( 100, 150 )
+            secondControlPoint =
+                Point2d.pixels 100 150
 
-            endControlPoint =
-                Point2d.fromCoordinates ( 150, 25 )
+            thirdControlPoint =
+                Point2d.pixels 150 25
 
-            endPoint =
-                Point2d.fromCoordinates ( 200, 125 )
+            fourthControlPoint =
+                Point2d.pixels 200 125
 
             spline =
-                CubicSpline2d.with
-                    { startPoint = startPoint
-                    , startControlPoint = startControlPoint
-                    , endControlPoint = endControlPoint
-                    , endPoint = endPoint
-                    }
+                CubicSpline2d.fromControlPoints
+                    firstControlPoint
+                    secondControlPoint
+                    thirdControlPoint
+                    fourthControlPoint
 
-            points =
-                [ startPoint
-                , startControlPoint
-                , endControlPoint
-                , endPoint
+            controlPoints =
+                [ firstControlPoint
+                , secondControlPoint
+                , thirdControlPoint
+                , fourthControlPoint
                 ]
 
             drawPoint point =
-                Svg.circle2d []
-                    (Circle2d.withRadius 3 point)
+                Svg.circle2d [] <|
+                    Circle2d.withRadius (Pixels.pixels 3)
+                        point
         in
         Svg.g [ Attributes.stroke "blue" ]
             [ Svg.cubicSpline2d
@@ -701,38 +696,38 @@ quadraticSpline2d attributes spline =
                 , Attributes.fill "none"
                 , Attributes.strokeDasharray "3 3"
                 ]
-                (Polyline2d.fromVertices points)
+                (Polyline2d.fromVertices controlPoints)
             , Svg.g [ Attributes.fill "white" ]
-                (List.map drawPoint points)
+                (List.map drawPoint controlPoints)
             ]
 
 -}
 cubicSpline2d : List (Attribute msg) -> CubicSpline2d Pixels coordinates -> Svg msg
 cubicSpline2d attributes spline =
     let
-        ( x1, y1 ) =
-            Point2d.coordinates (CubicSpline2d.startPoint spline)
+        p1 =
+            Point2d.toPixels (CubicSpline2d.firstControlPoint spline)
 
-        ( x2, y2 ) =
-            Point2d.coordinates (CubicSpline2d.startControlPoint spline)
+        p2 =
+            Point2d.toPixels (CubicSpline2d.secondControlPoint spline)
 
-        ( x3, y3 ) =
-            Point2d.coordinates (CubicSpline2d.endControlPoint spline)
+        p3 =
+            Point2d.toPixels (CubicSpline2d.thirdControlPoint spline)
 
-        ( x4, y4 ) =
-            Point2d.coordinates (CubicSpline2d.endPoint spline)
+        p4 =
+            Point2d.toPixels (CubicSpline2d.fourthControlPoint spline)
 
         pathComponents =
             [ "M"
-            , toString x1
-            , toString y1
+            , String.fromFloat p1.x
+            , String.fromFloat p1.y
             , "C"
-            , toString x2
-            , toString y2
-            , toString x3
-            , toString y3
-            , toString x4
-            , toString y4
+            , String.fromFloat p2.x
+            , String.fromFloat p2.y
+            , String.fromFloat p3.x
+            , String.fromFloat p3.y
+            , String.fromFloat p4.x
+            , String.fromFloat p4.y
             ]
 
         pathAttribute =
@@ -766,9 +761,7 @@ boundingBox2d attributes boundingBox =
 
 {-| Scale arbitrary SVG around a given point by a given scale.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#scaled" style="width: 160px; height: 160px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#scaled`
-</iframe>
+![Scaled circles](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/scaleAbout.svg)
 
     scaled : Svg msg
     scaled =
@@ -777,15 +770,12 @@ boundingBox2d attributes boundingBox =
                 [ 1.0, 1.5, 2.25 ]
 
             referencePoint =
-                Point2d.fromCoordinates ( 100, 100 )
+                Point2d.pixels 100 100
 
             referencePoint =
-                Svg.circle2d [ Attributes.fill "black" ]
-                    (Circle2d.with
-                        { centerPoint = referencePoint
-                        , radius = 3
-                        }
-                    )
+                Svg.circle2d [ Attributes.fill "black" ] <|
+                    Circle2d.withRadius (Pixels.pixels 3)
+                        referencePoint
 
             scaledCircle : Float -> Svg msg
             scaledCircle scale =
@@ -806,8 +796,8 @@ width using `Svg.circle2d`.
 scaleAbout : Point2d Pixels coordinates -> Float -> Svg msg -> Svg msg
 scaleAbout point scale element =
     let
-        ( px, py ) =
-            Point2d.coordinates (Point2d.scaleAbout point scale Point2d.origin)
+        { x, y } =
+            Point2d.toPixels (Point2d.scaleAbout point scale Point2d.origin)
 
         scaleString =
             String.fromFloat scale
@@ -817,8 +807,8 @@ scaleAbout point scale element =
             , "0"
             , "0"
             , scaleString
-            , toString px
-            , toString py
+            , String.fromFloat x
+            , String.fromFloat y
             ]
 
         transform =
@@ -829,114 +819,101 @@ scaleAbout point scale element =
 
 {-| Rotate arbitrary SVG around a given point by a given angle.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#rotated" style="width: 140px; height: 140px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#rotated`
-</iframe>
+![Rotated circles](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/rotateAround.svg)
 
     rotated : Svg msg
     rotated =
         let
             angles =
-                List.range 0 9
-                    |> List.map
-                        (\n -> degrees 30 * toFloat n)
+                Parameter1d.steps 9 <|
+                    Quantity.interpolateFrom
+                        (Angle.degrees 0)
+                        (Angle.degrees 270)
 
             referencePoint =
-                Point2d.fromCoordinates ( 200, 150 )
+                Point2d.pixels 200 150
 
-            referencePoint =
-                Svg.circle2d [ Attributes.fill "black" ]
-                    (Circle2d.with
-                        { centerPoint = referencePoint
-                        , radius = 3
-                        }
+            referenceCircle =
+                Svg.circle2d [ Attributes.fill "black" ] <|
+                    (Circle2d.withRadius (Pixels.pixels 3)
+                        referencePoint
                     )
 
             rotatedCircle : Float -> Svg msg
             rotatedCircle angle =
                 Svg.rotateAround referencePoint angle circle
         in
-        Svg.g []
-            (referencePoint
+        Svg.g [] <|
+            referenceCircle
                 :: List.map rotatedCircle angles
-            )
 
 -}
 rotateAround : Point2d Pixels coordinates -> Angle -> Svg msg -> Svg msg
 rotateAround point angle element =
     let
-        ( x, y ) =
-            Point2d.coordinates point
+        { x, y } =
+            Point2d.toPixels point
 
         angleString =
             String.fromFloat (Angle.inDegrees angle)
 
         rotate =
-            "rotate(" ++ angleString ++ " " ++ toString x ++ " " ++ toString y ++ ")"
+            "rotate(" ++ angleString ++ " " ++ String.fromFloat x ++ " " ++ String.fromFloat y ++ ")"
     in
     Svg.g [ Attributes.transform rotate ] [ element ]
 
 
 {-| Translate arbitrary SVG by a given displacement.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#translated" style="width: 128px; height: 230px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#translated`
-</iframe>
+![Translated polylines](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/translateBy.svg)
 
     translated : Svg msg
     translated =
         Svg.g []
             [ polyline
             , polyline
-                |> Svg.translateBy
-                    (Vector2d.fromComponents ( 0, 40 ))
+                |> Svg.translateBy (Vector2d.pixels 0 40)
             , polyline
-                |> Svg.translateBy
-                    (Vector2d.fromComponents ( 5, -60 ))
+                |> Svg.translateBy (Vector2d.pixels 5 -60)
             ]
 
 -}
 translateBy : Vector2d Pixels coordinates -> Svg msg -> Svg msg
 translateBy vector element =
     let
-        ( x, y ) =
-            Vector2d.components vector
+        { x, y } =
+            Vector2d.toPixels vector
 
         translate =
-            "translate(" ++ toString x ++ " " ++ toString y ++ ")"
+            "translate(" ++ String.fromFloat x ++ " " ++ String.fromFloat y ++ ")"
     in
     Svg.g [ Attributes.transform translate ] [ element ]
 
 
 {-| Mirror arbitrary SVG across a given axis.
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#mirrored" style="width: 230px; height: 280px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#mirrored`
-</iframe>
+![Mirrored polygons](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/mirrorAcross.svg)
 
     mirrored : Svg msg
     mirrored =
         let
             horizontalAxis =
-                Axis2d.with
-                    { originPoint =
-                        Point2d.fromCoordinates ( 0, 220 )
-                    , direction = Direction2d.x
-                    }
+                Axis2d.through (Point2d.pixels 0 220)
+                    Direction2d.x
 
             horizontalSegment =
-                LineSegment2d.along horizontalAxis 50 250
+                LineSegment2d.along horizontalAxis
+                    (Pixels.pixels 50)
+                    (Pixels.pixels 250)
 
             angledAxis =
-                Axis2d.with
-                    { originPoint =
-                        Point2d.fromCoordinates ( 0, 150 )
-                    , direction =
-                        Direction2d.fromAngle (degrees -10)
-                    }
+                Axis2d.through (Point2d.pixels 0 150)
+                    (Direction2d.degrees -10)
 
             angledSegment =
-                LineSegment2d.along angledAxis 50 250
+                LineSegment2d.along angledAxis
+                    (Pixels.pixels 50)
+                    (Pixels.pixels 250)
         in
         Svg.g []
             [ polygon
@@ -969,11 +946,9 @@ each range from 0 to 300 and positive Y is up. To turn this into a 300x300 SVG
 drawing, first define the top-left SVG frame (coordinate system) in terms of
 the model coordinate system:
 
-    topLeftPoint =
-        Point2d.fromCoordinates ( 0, 300 )
-
     topLeftFrame =
-        Frame2d.atPoint topLeftPoint |> Frame2d.reverseY
+        Frame2d.atPoint (Point2d.pixels 0 300)
+            |> Frame2d.reverseY
 
 (As expressed in the model frame, the top-left SVG frame is at the point
 (0, 300) and its Y direction is equal to the global negative Y direction.) If
@@ -987,7 +962,7 @@ into top-left SVG window coordinates and render the result to HTML with
         [ Svg.relativeTo topLeftFrame scene ]
 
 -}
-relativeTo : Frame2d Pixels localCoordinates globalCoordinates -> Svg msg -> Svg msg
+relativeTo : Frame2d Pixels globalCoordinates { defines : localCoordinates } -> Svg msg -> Svg msg
 relativeTo frame =
     placeIn (Frame2d.relativeTo frame Frame2d.atOrigin)
 
@@ -998,18 +973,16 @@ and return that SVG expressed in global coordinates.
 This can be useful for taking a chunk of SVG and 'stamping' it in different
 positions with different orientations:
 
-<iframe src="https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#placed" style="width: 225px; height: 180px" scrolling=no frameborder=0>
-`https://ianmackenzie.github.io/elm-geometry-svg/1.0.0/DocumentationExamples.html#placed`
-</iframe>
+![Placed polygons](https://ianmackenzie.github.io/elm-geometry-svg/2.0.0/images/placeIn.svg)
 
     placed : Svg msg
     placed =
         let
             vertices =
                 [ Point2d.origin
-                , Point2d.fromCoordinates ( 40, 0 )
-                , Point2d.fromCoordinates ( 50, 25 )
-                , Point2d.fromCoordinates ( 10, 25 )
+                , Point2d.pixels 40 0
+                , Point2d.pixels 50 25
+                , Point2d.pixels 10 25
                 ]
 
             stamp =
@@ -1021,21 +994,15 @@ positions with different orientations:
                     (Polygon2d.singleLoop vertices)
 
             frames =
-                [ Frame2d.atPoint
-                    (Point2d.fromCoordinates ( 25, 25 ))
-                , Frame2d.atPoint
-                    (Point2d.fromCoordinates ( 100, 25 ))
-                , Frame2d.atPoint
-                    (Point2d.fromCoordinates ( 175, 25 ))
-                    |> Frame2d.rotateBy (degrees 20)
-                , Frame2d.atPoint
-                    (Point2d.fromCoordinates ( 25, 150 ))
-                , Frame2d.atPoint
-                    (Point2d.fromCoordinates ( 100, 100 ))
-                    |> Frame2d.rotateBy (degrees 20)
-                , Frame2d.atPoint
-                    (Point2d.fromCoordinates ( 150, 150 ))
-                    |> Frame2d.rotateBy (degrees -30)
+                [ Frame2d.atPoint (Point2d.pixels 25 25)
+                , Frame2d.atPoint (Point2d.pixels 100 25)
+                , Frame2d.atPoint (Point2d.pixels 175 25)
+                    |> Frame2d.rotateBy (Angle.degrees 20)
+                , Frame2d.atPoint (Point2d.pixels 25 150)
+                , Frame2d.atPoint (Point2d.pixels 100 100)
+                    |> Frame2d.rotateBy (Angle.degrees 20)
+                , Frame2d.atPoint (Point2d.pixels 150 150)
+                    |> Frame2d.rotateBy (Angle.degrees -30)
                 ]
         in
         Svg.g []
@@ -1048,22 +1015,22 @@ positions with different orientations:
 placeIn : Frame2d Pixels localCoordinates globalCoordinates -> Svg msg -> Svg msg
 placeIn frame element =
     let
-        ( px, py ) =
-            Point2d.coordinates (Frame2d.originPoint frame)
+        p =
+            Point2d.toPixels (Frame2d.originPoint frame)
 
-        ( x1, y1 ) =
-            Direction2d.components (Frame2d.xDirection frame)
+        d1 =
+            Direction2d.unwrap (Frame2d.xDirection frame)
 
-        ( x2, y2 ) =
-            Direction2d.components (Frame2d.yDirection frame)
+        d2 =
+            Direction2d.unwrap (Frame2d.yDirection frame)
 
         components =
-            [ String.fromFloat x1
-            , String.fromFloat y1
-            , String.fromFloat x2
-            , String.fromFloat y2
-            , toString px
-            , toString py
+            [ String.fromFloat d1.x
+            , String.fromFloat d1.y
+            , String.fromFloat d2.x
+            , String.fromFloat d2.y
+            , String.fromFloat p.x
+            , String.fromFloat p.y
             ]
 
         transform =
