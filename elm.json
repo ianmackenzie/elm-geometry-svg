@@ -3,7 +3,7 @@
     "name": "ianmackenzie/elm-geometry-svg",
     "summary": "Render 2D elm-geometry types as SVG",
     "license": "MPL-2.0",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "exposed-modules": [
         "Geometry.Svg"
     ],
