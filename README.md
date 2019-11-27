@@ -69,6 +69,24 @@ in a command prompt inside your project directory.
 [Full API documentation](http://package.elm-lang.org/packages/ianmackenzie/elm-geometry-svg/latest/Geometry-Svg)
 is available.
 
+
+## Climate action
+
+I would like for the projects I work on to be as helpful as possible in
+addressing the climate crisis. If
+
+- you are working on a project that helps address the climate crisis (clean
+  energy, public transit, reforestation, sustainable agriculture etc.) either as
+  an individual, as part of an non-profit organization or even as part of a
+  for-profit company, and
+- there is a new feature you would find helpful for that work (or a bug you need
+  fixed) in any of my open-source projects, then
+
+please [open a new issue](https://github.com/ianmackenzie/elm-geometry-svg/issues),
+describe briefly what you're working on and I will treat that issue as high
+priority.
+
+
 ## Questions? Comments?
 
 Please [open a new issue](https://github.com/ianmackenzie/elm-geometry-svg/issues)
