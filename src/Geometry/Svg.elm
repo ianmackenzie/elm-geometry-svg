@@ -39,44 +39,45 @@ will actually create a SVG element like
 
 since all values get converted to and stored internally as base units (meters or
 pixels). You can avoid this issue by using the [`at`](#at) or [`at_`](#at_)
-functions to explicitly apply a conversion from inches to on-screen pixels, for
-example
+functions to explicitly apply a conversion from (in this example) inches to
+on-screen pixels:
 
     let
-        resolution =
-            pixels 96 |> Quantity.per (Length.inches 1)
-    in
-    Svg.at resolution <|
-        Svg.lineSegment2d [] <|
+        lineSegment =
             LineSegment2d.from
                 (Point2d.inches 1 2)
                 (Point2d.inches 3 4)
 
-which will result in
+        resolution =
+            pixels 96 |> Quantity.per (Length.inches 1)
+    in
+    Svg.at resolution (Svg.lineSegment2d [] lineSegment)
+
+which will result in something like
+
+    <g transform="scale(3779.5276)">
+        <polyline points="0.0254,0.0508 0.0762,0.1016"/>
+    </g>
+
+If you want to let the compiler check whether your units make sense, you could
+change the above code to directly scale the line segment first and _then_
+draw it:
+
+    Svg.lineSegment2d [] <|
+        LineSegment2d.at resolution lineSegment
+
+This will result in simply
 
     <polyline points="96,192 288,384"/>
 
-If you want to let the compiler check whether your units make sense, you could
-change the above code to
-
-    let
-        resolution =
-            pixels 96 |> Quantity.per (Length.inches 1)
-    in
-    Svg.lineSegment2d [] <|
-        LineSegment2d.at resolution <|
-            LineSegment2d.from
-                (Point2d.inches 1 2)
-                (Point2d.inches 3 4)
-
-which should give the same visual result but will let the Elm compiler check
-whether the given conversion factor is valid to apply to the given line segment.
-The downside to this approach is that _changing_ the resolution/scale factor,
-for example when zooming, then transforms the actual geometry before rendering
-it to SVG instead of rendering the same geometry to SVG and just changing what
-transformation is applied to it. For large, complex geometry, transforming the
-geometry itself is likely to be expensive, while just changing a transformation
-should be cheap.
+which should be visually identical to the `<g>` version but will let the Elm
+compiler check whether the given conversion factor is valid to apply to the
+given line segment. The downside to this approach is that _changing_ the
+resolution/scale factor, for example when zooming, then transforms the actual
+geometry before rendering it to SVG instead of rendering the same geometry to
+SVG and just changing what transformation is applied to it. For large, complex
+geometry, transforming the geometry itself is likely to be expensive, while just
+changing a transformation should be cheap.
 
 
 ## Reading this documentation
@@ -157,11 +158,11 @@ can be more efficient since the geometry itself does not have to be recreated
 
 # Coordinate conversions
 
-Similar to the above transformations, these functions allow `elm-geometry`
-coordinate conversion transformations to be applied to arbitrary SVG elements.
-Note that the same caveats as unit conversions apply: you'll have to be careful
-to verify yourself that the coordinate conversions actually make sense, since
-the compiler will be unable to check for you.
+These functions allow `elm-geometry` coordinate conversion transformations to be
+applied to arbitrary SVG elements. Note that the same caveats as unit
+conversions apply: you'll have to be careful to verify yourself that the
+coordinate conversions actually make sense, since the compiler will be unable to
+check for you.
 
 @docs relativeTo, placeIn
 
@@ -1043,11 +1044,13 @@ both `centimeters` and `feet` both have the same underlying units (meters):
                 (Point2d.feet 1 2)
                 (Point2d.feet 3 4)
 
-This will result in
+This will result in something like:
 
-    <polyline points="30.48,60.96 91.44,121.92/>"
+    <g transform="scale(100)">
+        <polyline points="0.3048,0.6096 0.9144,1.2192"/>
+    </g>
 
-(One foot is 30.48 centimeters.)
+(One foot is 30.48 centimeters or 0.3048 meters.)
 
 -}
 at : Quantity Float (Rate units2 units1) -> Svg msg -> Svg msg
@@ -1062,6 +1065,18 @@ at (Quantity rate) svg =
             Length.millimeters 1 |> Quantity.per (pixels 1)
     in
     Svg.at_ metersPerPixel <|
+        Svg.lineSegment2d [] <|
+            LineSegment2d.from
+                (Point2d.centimeters 1 2)
+                (Point2d.centimeters 3 4)
+
+This would be equivalent to
+
+    let
+        pixelsPerMeter =
+            pixels 1 |> Quantity.per (Length.millimeters 1)
+    in
+    Svg.at pixelsPerMeter <|
         Svg.lineSegment2d [] <|
             LineSegment2d.from
                 (Point2d.centimeters 1 2)
