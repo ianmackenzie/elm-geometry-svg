@@ -174,7 +174,7 @@ rectangle =
         , Attributes.rx "15"
         , Attributes.ry "15"
         ]
-        (Rectangle2d.withAxes axes ( Pixels.pixels 120, Pixels.pixels 80 ))
+        (Rectangle2d.centeredOn axes ( Pixels.pixels 120, Pixels.pixels 80 ))
 
 
 arc : Svg msg

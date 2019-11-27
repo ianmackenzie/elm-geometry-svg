@@ -1,6 +1,7 @@
-module Logo exposing (..)
+module Logo exposing (Model, Msg(..), init, inputField, logo, main, update, view)
 
-import Basics.Extra exposing (inDegrees)
+import Angle exposing (Angle)
+import Browser
 import Frame2d
 import Frame3d
 import Geometry.Svg as Svg
@@ -10,110 +11,117 @@ import Html.Events as Events
 import Point2d
 import Point3d
 import Polygon2d
+import Quantity
 import Svg exposing (Svg)
 import Svg.Attributes
 
 
 type alias Model =
-    { height : Float
+    { heightInput : String
+    , xOffsetInput : String
+    , yOffsetInput : String
+    , zOffsetInput : String
+    , azimuthInput : String
+    , elevationInput : String
+    , height : Float
     , xOffset : Float
     , yOffset : Float
     , zOffset : Float
-    , azimuth : Float
-    , elevation : Float
+    , azimuth : Angle
+    , elevation : Angle
     }
 
 
 init : Model
 init =
-    { height = 0.8
+    { heightInput = "0.8"
+    , xOffsetInput = "0.6"
+    , yOffsetInput = "0.6"
+    , zOffsetInput = "0.6"
+    , azimuthInput = "65"
+    , elevationInput = "20"
+    , height = 0.8
     , xOffset = 0.6
     , yOffset = 0.6
     , zOffset = 0.6
-    , azimuth = degrees 65
-    , elevation = degrees 20
+    , azimuth = Angle.degrees 65
+    , elevation = Angle.degrees 20
     }
 
 
 type Msg
-    = Height String
-    | XOffset String
-    | YOffset String
-    | ZOffset String
-    | Azimuth String
-    | Elevation String
+    = HeightInput String
+    | XOffsetInput String
+    | YOffsetInput String
+    | ZOffsetInput String
+    | AzimuthInput String
+    | ElevationInput String
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        Height input ->
-            let
-                newValue =
-                    Result.withDefault model.height (String.toFloat input)
-            in
-            { model | height = newValue }
+        HeightInput input ->
+            { model
+                | heightInput = input
+                , height = String.toFloat input |> Maybe.withDefault model.height
+            }
 
-        XOffset input ->
-            let
-                newValue =
-                    Result.withDefault model.xOffset (String.toFloat input)
-            in
-            { model | xOffset = newValue }
+        XOffsetInput input ->
+            { model
+                | xOffsetInput = input
+                , xOffset = String.toFloat input |> Maybe.withDefault model.xOffset
+            }
 
-        YOffset input ->
-            let
-                newValue =
-                    Result.withDefault model.yOffset (String.toFloat input)
-            in
-            { model | yOffset = newValue }
+        YOffsetInput input ->
+            { model
+                | yOffsetInput = input
+                , yOffset = String.toFloat input |> Maybe.withDefault model.yOffset
+            }
 
-        ZOffset input ->
-            let
-                newValue =
-                    Result.withDefault model.zOffset (String.toFloat input)
-            in
-            { model | zOffset = newValue }
+        ZOffsetInput input ->
+            { model
+                | zOffsetInput = input
+                , zOffset = String.toFloat input |> Maybe.withDefault model.zOffset
+            }
 
-        Azimuth input ->
-            let
-                newValue =
-                    Result.withDefault model.azimuth
-                        (Result.map degrees (String.toFloat input))
-            in
-            { model | azimuth = newValue }
+        AzimuthInput input ->
+            { model
+                | azimuthInput = input
+                , azimuth =
+                    String.toFloat input |> Maybe.map Angle.degrees |> Maybe.withDefault model.azimuth
+            }
 
-        Elevation input ->
-            let
-                newValue =
-                    Result.withDefault model.elevation
-                        (Result.map degrees (String.toFloat input))
-            in
-            { model | elevation = newValue }
+        ElevationInput input ->
+            { model
+                | elevationInput = input
+                , elevation =
+                    String.toFloat input |> Maybe.map Angle.degrees |> Maybe.withDefault model.elevation
+            }
 
 
 view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.form []
-            [ inputField "Height:" init.height Height
-            , inputField "X offset:" init.xOffset XOffset
-            , inputField "Y offset:" init.yOffset YOffset
-            , inputField "Z offset:" init.zOffset ZOffset
-            , inputField "Azimuth:" (init.azimuth |> inDegrees) Azimuth
-            , inputField "Elevation:" (init.elevation |> inDegrees) Elevation
+            [ inputField "Height:" model.heightInput HeightInput
+            , inputField "X offset:" model.xOffsetInput XOffsetInput
+            , inputField "Y offset:" model.yOffsetInput YOffsetInput
+            , inputField "Z offset:" model.zOffsetInput ZOffsetInput
+            , inputField "Azimuth:" model.azimuthInput AzimuthInput
+            , inputField "Elevation:" model.elevationInput ElevationInput
             ]
         , logo model
         ]
 
 
-inputField : String -> Float -> (String -> Msg) -> Html Msg
-inputField label defaultValue msg =
+inputField : String -> String -> (String -> Msg) -> Html Msg
+inputField label value msg =
     Html.div []
         [ Html.label [] [ Html.text label ]
         , Html.input
             [ Html.Attributes.type_ "text"
-            , Html.Attributes.defaultValue (toString defaultValue)
+            , Html.Attributes.value value
             , Events.onInput msg
             ]
             []
@@ -124,39 +132,39 @@ logo : Model -> Html Msg
 logo model =
     let
         p1 =
-            Point3d.fromCoordinates ( 1, 0, 0 )
+            Point3d.unitless 1 0 0
 
         p2 =
-            Point3d.fromCoordinates ( 1, 1, 0 )
+            Point3d.unitless 1 1 0
 
         p3 =
-            Point3d.fromCoordinates ( 0, 1, 0 )
+            Point3d.unitless 0 1 0
 
         p4 =
-            Point3d.fromCoordinates ( 0, 1, model.height )
+            Point3d.unitless 0 1 model.height
 
         p5 =
-            Point3d.fromCoordinates ( 0, 0, model.height )
+            Point3d.unitless 0 0 model.height
 
         p6 =
-            Point3d.fromCoordinates ( 1, 0, model.height )
+            Point3d.unitless 1 0 model.height
 
         p7 =
-            Point3d.fromCoordinates ( 1, 1 - model.yOffset, model.height )
+            Point3d.unitless 1 (1 - model.yOffset) model.height
 
         p8 =
-            Point3d.fromCoordinates ( 1, 1, model.height - model.zOffset )
+            Point3d.unitless 1 1 (model.height - model.zOffset)
 
         p9 =
-            Point3d.fromCoordinates ( 1 - model.xOffset, 1, model.height )
+            Point3d.unitless (1 - model.xOffset) 1 model.height
 
         eyePoint =
-            Point3d.fromCoordinates ( 0.5, 0.5, model.height / 2 )
+            Point3d.unitless 0.5 0.5 (model.height / 2)
 
         viewFrame =
             Frame3d.atPoint eyePoint
                 |> Frame3d.rotateAroundOwn Frame3d.zAxis model.azimuth
-                |> Frame3d.rotateAroundOwn Frame3d.yAxis -model.elevation
+                |> Frame3d.rotateAroundOwn Frame3d.yAxis (Quantity.negate model.elevation)
 
         to2d =
             Point3d.projectInto (Frame3d.yzSketchPlane viewFrame)
@@ -229,7 +237,7 @@ logo model =
             Svg.g [] [ defs, leftFace, rightFace, topFace, triangleFace ]
 
         topLeftFrame =
-            Frame2d.atPoint (Point2d.fromCoordinates ( -250, 250 ))
+            Frame2d.atPoint (Point2d.pixels -250 250)
                 |> Frame2d.reverseY
 
         scene =
@@ -240,6 +248,11 @@ logo model =
         [ scene ]
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.beginnerProgram { model = init, update = update, view = view }
+    Browser.element
+        { init = always ( init, Cmd.none )
+        , update = \message model -> ( update message model, Cmd.none )
+        , view = view
+        , subscriptions = always Sub.none
+        }

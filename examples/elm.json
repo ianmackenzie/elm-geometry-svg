@@ -4,7 +4,7 @@
         ".",
         "../src"
     ],
-    "elm-version": "0.19.0",
+    "elm-version": "0.19.1",
     "dependencies": {
         "direct": {
             "elm/browser": "1.0.0",
@@ -14,7 +14,7 @@
             "elm/svg": "1.0.1",
             "elm/url": "1.0.0",
             "ianmackenzie/elm-1d-parameter": "1.0.1",
-            "ianmackenzie/elm-geometry": "2.0.0",
+            "ianmackenzie/elm-geometry": "3.0.0",
             "ianmackenzie/elm-units": "2.2.0"
         },
         "indirect": {

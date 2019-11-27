@@ -1,10 +1,82 @@
 module Geometry.Svg exposing
     ( lineSegment2d, triangle2d, polyline2d, polygon2d, rectangle2d, arc2d, ellipticalArc2d, circle2d, ellipse2d, quadraticSpline2d, cubicSpline2d, boundingBox2d
     , scaleAbout, rotateAround, translateBy, mirrorAcross
+    , at, at_
     , relativeTo, placeIn
     )
 
 {-| Draw 2D `elm-geometry` values as SVG.
+
+
+## A note on unit conversions
+
+Since plain `Svg` values do not track what units or coordinate systems were used
+to create them (unlike `elm-geometry` values such as `Point2d`s, `Rectangle2d`s
+etc.), you lose some type safety when using the functions in this package to
+convert from `elm-geometry` values to SVG. For example, the following doesn't
+make sense (since the units don't match up) but will compile just fine since
+the return value of the `Svg.lineSegment2d` function has no way of indicating
+that it's in units of meters, not pixels:
+
+    Svg.translateBy (Vector2d.pixels 300 400) <|
+        Svg.lineSegment2d []
+            (LineSegment.from
+                (Point2d.meters 10 10)
+                (Point2d.meters 20 20)
+            )
+
+Also note that because of how `elm-geometry` and `elm-units` works, something
+like
+
+    Svg.lineSegment2d [] <|
+        LineSegment2d.from
+            (Point2d.inches 1 2)
+            (Point2d.inches 3 4)
+
+will actually create a SVG element like
+
+    <polyline points="0.0254,0.0508 0.0762,0.1016"/>
+
+since all values get converted to and stored internally as base units (meters or
+pixels). You can avoid this issue by using the [`at`](#at) or [`at_`](#at_)
+functions to explicitly apply a conversion from inches to on-screen pixels, for
+example
+
+    let
+        resolution =
+            pixels 96 |> Quantity.per (Length.inches 1)
+    in
+    Svg.at resolution <|
+        Svg.lineSegment2d [] <|
+            LineSegment2d.from
+                (Point2d.inches 1 2)
+                (Point2d.inches 3 4)
+
+which will result in
+
+    <polyline points="96,192 288,384"/>
+
+If you want to let the compiler check whether your units make sense, you could
+change the above code to
+
+    let
+        resolution =
+            pixels 96 |> Quantity.per (Length.inches 1)
+    in
+    Svg.lineSegment2d [] <|
+        LineSegment2d.at resolution <|
+            LineSegment2d.from
+                (Point2d.inches 1 2)
+                (Point2d.inches 3 4)
+
+which should give the same visual result but will let the Elm compiler check
+whether the given conversion factor is valid to apply to the given line segment.
+The downside to this approach is that _changing_ the resolution/scale factor,
+for example when zooming, then transforms the actual geometry before rendering
+it to SVG instead of rendering the same geometry to SVG and just changing what
+transformation is applied to it. For large, complex geometry, transforming the
+geometry itself is likely to be expensive, while just changing a transformation
+should be cheap.
 
 
 ## Reading this documentation
@@ -15,7 +87,7 @@ For the examples, assume that the following imports are present:
     import Svg.Attributes as Attributes
     import Geometry.Svg as Svg
     import Angle
-    import Pixels
+    import Pixels exposing (pixels)
 
 Also assume that any necessary `elm-geometry` modules/types have been imported
 using the following format:
@@ -78,10 +150,18 @@ can be more efficient since the geometry itself does not have to be recreated
 @docs scaleAbout, rotateAround, translateBy, mirrorAcross
 
 
-# Coordinate transformations
+# Unit conversions
+
+@docs at, at_
+
+
+# Coordinate conversions
 
 Similar to the above transformations, these functions allow `elm-geometry`
 coordinate conversion transformations to be applied to arbitrary SVG elements.
+Note that the same caveats as unit conversions apply: you'll have to be careful
+to verify yourself that the coordinate conversions actually make sense, since
+the compiler will be unable to check for you.
 
 @docs relativeTo, placeIn
 
@@ -99,12 +179,11 @@ import EllipticalArc2d exposing (EllipticalArc2d)
 import Frame2d exposing (Frame2d)
 import LineSegment2d exposing (LineSegment2d)
 import Parameter1d
-import Pixels exposing (Pixels)
 import Point2d exposing (Point2d)
 import Polygon2d exposing (Polygon2d)
 import Polyline2d exposing (Polyline2d)
 import QuadraticSpline2d exposing (QuadraticSpline2d)
-import Quantity exposing (Quantity)
+import Quantity exposing (Quantity(..), Rate)
 import Rectangle2d exposing (Rectangle2d)
 import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Attributes
@@ -112,21 +191,21 @@ import Triangle2d exposing (Triangle2d)
 import Vector2d exposing (Vector2d)
 
 
-toString : Quantity Float Pixels -> String
-toString pixels =
-    String.fromFloat (Pixels.inPixels pixels)
+toString : Quantity Float units -> String
+toString (Quantity quantity) =
+    String.fromFloat quantity
 
 
-coordinatesString : Point2d Pixels coordinates -> String
+coordinatesString : Point2d units coordinates -> String
 coordinatesString point =
     let
         { x, y } =
-            Point2d.toPixels point
+            Point2d.unwrap point
     in
     String.fromFloat x ++ "," ++ String.fromFloat y
 
 
-pointsAttribute : List (Point2d Pixels coordinates) -> Attribute msg
+pointsAttribute : List (Point2d units coordinates) -> Attribute msg
 pointsAttribute points =
     Attributes.points (String.join " " (List.map coordinatesString points))
 
@@ -147,7 +226,7 @@ pointsAttribute points =
             )
 
 -}
-lineSegment2d : List (Attribute msg) -> LineSegment2d Pixels coordinates -> Svg msg
+lineSegment2d : List (Attribute msg) -> LineSegment2d units coordinates -> Svg msg
 lineSegment2d attributes lineSegment =
     let
         ( p1, p2 ) =
@@ -176,7 +255,7 @@ lineSegment2d attributes lineSegment =
             )
 
 -}
-triangle2d : List (Attribute msg) -> Triangle2d Pixels coordinates -> Svg msg
+triangle2d : List (Attribute msg) -> Triangle2d units coordinates -> Svg msg
 triangle2d attributes triangle =
     let
         ( p1, p2, p3 ) =
@@ -209,7 +288,7 @@ triangle2d attributes triangle =
             )
 
 -}
-polyline2d : List (Attribute msg) -> Polyline2d Pixels coordinates -> Svg msg
+polyline2d : List (Attribute msg) -> Polyline2d units coordinates -> Svg msg
 polyline2d attributes polyline =
     let
         vertices =
@@ -243,7 +322,7 @@ polyline2d attributes polyline =
             )
 
 -}
-polygon2d : List (Attribute msg) -> Polygon2d Pixels coordinates -> Svg msg
+polygon2d : List (Attribute msg) -> Polygon2d units coordinates -> Svg msg
 polygon2d attributes polygon =
     let
         loops =
@@ -262,7 +341,7 @@ polygon2d attributes polygon =
                                     (\point ->
                                         let
                                             { x, y } =
-                                                Point2d.toPixels point
+                                                Point2d.unwrap point
                                         in
                                         String.fromFloat x ++ " " ++ String.fromFloat y
                                     )
@@ -293,12 +372,12 @@ polygon2d attributes polygon =
             , Attributes.rx "15"
             , Attributes.ry "15"
             ]
-            (Rectangle2d.withAxes axes
-                ( Pixels.pixels 120, Pixels.pixels 80 )
+            (Rectangle2d.centeredOn axes
+                ( pixels 120, pixels 80 )
             )
 
 -}
-rectangle2d : List (Attribute msg) -> Rectangle2d Pixels coordinates -> Svg msg
+rectangle2d : List (Attribute msg) -> Rectangle2d units coordinates -> Svg msg
 rectangle2d attributes rectangle =
     let
         ( width, height ) =
@@ -332,7 +411,7 @@ rectangle2d attributes rectangle =
             )
 
 -}
-arc2d : List (Attribute msg) -> Arc2d Pixels coordinates -> Svg msg
+arc2d : List (Attribute msg) -> Arc2d units coordinates -> Svg msg
 arc2d attributes arc =
     let
         sweptAngle =
@@ -352,7 +431,7 @@ arc2d attributes arc =
                 "0"
 
         p0 =
-            Point2d.toPixels (Arc2d.startPoint arc)
+            Point2d.unwrap (Arc2d.startPoint arc)
 
         radius =
             Arc2d.radius arc
@@ -369,7 +448,7 @@ arc2d attributes arc =
         arcSegment parameterValue =
             let
                 { x, y } =
-                    Point2d.toPixels (Arc2d.pointOn arc parameterValue)
+                    Point2d.unwrap (Arc2d.pointOn arc parameterValue)
             in
             [ "A"
             , radiusString
@@ -408,15 +487,15 @@ arc2d attributes arc =
             (EllipticalArc2d.with
                 { centerPoint = Point2d.pixels 100 10
                 , xDirection = Direction2d.x
-                , xRadius = Pixels.pixels 50
-                , yRadius = Pixels.pixels 100
+                , xRadius = pixels 50
+                , yRadius = pixels 100
                 , startAngle = Angle.degrees 0
                 , sweptAngle = Angle.degrees 180
                 }
             )
 
 -}
-ellipticalArc2d : List (Attribute msg) -> EllipticalArc2d Pixels coordinates -> Svg msg
+ellipticalArc2d : List (Attribute msg) -> EllipticalArc2d units coordinates -> Svg msg
 ellipticalArc2d attributes arc =
     let
         sweptAngle =
@@ -436,7 +515,7 @@ ellipticalArc2d attributes arc =
                 "0"
 
         p0 =
-            Point2d.toPixels (EllipticalArc2d.startPoint arc)
+            Point2d.unwrap (EllipticalArc2d.startPoint arc)
 
         xRadius =
             EllipticalArc2d.xRadius arc
@@ -459,7 +538,7 @@ ellipticalArc2d attributes arc =
         arcSegment parameterValue =
             let
                 { x, y } =
-                    Point2d.toPixels
+                    Point2d.unwrap
                         (EllipticalArc2d.pointOn arc parameterValue)
             in
             [ "A"
@@ -495,16 +574,16 @@ ellipticalArc2d attributes arc =
             , Attributes.stroke "blue"
             , Attributes.strokeWidth "2"
             ]
-            (Circle2d.withRadius (Pixels.pixels 10)
+            (Circle2d.withRadius (pixels 10)
                 (Point2d.pixels 150 150)
             )
 
 -}
-circle2d : List (Attribute msg) -> Circle2d Pixels coordinates -> Svg msg
+circle2d : List (Attribute msg) -> Circle2d units coordinates -> Svg msg
 circle2d attributes circle =
     let
         { x, y } =
-            Point2d.toPixels (Circle2d.centerPoint circle)
+            Point2d.unwrap (Circle2d.centerPoint circle)
 
         cx =
             Attributes.cx (String.fromFloat x)
@@ -532,20 +611,20 @@ circle2d attributes circle =
             (Ellipse2d.with
                 { centerPoint = Point2d.pixels 150 150
                 , xDirection = Direction2d.degrees -30
-                , xRadius = Pixels.pixels 60
-                , yRadius = Pixels.pixels 30
+                , xRadius = pixels 60
+                , yRadius = pixels 30
                 }
             )
 
 -}
-ellipse2d : List (Attribute msg) -> Ellipse2d Pixels coordinates -> Svg msg
+ellipse2d : List (Attribute msg) -> Ellipse2d units coordinates -> Svg msg
 ellipse2d attributes ellipse =
     let
         centerPoint =
             Ellipse2d.centerPoint ellipse
 
         { x, y } =
-            Point2d.toPixels centerPoint
+            Point2d.unwrap centerPoint
 
         cx =
             Attributes.cx (String.fromFloat x)
@@ -596,8 +675,7 @@ ellipse2d attributes ellipse =
 
             drawPoint point =
                 Svg.circle2d [] <|
-                    Circle2d.withRadius (Pixels.pixels 3)
-                        point
+                    Circle2d.withRadius (pixels 3) point
 
         in
         Svg.g [ Attributes.stroke "blue" ]
@@ -618,17 +696,17 @@ ellipse2d attributes ellipse =
             ]
 
 -}
-quadraticSpline2d : List (Attribute msg) -> QuadraticSpline2d Pixels coordinates -> Svg msg
+quadraticSpline2d : List (Attribute msg) -> QuadraticSpline2d units coordinates -> Svg msg
 quadraticSpline2d attributes spline =
     let
         p1 =
-            Point2d.toPixels (QuadraticSpline2d.firstControlPoint spline)
+            Point2d.unwrap (QuadraticSpline2d.firstControlPoint spline)
 
         p2 =
-            Point2d.toPixels (QuadraticSpline2d.secondControlPoint spline)
+            Point2d.unwrap (QuadraticSpline2d.secondControlPoint spline)
 
         p3 =
-            Point2d.toPixels (QuadraticSpline2d.thirdControlPoint spline)
+            Point2d.unwrap (QuadraticSpline2d.thirdControlPoint spline)
 
         pathComponents =
             [ "M"
@@ -682,8 +760,7 @@ quadraticSpline2d attributes spline =
 
             drawPoint point =
                 Svg.circle2d [] <|
-                    Circle2d.withRadius (Pixels.pixels 3)
-                        point
+                    Circle2d.withRadius (pixels 3) point
         in
         Svg.g [ Attributes.stroke "blue" ]
             [ Svg.cubicSpline2d
@@ -703,20 +780,20 @@ quadraticSpline2d attributes spline =
             ]
 
 -}
-cubicSpline2d : List (Attribute msg) -> CubicSpline2d Pixels coordinates -> Svg msg
+cubicSpline2d : List (Attribute msg) -> CubicSpline2d units coordinates -> Svg msg
 cubicSpline2d attributes spline =
     let
         p1 =
-            Point2d.toPixels (CubicSpline2d.firstControlPoint spline)
+            Point2d.unwrap (CubicSpline2d.firstControlPoint spline)
 
         p2 =
-            Point2d.toPixels (CubicSpline2d.secondControlPoint spline)
+            Point2d.unwrap (CubicSpline2d.secondControlPoint spline)
 
         p3 =
-            Point2d.toPixels (CubicSpline2d.thirdControlPoint spline)
+            Point2d.unwrap (CubicSpline2d.thirdControlPoint spline)
 
         p4 =
-            Point2d.toPixels (CubicSpline2d.fourthControlPoint spline)
+            Point2d.unwrap (CubicSpline2d.fourthControlPoint spline)
 
         pathComponents =
             [ "M"
@@ -739,7 +816,7 @@ cubicSpline2d attributes spline =
 
 {-| Draw a bounding box as an SVG `<rect>` with the given attributes.
 -}
-boundingBox2d : List (Attribute msg) -> BoundingBox2d Pixels coordinates -> Svg msg
+boundingBox2d : List (Attribute msg) -> BoundingBox2d units coordinates -> Svg msg
 boundingBox2d attributes boundingBox =
     let
         { minX, minY, maxX, maxY } =
@@ -775,7 +852,7 @@ boundingBox2d attributes boundingBox =
 
             referencePoint =
                 Svg.circle2d [ Attributes.fill "black" ] <|
-                    Circle2d.withRadius (Pixels.pixels 3)
+                    Circle2d.withRadius (pixels 3)
                         referencePoint
 
             scaledCircle : Float -> Svg msg
@@ -794,11 +871,11 @@ circles, you could instead scale the `Circle2d` values themselves using
 width using `Svg.circle2d`.
 
 -}
-scaleAbout : Point2d Pixels coordinates -> Float -> Svg msg -> Svg msg
+scaleAbout : Point2d units coordinates -> Float -> Svg msg -> Svg msg
 scaleAbout point scale element =
     let
         { x, y } =
-            Point2d.toPixels (Point2d.scaleAbout point scale Point2d.origin)
+            Point2d.unwrap (Point2d.scaleAbout point scale Point2d.origin)
 
         scaleString =
             String.fromFloat scale
@@ -836,7 +913,7 @@ scaleAbout point scale element =
 
             referenceCircle =
                 Svg.circle2d [ Attributes.fill "black" ] <|
-                    (Circle2d.withRadius (Pixels.pixels 3)
+                    (Circle2d.withRadius (pixels 3)
                         referencePoint
                     )
 
@@ -849,11 +926,11 @@ scaleAbout point scale element =
                 :: List.map rotatedCircle angles
 
 -}
-rotateAround : Point2d Pixels coordinates -> Angle -> Svg msg -> Svg msg
+rotateAround : Point2d units coordinates -> Angle -> Svg msg -> Svg msg
 rotateAround point angle element =
     let
         { x, y } =
-            Point2d.toPixels point
+            Point2d.unwrap point
 
         angleString =
             String.fromFloat (Angle.inDegrees angle)
@@ -879,11 +956,11 @@ rotateAround point angle element =
             ]
 
 -}
-translateBy : Vector2d Pixels coordinates -> Svg msg -> Svg msg
+translateBy : Vector2d units coordinates -> Svg msg -> Svg msg
 translateBy vector element =
     let
         { x, y } =
-            Vector2d.toPixels vector
+            Vector2d.unwrap vector
 
         translate =
             "translate(" ++ String.fromFloat x ++ " " ++ String.fromFloat y ++ ")"
@@ -904,8 +981,8 @@ translateBy vector element =
 
             horizontalSegment =
                 LineSegment2d.along horizontalAxis
-                    (Pixels.pixels 50)
-                    (Pixels.pixels 250)
+                    (pixels 50)
+                    (pixels 250)
 
             angledAxis =
                 Axis2d.through (Point2d.pixels 0 150)
@@ -913,8 +990,8 @@ translateBy vector element =
 
             angledSegment =
                 LineSegment2d.along angledAxis
-                    (Pixels.pixels 50)
-                    (Pixels.pixels 250)
+                    (pixels 50)
+                    (pixels 250)
         in
         Svg.g []
             [ polygon
@@ -931,9 +1008,69 @@ translateBy vector element =
             ]
 
 -}
-mirrorAcross : Axis2d Pixels coordinates -> Svg msg -> Svg msg
+mirrorAcross : Axis2d units coordinates -> Svg msg -> Svg msg
 mirrorAcross axis =
     placeIn (Frame2d.mirrorAcross axis Frame2d.atOrigin)
+
+
+{-| Take some SVG that is assumed to be defined in `units1` and convert it to
+one defined in `units2`, given a conversion factor defined as `units2` per
+`units1`. This is equivalent to a multiplication by that conversion factor. For
+example, you could create an SVG element in units of meters and then scale it to
+a certain on-screen size:
+
+    let
+        pixelsPerMeter =
+            pixels 10 |> Quantity.per (Length.meters 1)
+    in
+    Svg.at pixelsPerMeter <|
+        Svg.lineSegment2d [] <|
+            LineSegment2d.from
+                (Point2d.meters 1 2)
+                (Point2d.meters 3 4)
+
+Note that you can mix and match what specific units you use as long as the
+underlying units match up. For example, something like this would work out since
+both `centimeters` and `feet` both have the same underlying units (meters):
+
+    let
+        onePixelPerCentimeter =
+            pixels 1 |> Quantity.per (Length.centimeters 1)
+    in
+    Svg.at onePixelPerCentimeter <|
+        Svg.lineSegment2d [] <|
+            LineSegment2d.from
+                (Point2d.feet 1 2)
+                (Point2d.feet 3 4)
+
+This will result in
+
+    <polyline points="30.48,60.96 91.44,121.92/>"
+
+(One foot is 30.48 centimeters.)
+
+-}
+at : Quantity Float (Rate units2 units1) -> Svg msg -> Svg msg
+at (Quantity rate) svg =
+    scaleAbout Point2d.origin rate svg
+
+
+{-| Similar to `at`, but if you have an 'inverse' rate instead. For example:
+
+    let
+        metersPerPixels =
+            Length.millimeters 1 |> Quantity.per (pixels 1)
+    in
+    Svg.at_ metersPerPixel <|
+        Svg.lineSegment2d [] <|
+            LineSegment2d.from
+                (Point2d.centimeters 1 2)
+                (Point2d.centimeters 3 4)
+
+-}
+at_ : Quantity Float (Rate units1 units2) -> Svg msg -> Svg msg
+at_ (Quantity rate) svg =
+    scaleAbout Point2d.origin (1 / rate) svg
 
 
 {-| Convert SVG expressed in global coordinates to SVG expressed in coordinates
@@ -962,10 +1099,37 @@ into top-left SVG window coordinates and render the result to HTML with
         ]
         [ Svg.relativeTo topLeftFrame scene ]
 
+Note however that if you do this, any text you added will come out upside down!
+If, like me, you really prefer to use a Y-up coordinate system when drawing,
+you could write a little helper function that rendered text at a particular
+point and then flipped it upside down (mirrored it across a horizontal axis) so
+that your final `relativeTo` would flip it back to right side up. Something
+like:
+
+    drawText :
+        List (Svg.Attribute msg)
+        -> Point2d units coordinates
+        -> String
+        -> Svg msg
+    drawText givenAttributes position content =
+        let
+            { x, y } =
+                Point2d.unwrap position
+
+            positionAttributes =
+                [ Svg.Attributes.x (String.fromFloat x)
+                , Svg.Attributes.y (String.fromFloat y)
+                ]
+        in
+        Svg.text_ (positionAttributes ++ givenAttributes)
+            [ Svg.text content ]
+            |> Svg.mirrorAcross
+                (Axis2d.through position Direction2d.x)
+
 -}
-relativeTo : Frame2d Pixels globalCoordinates { defines : localCoordinates } -> Svg msg -> Svg msg
+relativeTo : Frame2d units coordinates defines -> Svg msg -> Svg msg
 relativeTo frame =
-    placeIn (Frame2d.relativeTo frame Frame2d.atOrigin)
+    placeIn (Frame2d.relativeTo (Frame2d.copy frame) Frame2d.atOrigin)
 
 
 {-| Take SVG defined in local coordinates relative to a given reference frame,
@@ -1013,11 +1177,11 @@ positions with different orientations:
             )
 
 -}
-placeIn : Frame2d Pixels localCoordinates globalCoordinates -> Svg msg -> Svg msg
+placeIn : Frame2d units coordinates defines -> Svg msg -> Svg msg
 placeIn frame element =
     let
         p =
-            Point2d.toPixels (Frame2d.originPoint frame)
+            Point2d.unwrap (Frame2d.originPoint frame)
 
         d1 =
             Direction2d.unwrap (Frame2d.xDirection frame)
