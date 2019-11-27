@@ -1,4 +1,4 @@
-## elm-geometry-svg
+# elm-geometry-svg
 
 This [Elm](http://elm-lang.org) package provides functions to create and
 manipulate SVG elements using the [`elm-geometry`](http://package.elm-lang.org/packages/ianmackenzie/elm-geometry/latest)
