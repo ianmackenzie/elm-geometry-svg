@@ -55,34 +55,22 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         HeightInput input ->
-            { model
-                | height = input
-            }
+            { model | height = input }
 
         XOffsetInput input ->
-            { model
-                | xOffset = input
-            }
+            { model | xOffset = input }
 
         YOffsetInput input ->
-            { model
-                | yOffset = input
-            }
+            { model | yOffset = input }
 
         ZOffsetInput input ->
-            { model
-                | zOffset = input
-            }
+            { model | zOffset = input }
 
         AzimuthInput input ->
-            { model
-                | azimuth = Angle.degrees input
-            }
+            { model | azimuth = Angle.degrees input }
 
         ElevationInput input ->
-            { model
-                | elevation = Angle.degrees input
-            }
+            { model | elevation = Angle.degrees input }
 
 
 view : Model -> Html Msg
@@ -170,8 +158,7 @@ mySlider input =
             , label =
                 Input.labelAbove
                     [ Font.color grey, Element.centerX ]
-                <|
-                    Element.text input.label
+                    (Element.text input.label)
             , min = input.min
             , max = input.max
             , value = input.input
