@@ -1,4 +1,4 @@
-module Logo exposing (Model, Msg(..), init, logo, main, update, view)
+module Logo exposing (main)
 
 import Angle exposing (Angle)
 import Browser
