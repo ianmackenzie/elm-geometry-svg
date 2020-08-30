@@ -89,35 +89,35 @@ view model =
                 , max = 1
                 }
             , mySlider
-                { label = "X Offset: "
+                { label = "X Offset:"
                 , input = model.xOffset
                 , msg = XOffsetInput
                 , min = 0
                 , max = 1
                 }
             , mySlider
-                { label = "Y Offset: "
+                { label = "Y Offset:"
                 , input = model.yOffset
                 , msg = YOffsetInput
                 , min = 0
                 , max = 1
                 }
             , mySlider
-                { label = "Z Offset: "
+                { label = "Z Offset:"
                 , input = model.zOffset
                 , msg = ZOffsetInput
                 , min = 0
                 , max = 1
                 }
             , mySlider
-                { label = "Azimuth: "
+                { label = "Azimuth:"
                 , input = Angle.inDegrees model.azimuth
                 , msg = AzimuthInput
                 , min = 0
                 , max = 90
                 }
             , mySlider
-                { label = "Elevation: "
+                { label = "Elevation:"
                 , input = Angle.inDegrees model.elevation
                 , msg = ElevationInput
                 , min = 0
