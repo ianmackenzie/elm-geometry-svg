@@ -1,29 +1,28 @@
-module Logo exposing (Model, Msg(..), init, inputField, logo, main, update, view)
+module Logo exposing (main)
 
 import Angle exposing (Angle)
 import Browser
+import Color
+import Element exposing (Element)
+import Element.Background as Background
+import Element.Font as Font
+import Element.Input as Input
 import Frame2d
 import Frame3d
 import Geometry.Svg as Svg
 import Html exposing (Html)
-import Html.Attributes
-import Html.Events as Events
 import Point2d
 import Point3d
 import Polygon2d
 import Quantity
-import Svg exposing (Svg)
-import Svg.Attributes
+import TypedSvg
+import TypedSvg.Attributes
+import TypedSvg.Attributes.InPx
+import TypedSvg.Types exposing (Paint(..))
 
 
 type alias Model =
-    { heightInput : String
-    , xOffsetInput : String
-    , yOffsetInput : String
-    , zOffsetInput : String
-    , azimuthInput : String
-    , elevationInput : String
-    , height : Float
+    { height : Float
     , xOffset : Float
     , yOffset : Float
     , zOffset : Float
@@ -34,13 +33,7 @@ type alias Model =
 
 init : Model
 init =
-    { heightInput = "0.8"
-    , xOffsetInput = "0.6"
-    , yOffsetInput = "0.6"
-    , zOffsetInput = "0.6"
-    , azimuthInput = "65"
-    , elevationInput = "20"
-    , height = 0.8
+    { height = 0.8
     , xOffset = 0.6
     , yOffset = 0.6
     , zOffset = 0.6
@@ -50,82 +43,128 @@ init =
 
 
 type Msg
-    = HeightInput String
-    | XOffsetInput String
-    | YOffsetInput String
-    | ZOffsetInput String
-    | AzimuthInput String
-    | ElevationInput String
+    = HeightInput Float
+    | XOffsetInput Float
+    | YOffsetInput Float
+    | ZOffsetInput Float
+    | AzimuthInput Float
+    | ElevationInput Float
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
         HeightInput input ->
-            { model
-                | heightInput = input
-                , height = String.toFloat input |> Maybe.withDefault model.height
-            }
+            { model | height = input }
 
         XOffsetInput input ->
-            { model
-                | xOffsetInput = input
-                , xOffset = String.toFloat input |> Maybe.withDefault model.xOffset
-            }
+            { model | xOffset = input }
 
         YOffsetInput input ->
-            { model
-                | yOffsetInput = input
-                , yOffset = String.toFloat input |> Maybe.withDefault model.yOffset
-            }
+            { model | yOffset = input }
 
         ZOffsetInput input ->
-            { model
-                | zOffsetInput = input
-                , zOffset = String.toFloat input |> Maybe.withDefault model.zOffset
-            }
+            { model | zOffset = input }
 
         AzimuthInput input ->
-            { model
-                | azimuthInput = input
-                , azimuth =
-                    String.toFloat input |> Maybe.map Angle.degrees |> Maybe.withDefault model.azimuth
-            }
+            { model | azimuth = Angle.degrees input }
 
         ElevationInput input ->
-            { model
-                | elevationInput = input
-                , elevation =
-                    String.toFloat input |> Maybe.map Angle.degrees |> Maybe.withDefault model.elevation
-            }
+            { model | elevation = Angle.degrees input }
 
 
 view : Model -> Html Msg
 view model =
-    Html.div []
-        [ Html.form []
-            [ inputField "Height:" model.heightInput HeightInput
-            , inputField "X offset:" model.xOffsetInput XOffsetInput
-            , inputField "Y offset:" model.yOffsetInput YOffsetInput
-            , inputField "Z offset:" model.zOffsetInput ZOffsetInput
-            , inputField "Azimuth:" model.azimuthInput AzimuthInput
-            , inputField "Elevation:" model.elevationInput ElevationInput
+    Element.layout [] <|
+        Element.column
+            [ Element.spacing 13
+            , Element.padding 10
+            , Element.centerX
             ]
-        , logo model
-        ]
+            [ mySlider
+                { label = "Height:"
+                , input = model.height
+                , msg = HeightInput
+                , min = 0
+                , max = 1
+                }
+            , mySlider
+                { label = "X Offset:"
+                , input = model.xOffset
+                , msg = XOffsetInput
+                , min = 0
+                , max = 1
+                }
+            , mySlider
+                { label = "Y Offset:"
+                , input = model.yOffset
+                , msg = YOffsetInput
+                , min = 0
+                , max = 1
+                }
+            , mySlider
+                { label = "Z Offset:"
+                , input = model.zOffset
+                , msg = ZOffsetInput
+                , min = 0
+                , max = 1
+                }
+            , mySlider
+                { label = "Azimuth:"
+                , input = Angle.inDegrees model.azimuth
+                , msg = AzimuthInput
+                , min = 0
+                , max = 90
+                }
+            , mySlider
+                { label = "Elevation:"
+                , input = Angle.inDegrees model.elevation
+                , msg = ElevationInput
+                , min = 0
+                , max = 90
+                }
+            , Element.html <| logo model
+            ]
 
 
-inputField : String -> String -> (String -> Msg) -> Html Msg
-inputField label value msg =
-    Html.div []
-        [ Html.label [] [ Html.text label ]
-        , Html.input
-            [ Html.Attributes.type_ "text"
-            , Html.Attributes.value value
-            , Events.onInput msg
+grey : Element.Color
+grey =
+    Element.rgb 0.5 0.5 0.5
+
+
+type alias MySliderInput =
+    { label : String
+    , input : Float
+    , msg : Float -> Msg
+    , min : Float
+    , max : Float
+    }
+
+
+mySlider : MySliderInput -> Element Msg
+mySlider input =
+    Element.el [ Element.padding 2, Element.width Element.fill ] <|
+        Input.slider
+            [ Element.behindContent <|
+                Element.el
+                    [ Element.width Element.fill
+                    , Element.height <| Element.px 2
+                    , Element.centerY
+                    , Background.color grey
+                    ]
+                    Element.none
             ]
-            []
-        ]
+            { onChange = input.msg
+            , label =
+                Input.labelAbove
+                    [ Font.color grey, Element.centerX ]
+                    (Element.text input.label)
+            , min = input.min
+            , max = input.max
+            , value = input.input
+            , thumb = Input.defaultThumb
+            , step = Nothing
+            }
 
 
 logo : Model -> Html Msg
@@ -182,39 +221,39 @@ logo model =
             Polygon2d.singleLoop (List.map to2d [ p7, p8, p9 ])
 
         orange =
-            "rgb(240, 173, 0)"
+            Color.rgb255 240 173 0
 
         green =
-            "rgb(127, 209, 59)"
+            Color.rgb255 127 209 59
 
         lightBlue =
-            "rgb(96, 181, 204)"
+            Color.rgb255 96 181 204
 
         darkBlue =
-            "rgb(90, 99, 120)"
+            Color.rgb255 90 99 120
 
         mask id polygon =
             let
                 attributes =
-                    [ Svg.Attributes.fill "white"
-                    , Svg.Attributes.stroke "black"
-                    , Svg.Attributes.strokeWidth "0.03"
+                    [ TypedSvg.Attributes.fill <| Paint Color.white
+                    , TypedSvg.Attributes.stroke <| Paint Color.black
+                    , TypedSvg.Attributes.InPx.strokeWidth 0.03
                     ]
             in
-            Svg.mask [ Svg.Attributes.id id ]
+            TypedSvg.mask [ TypedSvg.Attributes.id id ]
                 [ Svg.polygon2d attributes polygon ]
 
         face color clipPathId polygon =
             let
                 attributes =
-                    [ Svg.Attributes.fill color
-                    , Svg.Attributes.mask ("url(#" ++ clipPathId ++ ")")
+                    [ TypedSvg.Attributes.fill <| Paint color
+                    , TypedSvg.Attributes.mask ("url(#" ++ clipPathId ++ ")")
                     ]
             in
             Svg.polygon2d attributes polygon
 
         defs =
-            Svg.defs []
+            TypedSvg.defs []
                 [ mask "leftOutline" leftPolygon
                 , mask "rightOutline" rightPolygon
                 , mask "topOutline" topPolygon
@@ -234,7 +273,7 @@ logo model =
             face darkBlue "triangleOutline" trianglePolygon
 
         elements =
-            Svg.g [] [ defs, leftFace, rightFace, topFace, triangleFace ]
+            TypedSvg.g [] [ defs, leftFace, rightFace, topFace, triangleFace ]
 
         topLeftFrame =
             Frame2d.atPoint (Point2d.pixels -250 250)
@@ -244,7 +283,10 @@ logo model =
             Svg.relativeTo topLeftFrame
                 (Svg.scaleAbout Point2d.origin 200 elements)
     in
-    Svg.svg [ Svg.Attributes.width "500", Svg.Attributes.height "500" ]
+    TypedSvg.svg
+        [ TypedSvg.Attributes.InPx.width 500
+        , TypedSvg.Attributes.InPx.height 500
+        ]
         [ scene ]
 
 
