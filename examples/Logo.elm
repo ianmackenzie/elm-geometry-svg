@@ -3,10 +3,7 @@ module Logo exposing (main)
 import Angle exposing (Angle)
 import Browser
 import Color
-import Element exposing (Element)
-import Element.Background as Background
-import Element.Font as Font
-import Element.Input as Input
+import Element
 import Frame2d
 import Frame3d
 import Geometry.Svg as Svg
@@ -19,6 +16,7 @@ import TypedSvg
 import TypedSvg.Attributes
 import TypedSvg.Attributes.InPx
 import TypedSvg.Types exposing (Paint(..))
+import Utils.Slider as Slider
 
 
 type alias Model =
@@ -81,90 +79,50 @@ view model =
             , Element.padding 10
             , Element.centerX
             ]
-            [ mySlider
+            [ Slider.slider
                 { label = "Height:"
-                , input = model.height
+                , value = model.height
                 , msg = HeightInput
                 , min = 0
                 , max = 1
                 }
-            , mySlider
+            , Slider.slider
                 { label = "X Offset:"
-                , input = model.xOffset
+                , value = model.xOffset
                 , msg = XOffsetInput
                 , min = 0
                 , max = 1
                 }
-            , mySlider
+            , Slider.slider
                 { label = "Y Offset:"
-                , input = model.yOffset
+                , value = model.yOffset
                 , msg = YOffsetInput
                 , min = 0
                 , max = 1
                 }
-            , mySlider
+            , Slider.slider
                 { label = "Z Offset:"
-                , input = model.zOffset
+                , value = model.zOffset
                 , msg = ZOffsetInput
                 , min = 0
                 , max = 1
                 }
-            , mySlider
+            , Slider.slider
                 { label = "Azimuth:"
-                , input = Angle.inDegrees model.azimuth
+                , value = Angle.inDegrees model.azimuth
                 , msg = AzimuthInput
                 , min = 0
                 , max = 90
                 }
-            , mySlider
+            , Slider.slider
                 { label = "Elevation:"
-                , input = Angle.inDegrees model.elevation
+                , value = Angle.inDegrees model.elevation
                 , msg = ElevationInput
                 , min = 0
                 , max = 90
                 }
             , Element.html <| logo model
             ]
-
-
-grey : Element.Color
-grey =
-    Element.rgb 0.5 0.5 0.5
-
-
-type alias MySliderInput =
-    { label : String
-    , input : Float
-    , msg : Float -> Msg
-    , min : Float
-    , max : Float
-    }
-
-
-mySlider : MySliderInput -> Element Msg
-mySlider input =
-    Element.el [ Element.padding 2, Element.width Element.fill ] <|
-        Input.slider
-            [ Element.behindContent <|
-                Element.el
-                    [ Element.width Element.fill
-                    , Element.height <| Element.px 2
-                    , Element.centerY
-                    , Background.color grey
-                    ]
-                    Element.none
-            ]
-            { onChange = input.msg
-            , label =
-                Input.labelAbove
-                    [ Font.color grey, Element.centerX ]
-                    (Element.text input.label)
-            , min = input.min
-            , max = input.max
-            , value = input.input
-            , thumb = Input.defaultThumb
-            , step = Nothing
-            }
 
 
 logo : Model -> Html Msg
@@ -292,9 +250,8 @@ logo model =
 
 main : Program () Model Msg
 main =
-    Browser.element
-        { init = always ( init, Cmd.none )
-        , update = \message model -> ( update message model, Cmd.none )
+    Browser.sandbox
+        { init = init
         , view = view
-        , subscriptions = always Sub.none
+        , update = update
         }
