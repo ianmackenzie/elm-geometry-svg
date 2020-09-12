@@ -115,10 +115,6 @@ type YDownCoordinates
     = YDownCoordinates
 
 
-type TopLeftCorner
-    = TopLeftCorner
-
-
 myPattern : Model -> Html Msg
 myPattern model =
     let
@@ -231,7 +227,7 @@ myPattern model =
                 , patternedArea
                 ]
 
-        topLeftFrame : Frame2d Pixels YDownCoordinates { defines : TopLeftCorner }
+        topLeftFrame : Frame2d Pixels YUpCoordinates { defines : YDownCoordinates }
         topLeftFrame =
             Frame2d.atPoint (Point2d.xy (pixels 0) sceneWidth)
                 |> Frame2d.reverseY
