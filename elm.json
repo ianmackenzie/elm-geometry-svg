@@ -3,7 +3,7 @@
     "name": "ianmackenzie/elm-geometry-svg",
     "summary": "Render 2D elm-geometry types as SVG",
     "license": "MPL-2.0",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "exposed-modules": [
         "Geometry.Svg"
     ],
@@ -12,7 +12,7 @@
         "elm/core": "1.0.0 <= v < 2.0.0",
         "elm/svg": "1.0.0 <= v < 2.0.0",
         "ianmackenzie/elm-1d-parameter": "1.0.1 <= v < 2.0.0",
-        "ianmackenzie/elm-geometry": "3.0.0 <= v < 4.0.0",
+        "ianmackenzie/elm-geometry": "4.0.0 <= v < 5.0.0",
         "ianmackenzie/elm-units": "2.2.0 <= v < 3.0.0"
     },
     "test-dependencies": {}
